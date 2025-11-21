@@ -1,16 +1,16 @@
-# Vibelex - A Dictionary Extension
+# VibeLex - A Dictionary Extension
 
 A Chrome extension that provides instant translation using Google's Gemini AI when you select text on any webpage.
 
 Screenshots:
 
 <div align="left">
-  <img src="examples\home.png" width="240" alt="Home Screen" />
-  <img src="examples\history.png" width="240" alt="History Screen" />
-  <img src="examples\history2.png" width="240" alt="History Screen" />
-  <img src="examples\history-detail.png" width="240" alt="History Detail Screen" />
-   <img src="examples\statistics1.png" width="240" alt="Statistics Screen" />
-   <img src="examples\statistics2.png" width="240" alt="Statistics Screen" />
+  <img src="examples\home.png" width="260" alt="Home Screen" />
+  <img src="examples\history.png" width="260" alt="History Screen" />
+  <img src="examples\history2.png" width="260" alt="History Screen" />
+  <img src="examples\history-detail.png" width="260" alt="History Detail Screen" />
+   <img src="examples\statistics1.png" width="260" alt="Statistics Screen" />
+   <img src="examples\statistics2.png" width="260" alt="Statistics Screen" />
 </div>
 
 ## Table of Contents
