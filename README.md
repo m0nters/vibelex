@@ -36,6 +36,7 @@ Screenshots:
 - 💬 **Sentence Translation**: For phrases and sentences, provides clean translations
 - 🔊 **Text-to-Speech**: Listen to pronunciations with built-in TTS for multiple accents (e.g., UK/US for English)
 - 📖 **Translation History**: Automatically saves translations with advanced search functionality
+- 📊 **Statistics Screen**: View detailed usage statistics for each language in source and target
 - 📌 **Pin Translations**: Pin important translations to keep them at the top
 - 🗑️ **Bulk Operations**: Select and delete multiple history entries at once
 - 📥 **Export as PNG**: Download any translation from history as a high-quality image
@@ -122,12 +123,12 @@ Before you can use the extension, you need to provide a Google Gemini API key:
 6. **Download as PNG** by clicking the download button in the detail view, the translation is saved locally in your machine.
 7. **Clear all history** using the "Clear All" button (with confirmation)
 
----
-
-## Statistics Screen
+### Using Statistics Screen
 
 - 📊 **Language Statistics**: Shows a breakdown of source/target languages used in your translations with counts and percentages.
 - 🔎 **Quick filter**: Click any language row in the Statistics screen to open the History view pre-filtered for that language (e.g. `source:en` or `target:vi`). This helps quickly inspect translations for a specific language pair.
+
+---
 
 ## Supported Languages
 
