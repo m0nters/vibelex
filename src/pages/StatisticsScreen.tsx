@@ -1,5 +1,5 @@
 import { BackButton } from "@/components";
-import { getLanguageAnalysis, LanguageStats } from "@/services";
+import { getLanguageStatistics, LanguageStats } from "@/services";
 import { getColorForIndex } from "@/utils";
 import { ChartPie, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -38,23 +38,23 @@ export function StatisticsScreen() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadAnalysisData();
+    loadStatisticsData();
   }, []);
 
-  const loadAnalysisData = async () => {
+  const loadStatisticsData = async () => {
     try {
       setLoading(true);
-      const analysisData = await getLanguageAnalysis();
-      setTotalEntries(analysisData.totalEntries);
+      const statisticsData = await getLanguageStatistics();
+      setTotalEntries(statisticsData.totalEntries);
 
-      if (analysisData.totalEntries === 0) {
+      if (statisticsData.totalEntries === 0) {
         setSourceLanguageData([]);
         setTargetLanguageData([]);
         return;
       }
 
       // Convert to chart data format with language names from i18n
-      const sourceData = analysisData.sourceLanguages.map(
+      const sourceData = statisticsData.sourceLanguages.map(
         (lang: LanguageStats) => ({
           code: lang.languageCode,
           name: t(
@@ -66,7 +66,7 @@ export function StatisticsScreen() {
         }),
       );
 
-      const targetData = analysisData.targetLanguages.map(
+      const targetData = statisticsData.targetLanguages.map(
         (lang: LanguageStats) => ({
           code: lang.languageCode,
           name: t(
@@ -81,7 +81,7 @@ export function StatisticsScreen() {
       setSourceLanguageData(sourceData);
       setTargetLanguageData(targetData);
     } catch (error) {
-      console.error("Failed to load analysis data:", error);
+      console.error("Failed to load statistics data:", error);
       setSourceLanguageData([]);
       setTargetLanguageData([]);
     } finally {

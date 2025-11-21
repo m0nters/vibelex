@@ -272,7 +272,7 @@ export function HistoryScreen() {
       {storageUsage && storageUsage.historyEntryCount !== 0 && (
         <div className="sticky top-[118px] z-10 mx-4 mt-4 rounded-xl border border-gray-300 bg-white p-3 shadow-sm">
           <div className="group flex items-center justify-between">
-            {/* Analysis / Storage Usage Toggle Title */}
+            {/* Statistics / Storage Usage Toggle Title */}
             <div
               className="relative flex w-40 cursor-pointer overflow-hidden"
               onClick={() => navigate("/statistics")}

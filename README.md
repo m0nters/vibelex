@@ -5,10 +5,12 @@ A Chrome extension that provides instant translation using Google's Gemini AI wh
 Screenshots:
 
 <div align="left">
-  <img src="examples\home.png" width="200" alt="Home Screen" />
-  <img src="examples\history.png" width="200" alt="History Screen" />
-  <img src="examples\history2.png" width="200" alt="History Screen" />
-  <img src="examples\history-detail.png" width="200" alt="History Detail Screen" />
+  <img src="examples\home.png" width="300" alt="Home Screen" />
+  <img src="examples\history.png" width="300" alt="History Screen" />
+  <img src="examples\history2.png" width="300" alt="History Screen" />
+  <img src="examples\history-detail.png" width="300" alt="History Detail Screen" />
+   <img src="examples\statistics1.png" width="300" alt="Statistics Screen" />
+   <img src="examples\statistics2.png" width="300" alt="Statistics Screen" />
 </div>
 
 ## Table of Contents
@@ -20,6 +22,8 @@ Screenshots:
 - [Development](#development)
 - [Adding Language](#adding-language)
 - [Drawbacks (Developer log)](#drawbacks-developer-log)
+
+- [Statistics Screen](#statistics-screen)
 
 ---
 
@@ -119,6 +123,11 @@ Before you can use the extension, you need to provide a Google Gemini API key:
 7. **Clear all history** using the "Clear All" button (with confirmation)
 
 ---
+
+## Statistics Screen
+
+- 📊 **Language Statistics**: Shows a breakdown of source/target languages used in your translations with counts and percentages.
+- 🔎 **Quick filter**: Click any language row in the Statistics screen to open the History view pre-filtered for that language (e.g. `source:en` or `target:vi`). This helps quickly inspect translations for a specific language pair.
 
 ## Supported Languages
 
