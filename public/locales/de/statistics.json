@@ -1,0 +1,13 @@
+{
+  "title": "Sprachstatistiken",
+  "statistics": "Statistiken",
+  "sourceLanguages": "Ausgangssprachen",
+  "targetLanguages": "Zielsprachen",
+  "loadingStatistics": "Statistiken werden geladen ",
+  "totalTranslations": "Gesamtzahl Übersetzungen",
+  "detailedBreakdown": "Detaillierte Aufschlüsselung",
+  "translations_one": "{{count}} Übersetzung",
+  "translations_other": "{{count}} Übersetzungen",
+  "count": "Anzahl",
+  "percentage": "Anteil"
+}

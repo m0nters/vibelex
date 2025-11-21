@@ -9,3 +9,6 @@ export * from "./historyManagement";
 
 // History Display Utilities
 export * from "./historyDisplay";
+
+// History Analysis
+export * from "./historyAnalysis";

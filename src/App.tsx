@@ -8,6 +8,7 @@ import {
   HistoryDetailScreen,
   HistoryScreen,
   MainScreen,
+  StatisticsScreen,
 } from "@/pages";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -213,6 +214,7 @@ function App() {
           />
           <Route path="/history" element={<HistoryScreen />} />
           <Route path="/history/:id" element={<HistoryDetailScreen />} />
+          <Route path="/statistics" element={<StatisticsScreen />} />
         </Routes>
       </div>
     </MemoryRouter>

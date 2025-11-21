@@ -1,0 +1,12 @@
+{
+  "title": "언어 통계",
+  "statistics": "통계",
+  "sourceLanguages": "원본 언어",
+  "targetLanguages": "대상 언어",
+  "loadingStatistics": "통계 로드 중",
+  "totalTranslations": "총 번역 수",
+  "detailedBreakdown": "상세 내역",
+  "translations": "{{count}}회 번역",
+  "count": "횟수",
+  "percentage": "비율"
+}

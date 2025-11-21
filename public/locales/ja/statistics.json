@@ -1,0 +1,12 @@
+{
+  "title": "言語統計",
+  "statistics": "統計",
+  "sourceLanguages": "原文言語",
+  "targetLanguages": "翻訳先言語",
+  "loadingStatistics": "統計を読み込んでいます",
+  "totalTranslations": "総翻訳回数",
+  "detailedBreakdown": "詳細内訳",
+  "translations": "{{count}}件の翻訳",
+  "count": "回数",
+  "percentage": "割合"
+}

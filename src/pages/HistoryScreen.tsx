@@ -11,14 +11,15 @@ import {
   togglePinEntry,
 } from "@/services";
 import { HistoryEntry } from "@/types";
-import { Clock, HardDrive, Search, Trash2, X } from "lucide-react";
+import { ChartPie, Clock, HardDrive, Search, Trash2, X } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export function HistoryScreen() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [entries, setEntries] = useState<HistoryEntry[]>([]); // displayed result
@@ -33,6 +34,16 @@ export function HistoryScreen() {
   } | null>(null);
 
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
+  // Initialize search query from navigation state
+  useEffect(() => {
+    const state = location.state as { initialSearchQuery?: string } | null;
+    if (state?.initialSearchQuery) {
+      setSearchQuery(state.initialSearchQuery);
+      // Clear the state to prevent re-applying on subsequent renders
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   // Load and search history entries
   useEffect(() => {
@@ -260,13 +271,27 @@ export function HistoryScreen() {
       {/* Storage Usage Info */}
       {storageUsage && storageUsage.historyEntryCount !== 0 && (
         <div className="sticky top-[118px] z-10 mx-4 mt-4 rounded-xl border border-gray-300 bg-white p-3 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <HardDrive className="h-4 w-4 text-gray-500" />
-              <span className="text-sm font-medium text-gray-700">
-                {t("history:storageUsage")}
-              </span>
+          <div className="group flex items-center justify-between">
+            {/* Analysis / Storage Usage Toggle Title */}
+            <div
+              className="relative flex w-40 cursor-pointer overflow-hidden"
+              onClick={() => navigate("/statistics")}
+            >
+              <div className="absolute left-0 flex w-40 -translate-x-40 items-center space-x-2 transition-transform duration-300 group-hover:translate-x-0">
+                <ChartPie className="h-4 w-4 text-indigo-600" />
+                <span className="text-sm font-medium whitespace-nowrap text-indigo-600">
+                  {t("statistics:statistics")}
+                </span>
+              </div>
+              <div className="flex w-40 translate-x-0 items-center space-x-2 transition-transform duration-300 group-hover:translate-x-40">
+                <HardDrive className="h-4 w-4 text-gray-500" />
+                <span className="text-sm font-medium whitespace-nowrap text-gray-700">
+                  {t("history:storageUsage")}
+                </span>
+              </div>
             </div>
+
+            {/* Storage Usage Details */}
             <div className="flex items-center space-x-3 text-xs text-gray-600">
               <span
                 className="max-w-16 truncate"

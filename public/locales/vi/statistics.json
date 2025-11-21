@@ -1,0 +1,12 @@
+{
+  "title": "Thống kê ngôn ngữ",
+  "statistics": "Thống kê",
+  "sourceLanguages": "Ngôn ngữ nguồn",
+  "targetLanguages": "Ngôn ngữ đích",
+  "loadingStatistics": "Đang tải thống kê",
+  "totalTranslations": "Tổng số bản dịch",
+  "detailedBreakdown": "Phân tích chi tiết",
+  "translations": "{{count}} bản dịch",
+  "count": "Số lượng",
+  "percentage": "Tỷ lệ phần trăm"
+}

@@ -1,0 +1,12 @@
+{
+  "title": "语言统计",
+  "statistics": "统计",
+  "sourceLanguages": "源语言",
+  "targetLanguages": "目标语言",
+  "loadingStatistics": "正在加载统计",
+  "totalTranslations": "总翻译次数",
+  "detailedBreakdown": "详细分布",
+  "translations": "{{count}} 次翻译",
+  "count": "次数",
+  "percentage": "百分比"
+}
