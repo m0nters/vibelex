@@ -295,7 +295,7 @@ export function StatisticsScreen() {
                   >
                     <div className="flex items-center space-x-3">
                       <div
-                        className="h-4 w-4 rounded-sm"
+                        className="h-4 w-4 shrink-0 rounded-sm"
                         style={{
                           backgroundColor: getColorForIndex(
                             index,
@@ -303,12 +303,20 @@ export function StatisticsScreen() {
                           ),
                         }}
                       />
-                      <span className="font-medium text-gray-800">
+                      <span
+                        className="max-w-16 truncate font-medium text-gray-800"
+                        title={item.name}
+                      >
                         {item.name}
                       </span>
                     </div>
-                    <div className="flex items-center space-x-4 transition-all group-hover:space-x-6">
-                      <span className="text-sm text-gray-600">
+                    <div className="flex shrink-0 items-center space-x-4 transition-all group-hover:space-x-6">
+                      <span
+                        className="max-w-24 truncate text-sm text-gray-600"
+                        title={t("statistics:translations", {
+                          count: item.value,
+                        })}
+                      >
                         {t("statistics:translations", { count: item.value })}
                       </span>
                       <span className="rounded-full bg-indigo-100 px-3 py-1 text-sm font-semibold text-indigo-700">

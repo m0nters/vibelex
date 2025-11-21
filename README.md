@@ -5,12 +5,12 @@ A Chrome extension that provides instant translation using Google's Gemini AI wh
 Screenshots:
 
 <div align="left">
-  <img src="examples\home.png" width="300" alt="Home Screen" />
-  <img src="examples\history.png" width="300" alt="History Screen" />
-  <img src="examples\history2.png" width="300" alt="History Screen" />
-  <img src="examples\history-detail.png" width="300" alt="History Detail Screen" />
-   <img src="examples\statistics1.png" width="300" alt="Statistics Screen" />
-   <img src="examples\statistics2.png" width="300" alt="Statistics Screen" />
+  <img src="examples\home.png" width="240" alt="Home Screen" />
+  <img src="examples\history.png" width="240" alt="History Screen" />
+  <img src="examples\history2.png" width="240" alt="History Screen" />
+  <img src="examples\history-detail.png" width="240" alt="History Detail Screen" />
+   <img src="examples\statistics1.png" width="240" alt="Statistics Screen" />
+   <img src="examples\statistics2.png" width="240" alt="Statistics Screen" />
 </div>
 
 ## Table of Contents
@@ -18,12 +18,12 @@ Screenshots:
 - [Features](#features)
 - [Setup](#setup)
 - [Usage](#usage)
+- [Statistics Screen](#statistics-screen)
 - [Supported Languages](#supported-languages)
 - [Development](#development)
 - [Adding Language](#adding-language)
 - [Drawbacks (Developer log)](#drawbacks-developer-log)
-
-- [Statistics Screen](#statistics-screen)
+- [License](#license)
 
 ---
 
