@@ -5,14 +5,7 @@ import { ChartPie, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import {
-  Cell,
-  Legend,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-} from "recharts";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 interface LanguageData {
   [key: string]: string | number;
@@ -206,12 +199,12 @@ export function StatisticsScreen() {
 
             {/* Pie Chart */}
             <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-              <ResponsiveContainer width="100%" height={330}>
+              <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
                     data={currentData}
                     cx="50%"
-                    cy="45%"
+                    cy="50%"
                     labelLine={false}
                     label={(props) => renderCustomLabel(props)}
                     outerRadius={100}
@@ -253,30 +246,29 @@ export function StatisticsScreen() {
                       return null;
                     }}
                   />
-                  <Legend
-                    verticalAlign="bottom"
-                    height={60}
-                    content={({ payload }) => (
-                      <div className="flex flex-wrap justify-center gap-2 pt-4">
-                        {payload?.map((entry, index) => (
-                          <div
-                            key={`legend-${index}`}
-                            className="flex items-center space-x-1"
-                          >
-                            <div
-                              className="h-3 w-3 rounded-sm"
-                              style={{ backgroundColor: entry.color }}
-                            />
-                            <span className="text-xs text-gray-700">
-                              {entry.value}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  />
                 </PieChart>
               </ResponsiveContainer>
+
+              {/* Legend */}
+              <div className="flex flex-wrap justify-center gap-2 border-t border-gray-100 pt-4">
+                {currentData.map((item, index) => (
+                  <div
+                    key={`legend-${index}`}
+                    className="flex items-center space-x-1"
+                  >
+                    <div
+                      className="h-3 w-3 shrink-0 rounded-sm"
+                      style={{
+                        backgroundColor: getColorForIndex(
+                          index,
+                          currentData.length,
+                        ),
+                      }}
+                    />
+                    <span className="text-xs text-gray-700">{item.name}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Detailed List */}
