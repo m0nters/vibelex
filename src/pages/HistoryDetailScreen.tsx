@@ -1,5 +1,6 @@
 import { BackButton } from "@/components";
 import { HistoryEntry } from "@/types";
+import { formatTimestampDetail } from "@/utils";
 import { toPng } from "html-to-image";
 import { Download, LoaderCircle } from "lucide-react";
 import { useRef, useState } from "react";
@@ -11,20 +12,10 @@ export function HistoryDetailScreen() {
   const location = useLocation();
   const navigate = useNavigate();
   const entry = location.state?.entry as HistoryEntry;
+  // @ts-ignore
   const { t, i18n } = useTranslation();
   const contentRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
-
-  const formatDate = (timestamp: number, locale: string) => {
-    const date = new Date(timestamp);
-    return date.toLocaleDateString(locale, {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   const handleDownload = async () => {
     if (!contentRef.current || isDownloading) return;
@@ -62,14 +53,17 @@ export function HistoryDetailScreen() {
       {/* Header */}
       <div className="sticky top-0 z-10 border-b border-indigo-100 bg-white/70 backdrop-blur-sm">
         <div className="flex items-center justify-between p-4">
-          <div className="flex items-center space-x-2">
+          <div className="flex min-w-0 items-center space-x-2">
             <BackButton />
-            <div>
+            <div className="min-w-0">
               <h1 className="text-lg font-semibold text-gray-800">
                 {t("history:translationDetail")}
               </h1>
-              <p className="text-xs text-gray-500">
-                {formatDate(entry.timestamp, i18n.language)}
+              <p
+                className="truncate text-xs text-gray-500"
+                title={formatTimestampDetail(entry.timestamp, i18n.language)}
+              >
+                {formatTimestampDetail(entry.timestamp, i18n.language)}
               </p>
             </div>
           </div>

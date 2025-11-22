@@ -2,6 +2,7 @@ import { SelectionCheckbox } from "@/components/ui";
 import { SearchOperatorType } from "@/constants";
 import { getDisplayText } from "@/services";
 import { HistoryEntry } from "@/types";
+import { formatTimestampDetail } from "@/utils";
 import { ArrowRight, Clock, Globe, Pin, Trash2 } from "lucide-react";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -18,7 +19,6 @@ interface HistoryEntryCardProps {
     operatorType: SearchOperatorType,
     langCode: string,
   ) => void;
-  formatTimestamp: (timestamp: number, locale: string) => string;
 }
 
 export function HistoryEntryCard({
@@ -29,7 +29,6 @@ export function HistoryEntryCard({
   onPinEntry,
   onRemoveEntry,
   onLanguageBadgeClick,
-  formatTimestamp,
 }: HistoryEntryCardProps) {
   const { t, i18n } = useTranslation();
   const displayInfo = getDisplayText(entry);
@@ -45,6 +44,30 @@ export function HistoryEntryCard({
   const handleSelectionClick = (event: React.MouseEvent) => {
     event.stopPropagation();
     onToggleSelection(entry.id);
+  };
+
+  const formatTimestampForBadge = (timestamp: number, locale: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+
+    const timeString = date.toLocaleTimeString(locale, {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    if (diffInHours < 24) {
+      return timeString;
+    } else if (diffInHours < 24 * 7) {
+      const weekday = date.toLocaleDateString(locale, { weekday: "short" });
+      return `${weekday} ${timeString}`; // Weekday + time
+    } else {
+      const dateString = date.toLocaleDateString(locale, {
+        month: "short",
+        day: "numeric",
+      });
+      return `${dateString} ${timeString}`; // Month day + time
+    }
   };
 
   return (
@@ -135,19 +158,11 @@ export function HistoryEntryCard({
             {/* Timestamp Badge */}
             <div
               className="flex cursor-help items-center space-x-1.5 rounded-full border border-gray-300 bg-gray-100 px-2 py-1"
-              title={new Date(entry.timestamp).toLocaleString(i18n.language, {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-              })}
+              title={formatTimestampDetail(entry.timestamp, i18n.language)}
             >
               <Clock className="h-3.5 w-3.5 text-gray-500" />
               <span className="font-medium text-gray-600">
-                {formatTimestamp(entry.timestamp, i18n.language)}
+                {formatTimestampForBadge(entry.timestamp, i18n.language)}
               </span>
             </div>
           </div>

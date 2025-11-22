@@ -170,30 +170,6 @@ export function HistoryScreen() {
     }
   };
 
-  const formatTimestamp = (timestamp: number, locale: string) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
-
-    const timeString = date.toLocaleTimeString(locale, {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
-    if (diffInHours < 24) {
-      return timeString;
-    } else if (diffInHours < 24 * 7) {
-      const weekday = date.toLocaleDateString(locale, { weekday: "short" });
-      return `${weekday} ${timeString}`; // Weekday + time
-    } else {
-      const dateString = date.toLocaleDateString(locale, {
-        month: "short",
-        day: "numeric",
-      });
-      return `${dateString} ${timeString}`; // Month day + time
-    }
-  };
-
   const handleLanguageBadgeClick = (
     event: React.MouseEvent,
     operatorType: SearchOperatorType,
@@ -377,7 +353,6 @@ export function HistoryScreen() {
                 onPinEntry={handlePinEntry}
                 onRemoveEntry={handleRemoveEntry}
                 onLanguageBadgeClick={handleLanguageBadgeClick}
-                formatTimestamp={formatTimestamp}
               />
             ))}
           </div>

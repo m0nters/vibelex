@@ -2,7 +2,7 @@ import { BackButton } from "@/components";
 import { getLanguageStatistics, LanguageStats } from "@/services";
 import { getColorForIndex } from "@/utils";
 import { ChartPie, ChevronRight } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
@@ -20,7 +20,16 @@ type TabType = "source" | "target";
 export function StatisticsScreen() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<TabType>("source");
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // restore previous active tab
+  const previousActiveTab = sessionStorage.getItem(
+    "activeTab",
+  ) as TabType | null;
+  const [activeTab, setActiveTab] = useState<TabType>(
+    previousActiveTab || "source",
+  );
+
   const [sourceLanguageData, setSourceLanguageData] = useState<LanguageData[]>(
     [],
   );
@@ -32,6 +41,28 @@ export function StatisticsScreen() {
 
   useEffect(() => {
     loadStatisticsData();
+  }, []);
+
+  // Restore previous states and free them up
+  useEffect(() => {
+    // scroll position
+    const savedScrollPosition = sessionStorage.getItem(
+      "statisticsScreenScrollPosition",
+    );
+    if (savedScrollPosition && scrollContainerRef.current) {
+      const scrollTop = parseInt(savedScrollPosition, 10);
+      // Use setTimeout to ensure the DOM is fully rendered
+      setTimeout(() => {
+        if (scrollContainerRef.current) {
+          scrollContainerRef.current.scrollTop = scrollTop;
+        }
+      }, 100);
+      // Clear the saved position after restoring
+      sessionStorage.removeItem("statisticsScreenScrollPosition");
+    }
+
+    // active tab
+    sessionStorage.removeItem("activeTab");
   }, []);
 
   const loadStatisticsData = async () => {
@@ -86,6 +117,15 @@ export function StatisticsScreen() {
     activeTab === "source" ? sourceLanguageData : targetLanguageData;
 
   const handleLanguageClick = (languageCode: string) => {
+    // save current states before navigating
+    sessionStorage.setItem("activeTab", activeTab);
+    if (scrollContainerRef.current) {
+      sessionStorage.setItem(
+        "statisticsScreenScrollPosition",
+        scrollContainerRef.current.scrollTop.toString(),
+      );
+    }
+
     const searchQuery = `${activeTab}:${languageCode}`;
     navigate("/history", { state: { initialSearchQuery: searchQuery } });
   };
@@ -118,7 +158,10 @@ export function StatisticsScreen() {
   };
 
   return (
-    <div className="animate-slide-in-right h-full w-full overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50">
+    <div
+      ref={scrollContainerRef}
+      className="animate-slide-in-right h-full w-full overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50"
+    >
       {/* Header */}
       <div className="sticky top-0 z-10 border-b border-indigo-100 bg-white/70 backdrop-blur-sm">
         <div className="flex items-center justify-between p-4">
