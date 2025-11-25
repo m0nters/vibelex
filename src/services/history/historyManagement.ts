@@ -8,7 +8,6 @@ import {
 
 /**
  * Save a new translation to history
- * Maintains maximum of `MAX_HISTORY_ENTRIES` entries, removing oldest when necessary
  */
 export const saveTranslation = async (
   translation: ParsedTranslation,
@@ -27,7 +26,7 @@ export const saveTranslation = async (
     const updatedEntries = sortHistoryEntries([newEntry, ...entries]);
 
     // Save to chrome storage
-    await saveHistoryToStorage(updatedEntries, true);
+    await saveHistoryToStorage(updatedEntries);
   } catch (error) {
     console.error("Failed to save translation to history:", error);
   }

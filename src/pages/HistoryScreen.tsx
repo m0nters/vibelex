@@ -4,7 +4,7 @@ import { SearchOperatorType } from "@/constants";
 import { useDebounce } from "@/hooks";
 import {
   clearHistory,
-  getDisplayedEntriesUsage,
+  getHistoryEntryStatistics,
   removeHistoryEntries,
   removeHistoryEntry,
   searchHistory,
@@ -28,7 +28,7 @@ export function HistoryScreen() {
   );
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
-  const [storageUsage, setStorageUsage] = useState<{
+  const [historyEntryStats, setHistoryEntryStats] = useState<{
     historyEntryCount: number;
     historySize: string;
     historySizeUnit: string;
@@ -92,8 +92,8 @@ export function HistoryScreen() {
       setShouldRestoreScroll(true);
 
       // Update storage usage based on displayed entries
-      const usage = getDisplayedEntriesUsage(historyEntries);
-      setStorageUsage(usage);
+      const historyEntryStats = getHistoryEntryStatistics(historyEntries);
+      setHistoryEntryStats(historyEntryStats);
     } catch (error) {
       console.error("Failed to load history:", error);
       setEntries([]);
@@ -105,7 +105,7 @@ export function HistoryScreen() {
       await clearHistory();
       setEntries([]);
       setSelectedEntries(new Set());
-      setStorageUsage(null);
+      setHistoryEntryStats(null);
     } catch (error) {
       console.error("Failed to clear history:", error);
     }
@@ -275,7 +275,7 @@ export function HistoryScreen() {
       </div>
 
       {/* Storage Usage Info */}
-      {storageUsage && storageUsage.historyEntryCount !== 0 && (
+      {historyEntryStats && historyEntryStats.historyEntryCount !== 0 && (
         <div className="sticky top-[118px] z-10 mx-4 mt-4 rounded-xl border border-gray-300 bg-white p-3 shadow-sm">
           <div className="flex items-center justify-between">
             {/* Statistics / Storage Usage Toggle Title */}
@@ -305,7 +305,7 @@ export function HistoryScreen() {
               </div>
             ) : (
               <div
-                className="flex w-40 translate-x-0 items-center justify-start space-x-2 transition-transform duration-300"
+                className="flex items-center justify-start space-x-2"
                 title={t("history:storageUsage")}
               >
                 <HardDrive className="h-4 w-4 shrink-0 text-gray-500" />
@@ -320,18 +320,19 @@ export function HistoryScreen() {
               <span
                 className="max-w-16 truncate"
                 title={t("history:entriesCount", {
-                  count: storageUsage.historyEntryCount,
+                  count: historyEntryStats.historyEntryCount,
                 })}
               >
                 {t("history:entriesCount", {
-                  count: storageUsage.historyEntryCount,
+                  count: historyEntryStats.historyEntryCount,
                 })}
               </span>
               <span
                 className="max-w-16 truncate font-medium"
-                title={`${storageUsage.historySize} ${storageUsage.historySizeUnit}`}
+                title={`${historyEntryStats.historySize} ${historyEntryStats.historySizeUnit}`}
               >
-                {storageUsage.historySize} {storageUsage.historySizeUnit}
+                {historyEntryStats.historySize}{" "}
+                {historyEntryStats.historySizeUnit}
               </span>
             </div>
           </div>

@@ -25,21 +25,13 @@ export const sortHistoryEntries = (entries: HistoryEntry[]) => {
 /**
  * Save history entries to Chrome storage with proper sorting
  */
-export const saveHistoryToStorage = async (
-  entries: HistoryEntry[],
-  logUsage = false,
-) => {
+export const saveHistoryToStorage = async (entries: HistoryEntry[]) => {
   try {
     await chrome.storage.local.set({
       [HISTORY_STORAGE_KEY]: sortHistoryEntries(entries),
     });
   } catch (error) {
     console.error("Failed to save history to storage:", error);
-  } finally {
-    // Optionally log storage usage after saving
-    if (logUsage) {
-      setTimeout(() => printHistoryStorageUsage(), 100); // Small delay to ensure data is saved
-    }
   }
 };
 
@@ -59,7 +51,7 @@ export const getHistory = async (): Promise<HistoryEntry[]> => {
 /**
  * Get displayed entries count and size usage
  */
-export const getDisplayedEntriesUsage = (entries: HistoryEntry[]) => {
+export const getHistoryEntryStatistics = (entries: HistoryEntry[]) => {
   if (entries.length === 0) return null;
 
   // Convert entries to JSON string to calculate size
@@ -85,63 +77,4 @@ export const getDisplayedEntriesUsage = (entries: HistoryEntry[]) => {
     historySize: value,
     historySizeUnit: unit,
   };
-};
-
-/**
- * Get detailed storage usage information for history data
- */
-export const getHistoryStorageUsage = async () => {
-  try {
-    // Get the history data
-    const historyData = await getHistory();
-
-    // Convert to JSON string to calculate size in bytes
-    const historyJson = JSON.stringify(historyData);
-    const historySizeBytes = new Blob([historyJson]).size;
-
-    // Get total local storage usage
-    const historyUsage = await chrome.storage.local.getBytesInUse([
-      HISTORY_STORAGE_KEY,
-    ]);
-
-    const usage = {
-      historyEntryCount: historyData.length,
-      historySizeBytes: historySizeBytes,
-      historySizeKB: (historySizeBytes / 1024).toFixed(2),
-      historyUsageBytes: historyUsage,
-      historyUsageKB: (historyUsage / 1024).toFixed(2),
-    };
-
-    return usage;
-  } catch (error) {
-    console.error("Failed to get storage usage:", error);
-    return null;
-  }
-};
-
-/**
- * Print storage usage information to console
- */
-export const printHistoryStorageUsage = async () => {
-  const usage = await getHistoryStorageUsage();
-
-  if (!usage) {
-    console.error("❌ Failed to retrieve storage usage information");
-    return;
-  }
-
-  console.group("🔍 Chrome Storage Sync Usage - History Data");
-
-  console.log("📊 History Data:");
-  console.log(`   • Entry Count: ${usage.historyEntryCount}`);
-  console.log(
-    `   • JSON Size: ${usage.historySizeKB} KB (${usage.historySizeBytes} bytes)`,
-  );
-  console.log(
-    `   • Storage Usage: ${usage.historyUsageKB} KB (${usage.historyUsageBytes} bytes)`,
-  );
-
-  console.groupEnd();
-
-  return usage;
 };
