@@ -134,7 +134,7 @@ export function StatisticsScreen() {
   const handleLanguageClick = (languageCode: string) => {
     const searchQuery = `${activeTab}:${languageCode}`;
     customNavigate("/history", {
-      state: { searchQueryForStatistics: searchQuery },
+      state: { searchQueryForStatistics: searchQuery, fromStatistics: true },
     });
   };
 

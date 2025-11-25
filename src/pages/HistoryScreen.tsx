@@ -37,6 +37,9 @@ export function HistoryScreen() {
 
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
+  // Check if this page is navigated from statistics page
+  const isFromStatistics = (location.state as any)?.fromStatistics === true;
+
   // Initialize search query from navigation from statistics screen
   useEffect(() => {
     const state = location.state as {
@@ -276,21 +279,33 @@ export function HistoryScreen() {
         <div className="sticky top-[118px] z-10 mx-4 mt-4 rounded-xl border border-gray-300 bg-white p-3 shadow-sm">
           <div className="flex items-center justify-between">
             {/* Statistics / Storage Usage Toggle Title */}
-            <div
-              className="group relative flex w-40 cursor-pointer overflow-hidden"
-              onClick={() => customNavigate("/statistics")}
-            >
+            {!isFromStatistics ? (
               <div
-                className="absolute left-0 flex w-40 -translate-x-40 items-center space-x-2 transition-transform duration-300 group-hover:translate-x-0"
-                title={t("statistics:statistics")}
+                className="group relative flex w-40 cursor-pointer overflow-hidden"
+                onClick={() => customNavigate("/statistics")}
               >
-                <ChartPie className="h-4 w-4 shrink-0 text-indigo-600" />
-                <span className="truncate text-sm font-medium text-indigo-600">
-                  {t("statistics:statistics")}
-                </span>
+                <div
+                  className="absolute left-0 flex w-40 -translate-x-40 items-center space-x-2 transition-transform duration-300 group-hover:translate-x-0"
+                  title={t("statistics:statistics")}
+                >
+                  <ChartPie className="h-4 w-4 shrink-0 text-indigo-600" />
+                  <span className="truncate text-sm font-medium text-indigo-600">
+                    {t("statistics:statistics")}
+                  </span>
+                </div>
+                <div
+                  className="flex w-40 translate-x-0 items-center justify-start space-x-2 transition-transform duration-300 group-hover:translate-x-40"
+                  title={t("history:storageUsage")}
+                >
+                  <HardDrive className="h-4 w-4 shrink-0 text-gray-500" />
+                  <span className="truncate text-sm font-medium text-gray-700">
+                    {t("history:storageUsage")}
+                  </span>
+                </div>
               </div>
+            ) : (
               <div
-                className="flex w-40 translate-x-0 items-center justify-start space-x-2 transition-transform duration-300 group-hover:translate-x-40"
+                className="flex w-40 translate-x-0 items-center justify-start space-x-2 transition-transform duration-300"
                 title={t("history:storageUsage")}
               >
                 <HardDrive className="h-4 w-4 shrink-0 text-gray-500" />
@@ -298,7 +313,7 @@ export function HistoryScreen() {
                   {t("history:storageUsage")}
                 </span>
               </div>
-            </div>
+            )}
 
             {/* Storage Usage Details */}
             <div className="flex items-center space-x-3 text-xs text-gray-600">
