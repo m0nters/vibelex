@@ -66,10 +66,24 @@ export const getDisplayedEntriesUsage = (entries: HistoryEntry[]) => {
   const entriesJson = JSON.stringify(entries);
   const sizeBytes = new Blob([entriesJson]).size;
 
+  const formatBytes = (bytes: number) => {
+    if (bytes < 1024) {
+      return { value: bytes.toFixed(2), unit: "B" };
+    } else if (bytes < 1024 * 1024) {
+      return { value: (bytes / 1024).toFixed(2), unit: "KB" };
+    } else if (bytes < 1024 * 1024 * 1024) {
+      return { value: (bytes / (1024 * 1024)).toFixed(2), unit: "MB" }; // maybe? reach this number when the number of entries is about 1000
+    } else {
+      return { value: (bytes / (1024 * 1024 * 1024)).toFixed(2), unit: "GB" }; // impossible :D
+    }
+  };
+
+  const { value, unit } = formatBytes(sizeBytes);
+
   return {
     historyEntryCount: entries.length,
-    historySizeBytes: sizeBytes,
-    historySizeKB: (sizeBytes / 1024).toFixed(2),
+    historySize: value,
+    historySizeUnit: unit,
   };
 };
 

@@ -116,8 +116,7 @@ export function StatisticsScreen() {
   const currentData =
     activeTab === "source" ? sourceLanguageData : targetLanguageData;
 
-  const handleLanguageClick = (languageCode: string) => {
-    // save current states before navigating
+  const savePreviousStates = () => {
     sessionStorage.setItem("activeTab", activeTab);
     if (scrollContainerRef.current) {
       sessionStorage.setItem(
@@ -125,9 +124,18 @@ export function StatisticsScreen() {
         scrollContainerRef.current.scrollTop.toString(),
       );
     }
+  };
 
+  const customNavigate = (path: string, options?: any) => {
+    savePreviousStates();
+    navigate(path, options);
+  };
+
+  const handleLanguageClick = (languageCode: string) => {
     const searchQuery = `${activeTab}:${languageCode}`;
-    navigate("/history", { state: { initialSearchQuery: searchQuery } });
+    customNavigate("/history", {
+      state: { searchQueryForStatistics: searchQuery },
+    });
   };
 
   const renderCustomLabel = (props: any) => {

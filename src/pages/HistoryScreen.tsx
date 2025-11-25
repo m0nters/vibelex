@@ -30,48 +30,63 @@ export function HistoryScreen() {
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const [storageUsage, setStorageUsage] = useState<{
     historyEntryCount: number;
-    historySizeKB: string;
+    historySize: string;
+    historySizeUnit: string;
   } | null>(null);
+  const [shouldRestoreScroll, setShouldRestoreScroll] = useState(false);
 
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
-  // Initialize search query from navigation state
+  // Initialize search query from navigation from statistics screen
   useEffect(() => {
-    const state = location.state as { initialSearchQuery?: string } | null;
-    if (state?.initialSearchQuery) {
-      setSearchQuery(state.initialSearchQuery);
+    const state = location.state as {
+      searchQueryForStatistics?: string;
+    } | null;
+    if (state?.searchQueryForStatistics) {
+      setSearchQuery(state.searchQueryForStatistics);
       // Clear the state to prevent re-applying on subsequent renders
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
+
+  // Restore previous search query (if have) when returning from detail screen
+  // at component mount
+  useEffect(() => {
+    const savedSearchQuery = sessionStorage.getItem("historyScreenSearchQuery");
+
+    if (savedSearchQuery) {
+      setSearchQuery(savedSearchQuery);
+      sessionStorage.removeItem("historyScreenSearchQuery");
+    }
+  }, []);
 
   // Load and search history entries
   useEffect(() => {
     displayResultedEntry();
   }, [debouncedSearchQuery]);
 
-  // Restore scroll position when returning from detail screen
+  // after got the displayed entries, restore scroll position
   useEffect(() => {
+    if (!shouldRestoreScroll) return;
+
     const savedScrollPosition = sessionStorage.getItem(
       "historyScreenScrollPosition",
     );
-    if (savedScrollPosition && scrollContainerRef.current) {
-      const scrollTop = parseInt(savedScrollPosition, 10);
-      // Use setTimeout to ensure the DOM is fully rendered
-      setTimeout(() => {
-        if (scrollContainerRef.current) {
-          scrollContainerRef.current.scrollTop = scrollTop;
-        }
-      }, 100);
-      // Clear the saved position after restoring
-      sessionStorage.removeItem("historyScreenScrollPosition");
-    }
-  }, [entries]); // Run when entries are loaded
+    setTimeout(() => {
+      if (savedScrollPosition && scrollContainerRef.current) {
+        const scrollTop = parseInt(savedScrollPosition, 10);
+        scrollContainerRef.current.scrollTop = scrollTop;
+        sessionStorage.removeItem("historyScreenScrollPosition");
+      }
+    }, 300); // rule of thumb: wait a little bit because of race condition stuff of DOM render
+    setShouldRestoreScroll(false);
+  }, [shouldRestoreScroll]);
 
   const displayResultedEntry = async () => {
     try {
       const historyEntries = await searchHistory(debouncedSearchQuery);
       setEntries(historyEntries);
+      setShouldRestoreScroll(true);
 
       // Update storage usage based on displayed entries
       const usage = getDisplayedEntriesUsage(historyEntries);
@@ -116,6 +131,23 @@ export function HistoryScreen() {
     }
   };
 
+  const savePreviousStates = () => {
+    if (scrollContainerRef.current) {
+      sessionStorage.setItem(
+        "historyScreenScrollPosition",
+        scrollContainerRef.current.scrollTop.toString(),
+      );
+    }
+    if (searchQuery) {
+      sessionStorage.setItem("historyScreenSearchQuery", searchQuery);
+    }
+  };
+
+  const customNavigate = (path: string, options?: any) => {
+    savePreviousStates();
+    navigate(path, options);
+  };
+
   const handleEntryClick = (entry: HistoryEntry) => {
     // If in selection mode, toggle selection instead of navigating
     if (selectedEntries.size > 0) {
@@ -123,14 +155,9 @@ export function HistoryScreen() {
       return;
     }
 
-    // Save current scroll position before navigating
-    if (scrollContainerRef.current) {
-      sessionStorage.setItem(
-        "historyScreenScrollPosition",
-        scrollContainerRef.current.scrollTop.toString(),
-      );
-    }
-    navigate(`/history/${entry.id}`, { state: { entry } });
+    // otherwise, navigating to detail screen
+    // but save some states before navigating
+    customNavigate(`/history/${entry.id}`, { state: { entry } });
   };
 
   const handleToggleSelection = (entryId: string) => {
@@ -251,7 +278,7 @@ export function HistoryScreen() {
             {/* Statistics / Storage Usage Toggle Title */}
             <div
               className="group relative flex w-40 cursor-pointer overflow-hidden"
-              onClick={() => navigate("/statistics")}
+              onClick={() => customNavigate("/statistics")}
             >
               <div
                 className="absolute left-0 flex w-40 -translate-x-40 items-center space-x-2 transition-transform duration-300 group-hover:translate-x-0"
@@ -287,9 +314,9 @@ export function HistoryScreen() {
               </span>
               <span
                 className="max-w-16 truncate font-medium"
-                title={`${storageUsage.historySizeKB} KB`}
+                title={`${storageUsage.historySize} ${storageUsage.historySizeUnit}`}
               >
-                {storageUsage.historySizeKB} KB
+                {storageUsage.historySize} {storageUsage.historySizeUnit}
               </span>
             </div>
           </div>
