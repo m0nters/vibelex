@@ -224,7 +224,7 @@ export function HistoryScreen() {
   return (
     <div
       ref={scrollContainerRef}
-      className="animate-slide-in-right h-full w-full overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50"
+      className="animate-slide-in-right h-full w-full overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50 select-none"
     >
       {/* Header */}
       <div className="sticky top-0 z-10 border-b border-indigo-100 bg-white/70 backdrop-blur-sm">
@@ -316,7 +316,7 @@ export function HistoryScreen() {
             )}
 
             {/* Storage Usage Details */}
-            <div className="flex items-center space-x-3 text-xs text-gray-600">
+            <div className="flex items-center space-x-3 text-xs text-gray-600 select-text">
               <span
                 className="max-w-16 truncate"
                 title={t("history:entriesCount", {

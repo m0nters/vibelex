@@ -168,7 +168,7 @@ export function StatisticsScreen() {
   return (
     <div
       ref={scrollContainerRef}
-      className="animate-slide-in-right h-full w-full overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50"
+      className="animate-slide-in-right h-full w-full overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50 select-none"
     >
       {/* Header */}
       <div className="sticky top-0 z-10 border-b border-indigo-100 bg-white/70 backdrop-blur-sm">
@@ -223,7 +223,7 @@ export function StatisticsScreen() {
         ) : (
           <>
             {/* Statistics Card */}
-            <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm select-text">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">
@@ -301,11 +301,12 @@ export function StatisticsScreen() {
               </ResponsiveContainer>
 
               {/* Legend */}
-              <div className="flex flex-wrap justify-center gap-2 border-t border-gray-100 pt-4">
+              <div className="flex flex-wrap justify-center gap-2 border-t border-gray-100 pt-4 select-text">
                 {currentData.map((item, index) => (
                   <div
                     key={`legend-${index}`}
                     className="flex items-center space-x-1"
+                    title={`${item.name}: ${item.percentage}%`}
                   >
                     <div
                       className="h-3 w-3 shrink-0 rounded-sm"

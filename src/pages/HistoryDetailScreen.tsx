@@ -51,7 +51,7 @@ export function HistoryDetailScreen() {
   return (
     <div className="animate-slide-in-right h-full w-full overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50">
       {/* Header */}
-      <div className="sticky top-0 z-10 border-b border-indigo-100 bg-white/70 backdrop-blur-sm">
+      <div className="sticky top-0 z-10 border-b border-indigo-100 bg-white/70 backdrop-blur-sm select-none">
         <div className="flex items-center justify-between p-4">
           <div className="flex min-w-0 items-center space-x-2">
             <BackButton />
@@ -60,7 +60,7 @@ export function HistoryDetailScreen() {
                 {t("history:translationDetail")}
               </h1>
               <p
-                className="truncate text-xs text-gray-500"
+                className="truncate text-xs text-gray-500 select-text"
                 title={formatTimestampDetail(entry.timestamp, i18n.language)}
               >
                 {formatTimestampDetail(entry.timestamp, i18n.language)}
