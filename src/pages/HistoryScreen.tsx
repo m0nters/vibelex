@@ -26,6 +26,9 @@ export function HistoryScreen() {
   const [selectedEntries, setSelectedEntries] = useState<Set<string>>(
     new Set(),
   );
+
+  // @ts-ignore
+  const [isLoading, setIsLoading] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const [historyEntryStats, setHistoryEntryStats] = useState<{
@@ -86,6 +89,7 @@ export function HistoryScreen() {
   }, [shouldRestoreScroll]);
 
   const displayResultedEntry = async () => {
+    setIsLoading(true);
     try {
       const historyEntries = await searchHistory(debouncedSearchQuery);
       setEntries(historyEntries);
@@ -97,6 +101,8 @@ export function HistoryScreen() {
     } catch (error) {
       console.error("Failed to load history:", error);
       setEntries([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -275,26 +281,39 @@ export function HistoryScreen() {
       </div>
 
       {/* Storage Usage Info */}
-      {historyEntryStats && historyEntryStats.historyEntryCount !== 0 && (
-        <div className="sticky top-[118px] z-10 mx-4 mt-4 rounded-xl border border-gray-300 bg-white p-3 shadow-sm">
-          <div className="flex items-center justify-between">
-            {/* Statistics / Storage Usage Toggle Title */}
-            {!isFromStatistics ? (
-              <div
-                className="group relative flex w-40 cursor-pointer overflow-hidden"
-                onClick={() => customNavigate("/statistics")}
-              >
+      {historyEntryStats &&
+        historyEntryStats.historyEntryCount !== 0 &&
+        !isLoading && (
+          <div className="sticky top-[118px] z-10 mx-4 mt-4 rounded-xl border border-gray-300 bg-white p-3 shadow-sm">
+            <div className="flex items-center justify-between">
+              {/* Statistics / Storage Usage Toggle Title */}
+              {!isFromStatistics ? (
                 <div
-                  className="absolute left-0 flex w-40 -translate-x-40 items-center space-x-2 transition-transform duration-300 group-hover:translate-x-0"
-                  title={t("statistics:statistics")}
+                  className="group relative flex w-40 cursor-pointer overflow-hidden"
+                  onClick={() => customNavigate("/statistics")}
                 >
-                  <ChartPie className="h-4 w-4 shrink-0 text-indigo-600" />
-                  <span className="truncate text-sm font-medium text-indigo-600">
-                    {t("statistics:statistics")}
-                  </span>
+                  <div
+                    className="absolute left-0 flex w-40 -translate-x-40 items-center space-x-2 transition-transform duration-300 group-hover:translate-x-0"
+                    title={t("statistics:statistics")}
+                  >
+                    <ChartPie className="h-4 w-4 shrink-0 text-indigo-600" />
+                    <span className="truncate text-sm font-medium text-indigo-600">
+                      {t("statistics:statistics")}
+                    </span>
+                  </div>
+                  <div
+                    className="flex w-40 translate-x-0 items-center justify-start space-x-2 transition-transform duration-300 group-hover:translate-x-40"
+                    title={t("history:storageUsage")}
+                  >
+                    <HardDrive className="h-4 w-4 shrink-0 text-gray-500" />
+                    <span className="truncate text-sm font-medium text-gray-700">
+                      {t("history:storageUsage")}
+                    </span>
+                  </div>
                 </div>
+              ) : (
                 <div
-                  className="flex w-40 translate-x-0 items-center justify-start space-x-2 transition-transform duration-300 group-hover:translate-x-40"
+                  className="flex items-center justify-start space-x-2"
                   title={t("history:storageUsage")}
                 >
                   <HardDrive className="h-4 w-4 shrink-0 text-gray-500" />
@@ -302,42 +321,31 @@ export function HistoryScreen() {
                     {t("history:storageUsage")}
                   </span>
                 </div>
-              </div>
-            ) : (
-              <div
-                className="flex items-center justify-start space-x-2"
-                title={t("history:storageUsage")}
-              >
-                <HardDrive className="h-4 w-4 shrink-0 text-gray-500" />
-                <span className="truncate text-sm font-medium text-gray-700">
-                  {t("history:storageUsage")}
+              )}
+
+              {/* Storage Usage Details */}
+              <div className="flex items-center space-x-3 text-xs text-gray-600 select-text">
+                <span
+                  className="max-w-16 truncate"
+                  title={t("history:entriesCount", {
+                    count: historyEntryStats.historyEntryCount,
+                  })}
+                >
+                  {t("history:entriesCount", {
+                    count: historyEntryStats.historyEntryCount,
+                  })}
+                </span>
+                <span
+                  className="max-w-16 truncate font-medium"
+                  title={`${historyEntryStats.historySize} ${historyEntryStats.historySizeUnit}`}
+                >
+                  {historyEntryStats.historySize}{" "}
+                  {historyEntryStats.historySizeUnit}
                 </span>
               </div>
-            )}
-
-            {/* Storage Usage Details */}
-            <div className="flex items-center space-x-3 text-xs text-gray-600 select-text">
-              <span
-                className="max-w-16 truncate"
-                title={t("history:entriesCount", {
-                  count: historyEntryStats.historyEntryCount,
-                })}
-              >
-                {t("history:entriesCount", {
-                  count: historyEntryStats.historyEntryCount,
-                })}
-              </span>
-              <span
-                className="max-w-16 truncate font-medium"
-                title={`${historyEntryStats.historySize} ${historyEntryStats.historySizeUnit}`}
-              >
-                {historyEntryStats.historySize}{" "}
-                {historyEntryStats.historySizeUnit}
-              </span>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* Bulk Actions Bar */}
       {selectedEntries.size > 0 && (
@@ -372,35 +380,49 @@ export function HistoryScreen() {
       )}
 
       {/* Content */}
-      <div className="m-4 flex-1">
-        {entries.length === 0 ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <Clock className="mx-auto mb-3 h-12 w-12 text-gray-300" />
-              <p className="text-gray-500">
-                {searchQuery
-                  ? t("history:noSearchResults")
-                  : t("history:emptyHistory")}
-              </p>
+      {!isLoading && (
+        <div className="m-4 flex-1">
+          {entries.length === 0 ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <Clock className="mx-auto mb-3 h-12 w-12 text-gray-300" />
+                <p className="text-gray-500">
+                  {searchQuery
+                    ? t("history:noSearchResults")
+                    : t("history:emptyHistory")}
+                </p>
+              </div>
             </div>
+          ) : (
+            <div className="space-y-2">
+              {entries.map((entry) => (
+                <HistoryEntryCard
+                  key={entry.id}
+                  entry={entry}
+                  isSelected={selectedEntries.has(entry.id)}
+                  onEntryClick={handleEntryClick}
+                  onToggleSelection={handleToggleSelection}
+                  onPinEntry={handlePinEntry}
+                  onRemoveEntry={handleRemoveEntry}
+                  onLanguageBadgeClick={handleLanguageBadgeClick}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {isLoading && (
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center">
+            <div className="relative mx-auto mb-4 h-16 w-16">
+              <div className="absolute inset-0 rounded-full border-4 border-indigo-100"></div>
+              <div className="absolute inset-0 animate-spin rounded-full border-4 border-transparent border-t-indigo-600 border-r-indigo-600"></div>
+            </div>
+            <p className="text-sm text-gray-500">{t("common:loading")}</p>
           </div>
-        ) : (
-          <div className="space-y-2">
-            {entries.map((entry) => (
-              <HistoryEntryCard
-                key={entry.id}
-                entry={entry}
-                isSelected={selectedEntries.has(entry.id)}
-                onEntryClick={handleEntryClick}
-                onToggleSelection={handleToggleSelection}
-                onPinEntry={handlePinEntry}
-                onRemoveEntry={handleRemoveEntry}
-                onLanguageBadgeClick={handleLanguageBadgeClick}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Confirm Dialog for Clear All */}
       <ConfirmDialog
