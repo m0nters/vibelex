@@ -1,5 +1,5 @@
 import { HistoryEntry } from "@/types";
-import { isPhraseTranslation, isSingleWordTranslation } from "@/utils";
+import { isDictionaryEntry, isSentenceTranslation } from "@/utils";
 
 /**
  * Get display text for history entry (for list view)
@@ -12,7 +12,7 @@ export const getDisplayText = (
 } => {
   const { translation } = entry;
 
-  if (isSingleWordTranslation(translation)) {
+  if (isDictionaryEntry(translation)) {
     const pronunciation = translation.meanings[0]?.pronunciation; // take the first meaning as an example for displaying only
 
     let ipa = "";
@@ -29,7 +29,7 @@ export const getDisplayText = (
       primaryText: translation.word,
       secondaryText: ipa ? `${ipa}` : "",
     };
-  } else if (isPhraseTranslation(translation)) {
+  } else if (isSentenceTranslation(translation)) {
     return {
       primaryText: translation.text,
       secondaryText: "",

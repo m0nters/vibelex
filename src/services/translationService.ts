@@ -106,7 +106,41 @@ export const generateTranslationPrompt = (
 - **TTS Language Codes**
   - Always include a \`source_tts_language_code\` field containing the primary TTS language code (IETF BCP 47) for the source language (e.g., "en-US", "zh-CN", "ja-JP", etc.).
   - Always include a \`translated_tts_language_code\` field containing the primary TTS language code (IETF BCP 47) for the translated language (e.g., "en-US", "vi-VN", "zh-CN", "ja-JP", etc.).
-- **Single word/Collocation/Idiom input:**
+
+- **CRITICAL: Determining Input Type (Dictionary Entry vs. Sentence Translation)**
+  You MUST carefully analyze the input to determine whether it should be treated as a **dictionary entry** (lexical unit) or a **sentence/phrase translation**. Follow these guidelines:
+
+  **Dictionary Entry Format (use word/meanings structure):**
+  - **Lexical units:** Single words, compound words, fixed expressions, collocations, idioms, phrasal verbs, or terms that function as a cohesive unit in the dictionary
+    - English examples: "run", "black hole", "give up", "kick the bucket", "ice cream", "New York", "persimmon tree"
+    - Vietnamese examples: "chạy", "cây thị" (persimmon tree), "hố đen" (black hole), "bỏ cuộc" (give up), "Hà Nội" (Hanoi)
+    - Chinese examples: "跑", "黑洞" (black hole), "放弃" (give up), "踢桶子" (kick the bucket - if idiom exists)
+    - Japanese examples: "走る" (run), "ブラックホール" (black hole), "諦める" (give up)
+  - **Key indicators for dictionary entries:**
+    - The input represents a concept, object, action, or idea that would appear as a standalone entry in a dictionary
+    - Compound words or multi-word expressions that form a single semantic unit (e.g., "cây thị" = a type of tree, not "tree + persimmon" separately)
+    - Proper nouns, technical terms, or specialized vocabulary
+    - Collocations that are commonly used together and have dictionary entries
+    - Idioms and phrasal verbs
+  - **What to do:** Provide full dictionary entry with pronunciation, part of speech, definition, examples, synonyms, idioms (if applicable), and phrasal verbs (if applicable)
+
+  **Sentence/Phrase Translation Format (use text/translation structure):**
+  - **Complete sentences or phrases:** Input that forms a grammatically complete thought, statement, question, or clause
+    - English examples: "I am running", "The black hole is massive", "He gave up too early", "Where is the persimmon tree?"
+    - Vietnamese examples: "Tôi đang chạy", "Cây thị ở đâu?" (Where is the persimmon tree?), "Anh ấy bỏ cuộc quá sớm"
+  - **Key indicators for sentence/phrase translation:**
+    - Contains subject-verb structure forming a complete statement or question
+    - Includes articles, pronouns, or demonstratives that indicate it's part of a sentence (e.g., "the black hole", "a persimmon tree", "this is")
+    - Contains multiple lexical units in a descriptive or narrative context
+    - Has conjugated verbs with subjects, temporal markers, or modal verbs
+  - **What to do:** Provide only the translation with context-aware language (see Context-Aware Translation below)
+
+  **Edge Cases:**
+  - If uncertain, prefer dictionary entry format for inputs with ≤3 words, unless clear sentence indicators are present
+  - For compound words/terms (e.g., "cây thị", "black hole", "ice cream"), always treat as dictionary entry regardless of word count
+  - If input could be either (e.g., "run fast" could be a collocation or part of a sentence), prefer dictionary entry format
+
+- **Dictionary Entry Input (Lexical Units):**
   - For words that has more than 1 pronunciation variants in source language (e.g., "run" is an English word, has pronunciation variants of UK, US), provide both variants as objects with \`ipa\` and \`tts_code\` fields. The \`ipa\` field should be an array of strings to accommodate multiple pronunciations within the same variant (e.g., "usurpation" has US: ["/ˌjuː.zɜːˈpeɪ.ʃən/", "/ˌjuː.sɜːˈpeɪ.ʃən/"], UK: ["/ˌjuː.sɜːˈpeɪ.ʃən/", "/ˌjuː.zɜːˈpeɪ.ʃən/"]). For others that don't have pronunciation variants, just use that single one as a string (e.g., Pinyin for Chinese).
   - When multiple IPA pronunciations exist for the same variant, include all common pronunciations in the array, prioritizing the most standard or widely accepted pronunciation first.
   - Translate the meaning into the translated language, specifying its part of speech (in the translated language too, e.g., "Danh từ" for "Noun" in Vietnamese, "名词" for "Noun" in Chinese, "Idiome" for "Idiom" in French, etc.).
@@ -136,10 +170,9 @@ export const generateTranslationPrompt = (
     **IMPORTANT DISTINCTION:** Phrasal verbs are combinations of a verb + particle (preposition/adverb) that create a new meaning (e.g., "run out" = exhaust supply, "run into" = encounter). They are NOT idioms (which are non-literal expressions like "run for your life"). Only include phrasal verbs that use the word being defined as the main verb and relate to that specific meaning. If no relevant phrasal verbs exist for a meaning, omit the phrasal_verbs field entirely. Examples: for "run" meaning "move quickly" → {"label": "Động từ cụm", "items": [{"phrasal_verb": "run away", "meaning": "chạy trốn, bỏ chạy", "examples": [{"text": "The thief **ran away** when he saw the police.", "translation": "Tên trộm **bỏ chạy** khi thấy cảnh sát."}]}, {"phrasal_verb": "run after", "meaning": "chạy theo, đuổi theo", "examples": [{"text": "She **ran after** the bus but missed it.", "translation": "Cô ấy **chạy theo** xe buýt nhưng đã lỡ."}]}]}; for "break" meaning "damage" → {"label": "Verbes à particule", "items": [{"phrasal_verb": "break down", "meaning": "tomber en panne, se casser", "examples": [{"text": "My car **broke down** on the highway.", "translation": "Ma voiture **est tombée en panne** sur l'autoroute."}]}]}.
   - If that word is a verb and has many conjugations, give enough examples to illustrate all the different forms.
   - If the source and translated languages are the same, provide the dictionary entry and example sentences in that language without translations.
-  - NOTE: distinguish between collocations (e.g., "make a decision") and idioms (e.g., "kick the bucket") carefully, they are not the same.
-- **Phrase or sentence input (more than two words):**
-  - NOTE: "phrase" or a "sentence" in this context should not be an idiom or collocations since they are handled using the rules above.
-  - Provide only the translated language translation.
+
+- **Sentence/Phrase Translation Input:**
+  - Provide only the translated language translation (simple text/translation JSON format).
   - **Context-Aware Translation:** Analyze the content to determine the specialized domain or field, then adapt the translation to use appropriate terminology and professional language for that context. Domain detection should be based on key terminology, technical vocabulary, and subject matter indicators. Examples of contexts include:
     - **Technical/Computing:** Words like "algorithm", "database", "API", "machine learning" → use precise technical terminology
     - **Medical/Healthcare:** Terms like "diagnosis", "symptoms", "treatment", "pathology" → use accurate medical language  

@@ -6,7 +6,7 @@ import { Download, LoaderCircle } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
-import { DictionaryRenderer } from "./DictionaryRenderer";
+import { TranslationRenderer } from "./TranslationRenderer";
 
 export function HistoryDetailScreen() {
   const location = useLocation();
@@ -88,7 +88,7 @@ export function HistoryDetailScreen() {
           ref={contentRef}
           className="rounded-2xl border border-gray-200 bg-gray-50 p-5 shadow-xl backdrop-blur-sm"
         >
-          <DictionaryRenderer
+          <TranslationRenderer
             translation={entry.translation}
             isHistoryDetailView={true}
           />

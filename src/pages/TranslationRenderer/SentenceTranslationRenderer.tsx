@@ -1,6 +1,6 @@
 import { CopyButton, SpeakerButton } from "@/components";
 import { DEFAULT_SOURCE_LANGUAGE_CODE } from "@/constants";
-import { PhraseTranslation } from "@/types";
+import { SentenceTranslation } from "@/types";
 import { renderText } from "@/utils";
 import { useEffect, useRef, useState } from "react";
 import { SourceLanguageRenderer } from "./SourceLanguageRenderer";
@@ -69,47 +69,49 @@ function CollapsibleTextSection({
   );
 }
 
-interface PhraseTranslationRendererProps {
-  phraseTranslation: PhraseTranslation;
+interface SentenceTranslationRendererProps {
+  sentenceTranslation: SentenceTranslation;
   sourceLangCodeSetting: string;
   isHistoryDetailView?: boolean;
 }
 
-export function PhraseTranslationRenderer({
-  phraseTranslation,
+export function SentenceTranslationRenderer({
+  sentenceTranslation,
   sourceLangCodeSetting,
   isHistoryDetailView = false,
-}: PhraseTranslationRendererProps) {
+}: SentenceTranslationRendererProps) {
   return (
     <div className="dictionary-content">
       {!isHistoryDetailView && (
         <SourceLanguageRenderer
-          sourceLangCode={phraseTranslation.source_language_code}
+          sourceLangCode={sentenceTranslation.source_language_code}
           isAutoDetected={
             sourceLangCodeSetting === DEFAULT_SOURCE_LANGUAGE_CODE
           }
-          mainCountryCode={phraseTranslation.source_language_main_country_code}
+          mainCountryCode={
+            sentenceTranslation.source_language_main_country_code
+          }
         />
       )}
-      {phraseTranslation.source_tts_language_code && (
+      {sentenceTranslation.source_tts_language_code && (
         <SpeakerButton
-          word={phraseTranslation.text}
-          ttsCode={phraseTranslation.source_tts_language_code}
+          word={sentenceTranslation.text}
+          ttsCode={sentenceTranslation.source_tts_language_code}
           className="-translate-x-3"
         />
       )}
       <CollapsibleTextSection
-        text={phraseTranslation.text}
+        text={sentenceTranslation.text}
         isInitiallyExpanded={isHistoryDetailView}
       />
-      {phraseTranslation.translated_tts_language_code && (
+      {sentenceTranslation.translated_tts_language_code && (
         <SpeakerButton
-          word={phraseTranslation.translation}
-          ttsCode={phraseTranslation.translated_tts_language_code}
+          word={sentenceTranslation.translation}
+          ttsCode={sentenceTranslation.translated_tts_language_code}
           className="-translate-x-3"
         />
       )}
-      <CollapsibleTextSection text={phraseTranslation.translation} />
+      <CollapsibleTextSection text={sentenceTranslation.translation} />
     </div>
   );
 }

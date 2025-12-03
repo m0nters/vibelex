@@ -3,8 +3,8 @@ import { SEARCH_OPERATOR_REGEX } from "@/constants";
 import { HistoryEntry } from "@/types";
 import {
   hasPronunciationVariants,
-  isPhraseTranslation,
-  isSingleWordTranslation,
+  isDictionaryEntry,
+  isSentenceTranslation,
 } from "@/utils";
 import Fuse from "fuse.js";
 import { getHistory } from "./historyStorage";
@@ -45,7 +45,7 @@ const extractSearchableFields = (entry: HistoryEntry): string[] => {
   const { translation } = entry;
   const searchableFields: string[] = [];
 
-  if (isSingleWordTranslation(translation)) {
+  if (isDictionaryEntry(translation)) {
     // Add the word itself
     searchableFields.push(translation.word);
 
@@ -119,7 +119,7 @@ const extractSearchableFields = (entry: HistoryEntry): string[] => {
         });
       }
     });
-  } else if (isPhraseTranslation(translation)) {
+  } else if (isSentenceTranslation(translation)) {
     searchableFields.push(translation.text, translation.translation);
   }
 

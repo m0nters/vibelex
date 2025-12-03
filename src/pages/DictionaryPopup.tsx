@@ -8,7 +8,7 @@ import { LoaderCircle, RotateCcw, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { useTranslation as useReactI18next } from "react-i18next";
-import { DictionaryRenderer } from "./DictionaryRenderer";
+import { TranslationRenderer } from "./TranslationRenderer";
 
 export function DictionaryPopup() {
   const { result, translateText } = useTranslation();
@@ -228,7 +228,7 @@ export function DictionaryPopup() {
           )}
 
           {!result.loading && !result.error && parsedTranslation && (
-            <DictionaryRenderer translation={parsedTranslation} />
+            <TranslationRenderer translation={parsedTranslation} />
           )}
 
           {!result.loading &&

@@ -1,8 +1,8 @@
 import {
+  DictionaryEntry,
   ParsedTranslation,
-  PhraseTranslation,
   PronunciationVariants,
-  SingleWordTranslation,
+  SentenceTranslation,
 } from "@/types";
 import { jsonrepair } from "jsonrepair";
 import Markdown from "markdown-to-jsx";
@@ -38,20 +38,20 @@ export const renderText = (text: string) => {
 };
 
 /**
- * Checks if a translation is a single word or phrase
+ * Checks if a translation is a dictionary entry
  */
-export const isSingleWordTranslation = (
+export const isDictionaryEntry = (
   translation: ParsedTranslation,
-): translation is SingleWordTranslation => {
+): translation is DictionaryEntry => {
   return "word" in translation;
 };
 
 /**
- * Checks if a translation is a phrase
+ * Checks if a translation is a sentence/phrase
  */
-export const isPhraseTranslation = (
+export const isSentenceTranslation = (
   translation: ParsedTranslation,
-): translation is PhraseTranslation => {
+): translation is SentenceTranslation => {
   return "text" in translation;
 };
 
@@ -78,12 +78,12 @@ export const parseTranslationJSON = (content: string): ParsedTranslation => {
 
     // Validate the structure
     if (parsed.word) {
-      return parsed as SingleWordTranslation;
+      return parsed as DictionaryEntry;
     } else if (parsed.text) {
-      return parsed as PhraseTranslation;
+      return parsed as SentenceTranslation;
     } else {
       throw new Error(
-        "Invalid JSON structure - can't parse this into either single word or phrase",
+        "Invalid JSON structure - can't parse this into either dictionary entry or sentence",
       );
     }
   } catch (error) {

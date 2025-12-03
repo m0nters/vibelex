@@ -1,22 +1,27 @@
+/*
+  There are two main types of translations:
+  1. DictionaryEntry: Single words, compound words, fixed expressions, collocations, idioms, phrasal verbs, or terms that function as a cohesive unit in the dictionary.
+  2. SentenceTranslation: For full sentence translations.
+*/
 import { DEFAULT_SOURCE_LANGUAGE_CODE } from "@/constants";
 import {
+  DictionaryEntry,
   ParsedTranslation,
-  PhraseTranslation,
-  SingleWordTranslation,
-} from "@/types/";
-import { isPhraseTranslation, isSingleWordTranslation } from "@/utils/";
+  SentenceTranslation,
+} from "@/types";
+import { isDictionaryEntry, isSentenceTranslation } from "@/utils/";
 import { useEffect, useState } from "react";
-import { PhraseTranslationRenderer } from "./PhraseTranslationRenderer";
-import { SingleWordTranslationRenderer } from "./SingleWordTranslationRenderer";
+import { DictionaryEntryRenderer } from "./DictionaryEntryRenderer";
+import { SentenceTranslationRenderer } from "./SentenceTranslationRenderer";
 
-interface DictionaryRendererProps {
+interface TranslationRendererProps {
   translation: ParsedTranslation;
   isHistoryDetailView?: boolean;
 }
-export function DictionaryRenderer({
+export function TranslationRenderer({
   translation,
   isHistoryDetailView = false,
-}: DictionaryRendererProps) {
+}: TranslationRendererProps) {
   const [sourceLangCodeSetting, setSourceLangCodeSetting] = useState<string>(
     DEFAULT_SOURCE_LANGUAGE_CODE,
   );
@@ -30,20 +35,20 @@ export function DictionaryRenderer({
     });
   }, []);
 
-  if (isPhraseTranslation(translation)) {
+  if (isSentenceTranslation(translation)) {
     return (
-      <PhraseTranslationRenderer
-        phraseTranslation={translation as PhraseTranslation}
+      <SentenceTranslationRenderer
+        sentenceTranslation={translation as SentenceTranslation}
         sourceLangCodeSetting={sourceLangCodeSetting}
         isHistoryDetailView={isHistoryDetailView}
       />
     );
   }
 
-  if (isSingleWordTranslation(translation)) {
+  if (isDictionaryEntry(translation)) {
     return (
-      <SingleWordTranslationRenderer
-        singleWordTranslation={translation as SingleWordTranslation}
+      <DictionaryEntryRenderer
+        dictionaryEntry={translation as DictionaryEntry}
         sourceLangCodeSetting={sourceLangCodeSetting}
         isHistoryDetailView={isHistoryDetailView}
       />

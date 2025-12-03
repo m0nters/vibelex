@@ -1,14 +1,4 @@
-export class AppException extends Error {
-  code: string;
-  data?: Record<string, string>; // Optional additional data
-
-  constructor(params: { code: string; data?: Record<string, string> }) {
-    super(params.code);
-    this.name = "AppException";
-    this.code = params.code;
-    this.data = params.data;
-  }
-}
+import { AppException } from "./error";
 
 export interface TranslationResult {
   text: string;
@@ -79,15 +69,15 @@ interface BaseTranslation {
   translated_tts_language_code?: string; // IETF BCP 47
 }
 
-export interface SingleWordTranslation extends BaseTranslation {
+export interface DictionaryEntry extends BaseTranslation {
   word: string;
   verb_forms?: string[];
   meanings: MeaningEntry[];
 }
 
-export interface PhraseTranslation extends BaseTranslation {
+export interface SentenceTranslation extends BaseTranslation {
   text: string;
   translation: string;
 }
 
-export type ParsedTranslation = SingleWordTranslation | PhraseTranslation;
+export type ParsedTranslation = DictionaryEntry | SentenceTranslation;
