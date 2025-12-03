@@ -477,6 +477,25 @@ export const translateWithGemini = async (
     sourceLangCode,
   );
 
+  const customSafetySettings = [
+    {
+      category: "HARM_CATEGORY_HARASSMENT",
+      threshold: "OFF",
+    },
+    {
+      category: "HARM_CATEGORY_HATE_SPEECH",
+      threshold: "OFF",
+    },
+    {
+      category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+      threshold: "OFF",
+    },
+    {
+      category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+      threshold: "OFF",
+    },
+  ];
+
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`,
     {
@@ -495,6 +514,7 @@ export const translateWithGemini = async (
             ],
           },
         ],
+        safetySettings: customSafetySettings,
         tools: [
           {
             googleSearch: {},
