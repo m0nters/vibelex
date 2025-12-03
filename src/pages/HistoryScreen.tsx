@@ -122,6 +122,12 @@ export function HistoryScreen() {
     event: React.MouseEvent,
   ) => {
     event.stopPropagation(); // Prevent triggering the entry selection
+    if (scrollContainerRef.current) {
+      sessionStorage.setItem(
+        "historyScreenScrollPosition",
+        scrollContainerRef.current.scrollTop.toString(),
+      );
+    }
     try {
       await removeHistoryEntry(entryId);
       await displayResultedEntry();
@@ -132,6 +138,12 @@ export function HistoryScreen() {
 
   const handlePinEntry = async (entryId: string, event: React.MouseEvent) => {
     event.stopPropagation(); // Prevent triggering the entry selection
+    if (scrollContainerRef.current) {
+      sessionStorage.setItem(
+        "historyScreenScrollPosition",
+        scrollContainerRef.current.scrollTop.toString(),
+      );
+    }
     try {
       await togglePinEntry(entryId);
       await displayResultedEntry();
@@ -194,6 +206,12 @@ export function HistoryScreen() {
       // If all entries are selected, treat as clear all
       handleConfirmClearHistory();
       return;
+    }
+    if (scrollContainerRef.current) {
+      sessionStorage.setItem(
+        "historyScreenScrollPosition",
+        scrollContainerRef.current.scrollTop.toString(),
+      );
     }
     try {
       // Delete all selected entries in a single operation
