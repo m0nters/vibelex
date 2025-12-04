@@ -22,7 +22,6 @@ Screenshots:
 - [Features](#features)
 - [Setup](#setup)
 - [Usage](#usage)
-- [Statistics Screen](#statistics-screen)
 - [Supported Languages](#supported-languages)
 - [Development](#development)
 - [Adding Language](#adding-language)
