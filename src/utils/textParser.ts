@@ -8,6 +8,8 @@ import { jsonrepair } from "jsonrepair";
 import Markdown from "markdown-to-jsx";
 import { createElement } from "react";
 
+import { DictionaryEntrySchema, SentenceTranslationSchema } from "@/types";
+
 /**
  * Renders text with support format using markdown-to-jsx
  */
@@ -38,7 +40,7 @@ export const renderText = (text: string) => {
 };
 
 /**
- * Checks if a translation is a dictionary entry
+ * Checks if a translation CAN BE a dictionary entry (narrow check)
  */
 export const isDictionaryEntry = (
   translation: ParsedTranslation,
@@ -47,12 +49,28 @@ export const isDictionaryEntry = (
 };
 
 /**
- * Checks if a translation is a sentence/phrase
+ * Checks if a translation data is VALID dictionary entry (deep check) so that
+ * the UI can parse
+ */
+export const isValidDictionaryEntry = (translation: any): boolean => {
+  return DictionaryEntrySchema.safeParse(translation).success;
+};
+
+/**
+ * Checks if a translation CAN BE a sentence/phrase (narrow check)
  */
 export const isSentenceTranslation = (
   translation: ParsedTranslation,
 ): translation is SentenceTranslation => {
   return "text" in translation;
+};
+
+/**
+ * Checks if a translation data is VALID sentence/phrase (deep check) so that
+ * the UI can parse
+ */
+export const isValidSentenceTranslation = (translation: any): boolean => {
+  return SentenceTranslationSchema.safeParse(translation).success;
 };
 
 /**
@@ -69,23 +87,23 @@ export const hasPronunciationVariants = (
  */
 export const parseTranslationJSON = (content: string): ParsedTranslation => {
   try {
-    // Extract JSON from the response (in case it's wrapped in markdown)
-    const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
-    let jsonString = jsonMatch ? jsonMatch[1] : content;
-
-    const repairedJson = jsonrepair(jsonString); // AI generated JSON format can be malformed, this 3rd party lib repairs it
+    const repairedJson = jsonrepair(content); // AI generated JSON format can be malformed, this 3rd party lib repairs it
     const parsed = JSON.parse(repairedJson);
 
-    // Validate the structure
-    if (parsed.word) {
-      return parsed as DictionaryEntry;
-    } else if (parsed.text) {
-      return parsed as SentenceTranslation;
-    } else {
-      throw new Error(
-        "Invalid JSON structure - can't parse this into either dictionary entry or sentence",
-      );
+    // Try to validate as DictionaryEntry first
+    if (isDictionaryEntry(parsed)) {
+      if (isValidDictionaryEntry(parsed)) {
+        return parsed as DictionaryEntry;
+      }
     }
+    // Try to validate as SentenceTranslation
+    else if (isSentenceTranslation(parsed)) {
+      if (isValidSentenceTranslation(parsed)) {
+        return parsed as SentenceTranslation;
+      }
+    }
+
+    throw new Error("Invalid JSON structure");
   } catch (error) {
     console.error("Failed to parse JSON translation:", error);
     console.error("Content that failed to parse:", content);

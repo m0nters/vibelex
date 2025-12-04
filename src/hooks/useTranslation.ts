@@ -67,10 +67,11 @@ export const useTranslation = () => {
         sourceLang,
       );
 
-      // Parse the translation first - this will throw if parsing fails
+      // Parse the translation first - this will throw error if parsing fails
+      // and stop the rest below
       const parsedTranslation = parseTranslationJSON(translation);
 
-      // Only set successful result if parsing succeeds
+      // Set successful result
       setResult((prev) => ({
         ...prev,
         translation,
