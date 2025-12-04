@@ -4,7 +4,12 @@ import {
 } from "@/constants";
 import { saveTranslation, translateWithGemini } from "@/services";
 import { AppException, TranslationResult } from "@/types";
-import { parseTranslationJSON, updatePopupHeight } from "@/utils";
+import {
+  isDictionaryEntry,
+  isSentenceTranslation,
+  parseTranslationJSON,
+  updatePopupHeight,
+} from "@/utils";
 import { useEffect, useState } from "react";
 
 /**
@@ -13,8 +18,9 @@ import { useEffect, useState } from "react";
 export const useTranslation = () => {
   const [result, setResult] = useState<TranslationResult>({
     text: "",
-    translation: "",
+    translation: undefined,
     loading: false,
+    error: undefined,
   });
   const [translatedLangCode, setTranslatedLangCode] = useState(
     DEFAULT_LANGUAGE_CODE,
@@ -42,12 +48,11 @@ export const useTranslation = () => {
    * Translates text using the current translated language
    */
   const translateText = async (text: string) => {
-    setResult({
+    setResult((prev) => ({
+      ...prev,
       text,
-      translation: "",
       loading: true,
-      error: undefined,
-    });
+    }));
 
     try {
       // Get the most current language codes from storage to avoid stale state issues
@@ -61,7 +66,7 @@ export const useTranslation = () => {
       const translatedLang = currentTranslatedLangCode || DEFAULT_LANGUAGE_CODE;
       const sourceLang = currentSourceLangCode || DEFAULT_SOURCE_LANGUAGE_CODE;
 
-      const translation = await translateWithGemini(
+      const rawResponse = await translateWithGemini(
         text,
         translatedLang,
         sourceLang,
@@ -69,20 +74,25 @@ export const useTranslation = () => {
 
       // Parse the translation first - this will throw error if parsing fails
       // and stop the rest below
-      const parsedTranslation = parseTranslationJSON(translation);
+      const parsedTranslation = parseTranslationJSON(rawResponse);
+
+      // add another field `word` or `text` to the parsedTranslation for UI display in the future
+      if (isDictionaryEntry(parsedTranslation)) {
+        parsedTranslation.word = text;
+      } else if (isSentenceTranslation(parsedTranslation)) {
+        parsedTranslation.text = text;
+      }
 
       // Set successful result
       setResult((prev) => ({
         ...prev,
-        translation,
+        translation: parsedTranslation,
         loading: false,
       }));
 
       // Save translation to history
       try {
-        if (parsedTranslation) {
-          await saveTranslation(parsedTranslation);
-        }
+        await saveTranslation(parsedTranslation);
       } catch (historyError) {
         console.error("Failed to save translation to history:", historyError);
         // Don't fail the translation if history saving fails

@@ -3,7 +3,7 @@ import { useTranslation } from "@/hooks";
 import "@/index.css";
 import { MAX_WORDS_LIMIT, ttsService } from "@/services";
 import { AppException } from "@/types";
-import { parseTranslationJSON, updatePopupHeight } from "@/utils";
+import { updatePopupHeight } from "@/utils";
 import { LoaderCircle, RotateCcw, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
@@ -25,6 +25,10 @@ export function DictionaryPopup() {
       // content script fixed the height of the container, then send the signal
       // back again for this popup to translate text
       if (event.data.type === "TRANSLATE_TEXT") {
+        // because the page context (where this message from) is separate from
+        // the popup context (where this message is handled), and the popup
+        // context is the one who decide the interface language, so we need to
+        // communicate between them to display correct language on UI
         changeLanguage(event.data.appLanguage).then(() => {
           translateText(event.data.text);
         });
@@ -35,6 +39,9 @@ export function DictionaryPopup() {
       }
       // Listen for language changes from extension popup
       if (event.data.type === "LANGUAGE_CHANGED") {
+        // same reason as above, the page context is separate from the popup
+        // so when the popup change the language, the page context need to be
+        // informed to change accordingly
         changeLanguage(event.data.language);
       }
     };
@@ -130,11 +137,6 @@ export function DictionaryPopup() {
     window.parent.postMessage({ type: "CLOSE_POPUP" }, "*");
   };
 
-  // Parse the translation content for structured rendering
-  const parsedTranslation = result.translation
-    ? parseTranslationJSON(result.translation)
-    : null;
-
   // Translate error codes to localized messages
   const getErrorMessage = (error: AppException): string => {
     switch (error.code) {
@@ -227,8 +229,8 @@ export function DictionaryPopup() {
             </div>
           )}
 
-          {!result.loading && !result.error && parsedTranslation && (
-            <TranslationRenderer translation={parsedTranslation} />
+          {!result.loading && !result.error && result.translation && (
+            <TranslationRenderer translation={result.translation} />
           )}
 
           {!result.loading &&

@@ -2,12 +2,14 @@ import { z } from "zod";
 import { AppException } from "./error";
 
 export interface TranslationResult {
-  text: string;
-  translation: string;
-  loading: boolean;
-  error?: AppException;
+  text: string; // the word or sentence to be translated
+  translation?: ParsedTranslation; // the parsed translation to specific data structure to display on UI
+  loading: boolean; // while the AI is generating the translation, this is true, else false
+  error?: AppException; // appear when can't call to the API service, parse fail,...
 }
 
+// All the zod schemas here is to check whether the parsed JSON from AI is valid
+// according to our defined data structures
 export interface PronunciationDetail {
   ipa: string[];
   tts_code: string;
@@ -140,7 +142,10 @@ export interface DictionaryEntry extends BaseTranslation {
 }
 
 export const DictionaryEntrySchema = BaseTranslationSchema.extend({
-  word: z.string(),
+  // in the newest version, we make the AI to genereate response that omits the
+  // `word` field in order to reduce the output token
+
+  // word: z.string(),
   verb_forms: z.array(z.string()).optional(),
   meanings: z.array(MeaningEntrySchema).min(1),
 });
@@ -151,7 +156,10 @@ export interface SentenceTranslation extends BaseTranslation {
 }
 
 export const SentenceTranslationSchema = BaseTranslationSchema.extend({
-  text: z.string(),
+  // in the newest version, we make the AI to genereate response that omits the
+  // `text` field in order to reduce the output token
+
+  // text: z.string(),
   translation: z.string(),
 });
 

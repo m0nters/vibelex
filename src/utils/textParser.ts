@@ -45,7 +45,7 @@ export const renderText = (text: string) => {
 export const isDictionaryEntry = (
   translation: ParsedTranslation,
 ): translation is DictionaryEntry => {
-  return "word" in translation;
+  return "meanings" in translation;
 };
 
 /**
@@ -62,7 +62,7 @@ export const isValidDictionaryEntry = (translation: any): boolean => {
 export const isSentenceTranslation = (
   translation: ParsedTranslation,
 ): translation is SentenceTranslation => {
-  return "text" in translation;
+  return "translation" in translation;
 };
 
 /**
