@@ -149,11 +149,20 @@ export const generateTranslationPrompt = (
   - When multiple IPA pronunciations exist for the same variant, include all common pronunciations in an array, prioritizing the most standard or widely accepted pronunciation first. (e.g., the word "usurpation" has US: ["/ˌjuː.zɜːˈpeɪ.ʃən/", "/ˌjuː.sɜːˈpeɪ.ʃən/"], UK: ["/ˌjuː.sɜːˈpeɪ.ʃən/", "/ˌjuː.zɜːˈpeɪ.ʃən/"])
   - Translate the meaning into the translated language, specifying its part of speech (in the translated language too, e.g., "Danh từ" for "Noun" in Vietnamese, "名词" for "Noun" in Chinese, "Idiome" for "Idiom" in French, etc.).
   - In the \`definition\` field, add appropriate register/style notes in parentheses when needed BEFORE the definition, using the translated language. Examples: if the translated language is Vietnamese then use "(từ lóng)" for slang, "(thông tục)" for informal in Vietnamese, "(trang trọng)" for formal, "(kỹ thuật)" for technical, etc. Example: \`"ass": (thông tục) mông, đít\`.
-  - For verbs in any conjugated form (e.g., "spelled" or "spelling" in English), translate the infinitive form (e.g., still translate the word "spell") and list key conjugations (e.g., infinitive, past tense, past participle for English; equivalent forms for other languages where applicable, like preterite and participle in Spanish).
-  - Always keep words in lowercase, regardless of whether the selected text is uppercase or not. (e.g., translating "Run" or "RUN" will still end up as translating "run")
+  - Always keep words in lowercase, regardless of whether the selected text is uppercase or not. (e.g., translating "Run", "RUN", "SCREENSHOTS", or "Corrió" will still end up as translating "run", "screenshot", "correr" respectively)
   - If the word has multiple meanings or pronunciations, list each separately in the same entry format (meaning entry). List all of them, DO NOT limit.
     A word is considered to have multiple meanings if those meanings are significantly different from each other and not just variations of the same meaning. For example: "bank" (financial institution) and "bank" (side of a river) are different meanings; "run" (to move quickly) and "run" (to manage) are also different meanings. However, "run" (to move quickly) and "run" (walk fast) would be considered variations of the same meaning.
-  - Include at least 2-3 example sentences as array of objects in field \`examples\` (can be more, like 4 5 6 7, etc. if you think they are necessary to distinguish something), with these fields in each object: 
+  - **CRITICAL: Morphological Transformation Handling:**
+    - **Always translate the BASE/LEMMA form** of the word (infinitive for verbs, singular for nouns, positive degree for adjectives, etc.)
+    - **If the input word is a morphological transformation** (conjugated verb, plural noun, comparative adjective, etc.), add a \`note\` field **inside the relevant meaning(s)** to document the transformation in the TRANSLATED LANGUAGE
+    - The \`note\` field explains what form the user looked up, using bold for the base form. Examples:
+      - "shelves" → translate "shelf", note: "số nhiều của **shelf**" (Vietnamese)
+      - "ran" → translate "run", note: "thì quá khứ của **run**" (Vietnamese)
+      - "better" (comparative) → translate "good", note: "so sánh hơn của **good**" (Vietnamese)
+      - "libros" → translate "libro", note: "plural de **libro**" (Spanish)
+      - "meilleur" → translate "bon", note: "comparatif de **bon**" (French)
+    - For pure base forms with no transformation, omit the \`note\` field entirely
+  - Include enough example sentences as array of objects in field \`examples\` to demonstrate all possible transformations of the word (e.g., "run", "ran", "running", "runs"). Each example object should have these fields: 
     - \`text\`: the example sentence in source language, remember to keep the word being defined in bold using markdown syntax (e.g., **word**).
     - \`pronunciation\`: **ONLY include this field if the source language uses non-Latin script** (as identified earlier), also the defined word's pronunciation is in bold too. For Latin-based scripts, **completely omit this field**.
     - \`translation\`: the translation of example sentence above to translated language, also keep the word being defined in bold. **IMPORTANT***: If the source and translated languages are the same, aka same language translation, **omit this field entirely**
@@ -212,7 +221,7 @@ export const generateTranslationPrompt = (
   - Use search results to enhance the quality and accuracy of translations, but always format your response according to the JSON structure specified below.
 
 - **Output Format:** Output JSON only! Use JSON format with the structure following these examples below:
-  - e.g.1., English "ran" to Vietnamese. This is an example of an output of a word that has many meanings, also you can see since Vietnamese is a Latin-based script, there's no \'pronunciation\' field in example sentences:
+  - e.g.1., English word "leaves" to Vietnamese. This is an example demonstrating morphological transformation with the \`note\` field, showing a word with multiple distinct meanings. Since Vietnamese is a Latin-based script, there's no \'pronunciation\' field in example sentences:
 
     \`\`\`json
     {
@@ -222,112 +231,63 @@ export const generateTranslationPrompt = (
       \"translated_language_main_country_code\": \"vn\",
       \"source_tts_language_code\": \"en-US\",
       \"translated_tts_language_code\": \"vi-VN\",
-      \"verb_forms\": [\"run\", \"ran\", \"run\"],
       \"meanings\": [
         {
           \"pronunciation\": {
             \"UK\": {
-              \"ipa\": [\"/rʌn/\"],
+              \"ipa\": [\"/liːf/\"],
               \"tts_code\": \"en-GB\"
             },
             \"US\": {
-              \"ipa\": [\"/rʌn/\"],
+              \"ipa\": [\"/liːf/\"],
               \"tts_code\": \"en-US\"
             }
           },
-          \"part_of_speech\": \"Động từ\",
-          \"definition\": \"chạy\",
+          \"part_of_speech\": \"Danh từ\",
+          \"definition\": \"lá (cây)\",
+          \"note\": \"số nhiều của **leaf**\",
           \"examples\": [
             {
-              \"text\": \"He **runs** every morning.\",
-              \"translation\": \"Anh ấy **chạy** mỗi sáng.\"
+              \"text\": \"The **leaves** are falling from the trees.\",
+              \"translation\": \"Những chiếc **lá** đang rơi từ cây.\"
             },
             {
-              \"text\": \"She **ran** to catch the bus.\",
-              \"translation\": \"Cô ấy **chạy** để bắt xe buýt.\"
+              \"text\": \"Autumn **leaves** turn red and yellow.\",
+              \"translation\": \"**Lá** mùa thu chuyển sang màu đỏ và vàng.\"
             }
           ],
-          \"idioms\": {
-            \"label\": \"Thành ngữ\",
-            \"items\": [
-              {
-                \"idiom\": \"run for your life\",
-                \"meaning\": \"chạy thật nhanh để thoát khỏi nguy hiểm\",
-                \"examples\": [
-                  {
-                    \"text\": \"When they saw the bear, everyone started to **run for their lives**.\",
-                    \"translation\": \"Khi thấy con gấu, mọi người bắt đầu **chạy thật nhanh để giữ mạng**.\"
-                  }
-                ]
-              },
-              {
-                \"idiom\": \"run like the wind\",
-                \"meaning\": \"chạy rất nhanh\",
-                \"examples\": [
-                  {
-                    \"text\": \"The athlete **ran like the wind** to win the race.\",
-                    \"translation\": \"Vận động viên **chạy như gió** để thắng cuộc đua.\"
-                  }
-                ]
-              }
-            ]
-          },
-          \"phrasal_verbs\": {
-            \"label\": \"Cụm động từ\",
-            \"items\": [
-              {
-                \"phrasal_verb\": \"run away\",
-                \"meaning\": \"chạy trốn, bỏ chạy\",
-                \"examples\": [
-                  {
-                    \"text\": \"The thief **ran away** when he saw the police.\",
-                    \"translation\": \"Tên trộm **bỏ chạy** khi thấy cảnh sát.\"
-                  }
-                ]
-              },
-              {
-                \"phrasal_verb\": \"run after\",
-                \"meaning\": \"chạy theo, đuổi theo\",
-                \"examples\": [
-                  {
-                    \"text\": \"She **ran after** the bus but missed it.\",
-                    \"translation\": \"Cô ấy **chạy theo** xe buýt nhưng đã lỡ.\"
-                  }
-                ]
-              }
-            ]
-          },
           \"synonyms\": {
             \"label\": \"Từ đồng nghĩa\",
-            \"items\": [\"sprint\", \"dash\", \"jog\", \"race\", \"hurry\"]
+            \"items\": [\"foliage\", \"frond\"]
           }
         },
         {
           \"pronunciation\": {
             \"UK\": {
-              \"ipa\": [\"/rʌn/\"],
+              \"ipa\": [\"/liːv/\"],
               \"tts_code\": \"en-GB\"
             },
             \"US\": {
-              \"ipa\": [\"/rʌn/\"],
+              \"ipa\": [\"/liːv/\"],
               \"tts_code\": \"en-US\"
             }
           },
-          \"part_of_speech\": \"Danh từ\",
-          \"definition\": \"sự chạy, cuộc chạy\",
+          \"part_of_speech\": \"Động từ\",
+          \"definition\": \"rời đi, rời khỏi\",
+          \"note\": \"ngôi thứ ba số ít thì hiện tại của **leave**\",
           \"examples\": [
             {
-              \"text\": \"The marathon was a tough **run**.\",
-              \"translation\": \"Cuộc marathon là một cuộc **chạy** khó khăn.\"
+              \"text\": \"She **leaves** for work at 8 AM every day.\",
+              \"translation\": \"Cô ấy **rời** nhà đi làm lúc 8 giờ sáng mỗi ngày.\"
             },
             {
-              \"text\": \"They went for a quick **run** in the park.\",
-              \"translation\": \"Họ đi **chạy** nhanh trong công viên.\"
+              \"text\": \"The train **leaves** the station in five minutes.\",
+              \"translation\": \"Chuyến tàu **rời** ga trong năm phút nữa.\"
             }
           ],
           \"synonyms\": {
             \"label\": \"Từ đồng nghĩa\",
-            \"items\": [\"jog\", \"sprint\", \"dash\"]
+            \"items\": [\"departs\", \"goes\", \"exits\", \"withdraws\"]
           }
         }
       ]
@@ -413,7 +373,7 @@ export const generateTranslationPrompt = (
     }
     \`\`\`
 
-  - e.g.3., English to English. This is an example of source and translated languages being the same, as you can see the example sentences just include \`text\` field without \`translation\`:
+  - e.g.3., English word "resource" to English itself. This is an example of source and translated languages being the same, as you can see the example sentences just include \`text\` field without \`translation\`:
 
     \`\`\`json
     {

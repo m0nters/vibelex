@@ -101,6 +101,7 @@ export interface MeaningEntry {
   pronunciation: string | PronunciationVariants;
   part_of_speech: string;
   definition: string;
+  note?: string; // For morphological transformations explanation (e.g., "số nhiều của **shelf**")
   synonyms?: SynonymGroup;
   idioms?: IdiomGroup;
   phrasal_verbs?: PhrasalVerbGroup;
@@ -111,6 +112,7 @@ export const MeaningEntrySchema = z.object({
   pronunciation: z.union([z.string(), PronunciationVariantsSchema]),
   part_of_speech: z.string(),
   definition: z.string(),
+  note: z.string().optional(),
   synonyms: SynonymGroupSchema.optional(),
   idioms: IdiomGroupSchema.optional(),
   phrasal_verbs: PhrasalVerbGroupSchema.optional(),

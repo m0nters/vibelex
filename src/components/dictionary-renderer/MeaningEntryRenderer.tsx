@@ -35,6 +35,11 @@ export function MeaningEntryRenderer({
         <span className="rounded-full border border-green-200 bg-green-50 px-2 py-1 text-xs font-medium text-green-600">
           {entry.part_of_speech}
         </span>
+        {entry.note && (
+          <p className="mt-2 ml-1 text-xs text-gray-800 [&_strong]:text-sm [&_strong]:font-medium">
+            ({renderText(entry.note)})
+          </p>
+        )}
         <p className="mt-2 ml-1 text-sm font-medium text-gray-800">
           {entry.definition}
         </p>
