@@ -20,48 +20,9 @@ function hslToHex(h: number, s: number, l: number): string {
 }
 
 /**
- * Calculate relative luminance for contrast checking
- * Based on WCAG guidelines
- */
-function getLuminance(hex: string): number {
-  const rgb = parseInt(hex.slice(1), 16);
-  const r = ((rgb >> 16) & 0xff) / 255;
-  const g = ((rgb >> 8) & 0xff) / 255;
-  const b = (rgb & 0xff) / 255;
-
-  const [rs, gs, bs] = [r, g, b].map((c) => {
-    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-  });
-
-  return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
-}
-
-/**
- * Calculate contrast ratio between two colors
- */
-function getContrastRatio(color1: string, color2: string): number {
-  const lum1 = getLuminance(color1);
-  const lum2 = getLuminance(color2);
-  const lighter = Math.max(lum1, lum2);
-  const darker = Math.min(lum1, lum2);
-  return (lighter + 0.05) / (darker + 0.05);
-}
-
-/**
- * Check if a color has sufficient contrast with existing colors
- */
-function hasSufficientContrast(
-  newColor: string,
-  existingColors: string[],
-  minContrast: number = 2.0,
-): boolean {
-  return existingColors.every(
-    (color) => getContrastRatio(newColor, color) >= minContrast,
-  );
-}
-
-/**
- * Generate N visually distinct colors with good contrast
+ * Generate N visually distinct colors with good contrast, this is a very
+ * expensive operation due to distance checks, but the good news is that we only
+ * run this once since we have caching mechanism. :D
  * @param count Number of colors to generate
  * @param saturation Saturation level (0-100), default 70
  * @param lightness Lightness level (0-100), default 55
@@ -75,7 +36,6 @@ export function generateDistinctColors(
   if (count <= 0) return [];
 
   const colors: string[] = [];
-  const goldenRatioConjugate = 0.618033988749895;
 
   // Base hues that provide good starting points
   const baseHues = [
@@ -98,50 +58,78 @@ export function generateDistinctColors(
       .map((hue) => hslToHex(hue, saturation, lightness));
   }
 
-  // For more colors, use golden ratio distribution with contrast checking
-  let hue = Math.random() * 360;
-  let attempts = 0;
-  const maxAttempts = count * 50;
+  // Use all base hues first
+  baseHues.forEach((hue) => {
+    colors.push(hslToHex(hue, saturation, lightness));
+  });
 
-  while (colors.length < count && attempts < maxAttempts) {
-    attempts++;
+  // Minimum distance that human eyes can distinguish (at least 15 degrees)
+  // But if there are too many colors, we need to reduce this distance
+  const minDistance = Math.max(15, 360 / count);
 
-    // Generate candidate color
-    hue = (hue + goldenRatioConjugate * 360) % 360;
+  // Generate remaining colors with sufficient hue distance
+  const maxAttempts = 1000;
 
-    // Vary saturation and lightness slightly for more variety
-    const variedSaturation = saturation + (Math.random() - 0.5) * 20;
-    const variedLightness = lightness + (Math.random() - 0.5) * 15;
-
-    const candidateColor = hslToHex(
-      hue,
-      Math.max(50, Math.min(90, variedSaturation)),
-      Math.max(40, Math.min(70, variedLightness)),
-    );
-
-    // Check contrast with existing colors
-    if (colors.length === 0 || hasSufficientContrast(candidateColor, colors)) {
-      colors.push(candidateColor);
-    }
-  }
-
-  // If we couldn't generate enough colors with good contrast,
-  // fill remaining with variations
+  // worst case: `maxAttempts` * `n` colors, but usually much less due to early breaks
   while (colors.length < count) {
-    hue = (hue + 360 / count) % 360;
-    const fallbackColor = hslToHex(hue, saturation, lightness);
-    colors.push(fallbackColor);
+    let foundValidHue = false;
+    let attempts = 0;
+
+    while (!foundValidHue && attempts < maxAttempts) {
+      attempts++;
+      const candidateHue = Math.random() * 360;
+
+      // Check if this hue is sufficiently distant from all existing hues
+      const isDistinct = baseHues.every((existingHue) => {
+        const distance = Math.min(
+          Math.abs(candidateHue - existingHue),
+          360 - Math.abs(candidateHue - existingHue),
+        );
+        return distance >= minDistance;
+      });
+
+      if (isDistinct) {
+        colors.push(hslToHex(candidateHue, saturation, lightness));
+        baseHues.push(candidateHue);
+        foundValidHue = true;
+      }
+    }
+
+    // If we couldn't find a valid hue after max attempts, just add any color
+    // This prevents infinite loops when there are too many colors
+    if (!foundValidHue) {
+      const fallbackHue = Math.random() * 360;
+      colors.push(hslToHex(fallbackHue, saturation, lightness));
+      baseHues.push(fallbackHue);
+    }
   }
 
   return colors;
 }
 
+// Generating colors is expensive, it's O(n^2) in worst case due to distance
+// checks so cache to store generated colors for each count.
+// Since this is a utility module, the cache will persist as long as the app
+// is running.
+const colorCache = new Map<number, string[]>();
+
 /**
- * Get a color for a specific index, generating more if needed
- * This provides a stable color for each index across renders
+ * Get a color for a specific index
  */
 export function getColorForIndex(index: number, totalCount: number): string {
-  // Generate all colors at once for consistency
-  const allColors = generateDistinctColors(totalCount);
+  // Check if we have cached colors for this count
+  if (!colorCache.has(totalCount)) {
+    // Generate all colors at once and cache them
+    colorCache.set(totalCount, generateDistinctColors(totalCount));
+  }
+
+  const allColors = colorCache.get(totalCount)!;
   return allColors[index];
+}
+
+/**
+ * Clear the color cache (useful when you want to regenerate colors)
+ */
+export function clearColorCache(): void {
+  colorCache.clear();
 }
