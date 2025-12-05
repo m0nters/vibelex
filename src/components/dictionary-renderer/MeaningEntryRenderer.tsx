@@ -17,7 +17,7 @@ export function MeaningEntryRenderer({
   translatedTtsLanguageCode,
 }: MeaningEntryRendererProps) {
   return (
-    <div>
+    <div className="whitespace-pre-line">
       {/* Word and Pronunciation Header (original style) */}
       <div className="mb-4">
         <h1 className="mb-1 text-xl font-semibold wrap-break-word text-blue-600">
