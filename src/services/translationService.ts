@@ -145,14 +145,52 @@ export const generateTranslationPrompt = (
   - If input could be either (e.g., "run fast" could be a collocation or part of a sentence), prefer dictionary entry format
 
 - **Dictionary Entry Input (Lexical Units):**
-  - For words that has more than 1 pronunciation variants in source language (e.g., "run" is an English word, has pronunciation variants of UK, US), provide both variants as objects with \`ipa\` and \`tts_code\` fields. For others that don't have pronunciation variants, just use that single one as a string (e.g., Pinyin for Chinese).
-  - When multiple IPA pronunciations exist for the same variant, include all common pronunciations in an array, prioritizing the most standard or widely accepted pronunciation first. (e.g., the word "usurpation" has US: ["/ˌjuː.zɜːˈpeɪ.ʃən/", "/ˌjuː.sɜːˈpeɪ.ʃən/"], UK: ["/ˌjuː.sɜːˈpeɪ.ʃən/", "/ˌjuː.zɜːˈpeɪ.ʃən/"])
+  - **\`pronunciation\` Field Format by Language:**
+    - **Languages with SIGNIFICANT regional variants (use object format with multiple variants):**
+      - **English:** Provide both UK and US variants. Use keys "UK" and "US", each containing \`ipa\` array and \`tts_code\`.
+        Example pronunciation field: 
+        \`\`\`json
+        "pronunciation": {
+          "UK": {
+            "ipa": ["/rʌn/"],
+            "tts_code": "en-GB"
+          },
+          "US": {
+            "ipa": ["/rʌn/"],
+            "tts_code": "en-US"
+          }
+        }
+        \`\`\`
+      - **Portuguese:** Provide European (Portugal) and Brazilian variants when they differ. Use keys "PT" and "BR" with same structure as English.
+      - **Spanish:** Only include variants when pronunciation differs significantly between Spain and Latin America (rare cases). Use keys "ES" and "LATAM".
+      - **Chinese (Mandarin):** Only include variants if specifically referring to Mainland vs Taiwan pronunciation differences (rare for most words). Use keys "CN" and "TW".
+    - **Languages with single standard pronunciation (use simple string format):**
+      - **Chinese (Mandarin):** Use Pinyin as a simple string. Most words have one standard pronunciation based on Beijing (mainland China).
+        Example pronunciation field: \`"pronunciation": "pǎo"\`
+      - **Japanese:** Use Romaji as a simple string (e.g., \`"pronunciation": "hashiru"\`). Standard pronunciation is consistent.
+      - **Korean:** Use Revised Romanization as a simple string (e.g., \`"pronunciation": "dalrida"\`). Standard pronunciation is consistent.
+      - **Vietnamese:** Use simple string for pronunciation guide if needed, though Vietnamese uses Latin script. Most words have one standard pronunciation of Hanoi.
+      - **French, German, Italian, Dutch, Russian, Arabic, Thai, Hindi, Turkish:** Use simple string format. These languages typically have one standard pronunciation per word.
+  - When multiple IPA pronunciations exist for the same variant (different acceptable pronunciations within one region), include all common pronunciations in an array within the \`ipa\` field, prioritizing the most standard or widely accepted pronunciation first. 
+    Example: 
+    \`\`\`json
+    "pronunciation": {
+      "UK": {
+        "ipa": ["/ˌjuː.sɜːˈpeɪ.ʃən/", "/ˌjuː.zɜːˈpeɪ.ʃən/"],
+        "tts_code": "en-GB"
+      },
+      "US": {
+        "ipa": ["/ˌjuː.zɜːˈpeɪ.ʃən/", "/ˌjuː.sɜːˈpeɪ.ʃən/"],
+        "tts_code": "en-US"
+      }
+    }
+    \`\`\`
   - Translate the meaning into the translated language, specifying its part of speech (in the translated language too, e.g., "Danh từ" for "Noun" in Vietnamese, "名词" for "Noun" in Chinese, "Idiome" for "Idiom" in French, etc.).
   - In the \`definition\` field, add appropriate register/style notes in parentheses when needed BEFORE the definition, using the translated language. Examples: if the translated language is Vietnamese then use "(từ lóng)" for slang, "(thông tục)" for informal in Vietnamese, "(trang trọng)" for formal, "(kỹ thuật)" for technical, etc. Example: \`"ass": (thông tục) mông, đít\`.
-  - Always keep words in lowercase, regardless of whether the selected text is uppercase or not. (e.g., translating "Run", "RUN", "SCREENSHOTS", or "Corrió" will still end up as translating "run", "screenshot", "correr" respectively)
+  - Always keep words in lowercase, regardless of whether the selected text is uppercase or not. (e.g., translating "Run", "RUN", "run", will still end up as translating "run")
   - If the word has multiple meanings or pronunciations, list each separately in the same entry format (meaning entry). List all of them, DO NOT limit.
-    A word is considered to have multiple meanings if those meanings are significantly different from each other and not just variations of the same meaning. For example: "bank" (financial institution) and "bank" (side of a river) are different meanings; "run" (to move quickly) and "run" (to manage) are also different meanings. However, "run" (to move quickly) and "run" (walk fast) would be considered variations of the same meaning.
-  - **CRITICAL: Morphological Transformation Handling:**
+    A word is considered to have multiple meanings if those meanings are **SIGNIFICANTLY** different from each other and not just variations of the same meaning. For example: "bank" (financial institution) and "bank" (side of a river) are different meanings; "run" (to move quickly) and "run" (to manage) are also different meanings. However, "run" (to move quickly) and "run" (walk fast) would be considered variations of the same meaning.
+  - **Morphological Transformation Handling:**
     - **Always translate the BASE/LEMMA form** of the word (infinitive for verbs, singular for nouns, positive degree for adjectives, etc.)
     - **If the input word is a morphological transformation** (conjugated verb, plural noun, comparative adjective, etc.), add a \`note\` field **inside the relevant meaning(s)** to document the transformation in the TRANSLATED LANGUAGE
     - The \`note\` field explains what form the user looked up, using bold for the base form. Examples:
@@ -163,26 +201,26 @@ export const generateTranslationPrompt = (
       - "meilleur" → translate "bon", note: "comparatif de **bon**" (French)
     - For pure base forms with no transformation, omit the \`note\` field entirely
   - Include enough example sentences as array of objects in field \`examples\` to demonstrate all possible transformations of the word (e.g., "run", "ran", "running", "runs"). Each example object should have these fields: 
-    - \`text\`: the example sentence in source language, remember to keep the word being defined in bold using markdown syntax (e.g., **word**).
+    - \`text\`: the example sentence in the **SOURCE** language ONLY (this is IMPORTANT since sometimes you may mix source and translated language up in this \`text\` field)! Keep the word being defined in bold using markdown syntax (e.g., **word**). 
+      **IMPORTANT for spacing**: Follow the natural writing convention of the source language:
+      - For languages with spaces between words (English, Spanish, French, Vietnamese, etc.): Use spaces normally (e.g., "The **cat** is sleeping.")
+      - For languages without spaces between words (Chinese, Japanese, etc.): Write continuously without spaces (e.g., "他每天早上都**跑**步。")
     - \`pronunciation\`: **ONLY include this field if the source language uses non-Latin script** (as identified earlier), also the defined word's pronunciation is in bold too. For Latin-based scripts, **completely omit this field**.
-    - \`translation\`: the translation of example sentence above to translated language, also keep the word being defined in bold. **IMPORTANT***: If the source and translated languages are the same, aka same language translation, **omit this field entirely**
-  - **Synonyms:** For each meaning entry, include a \`synonyms\` field containing an object with \`label\` (the word "Synonyms" in the translated language) and \`items\` (array of synonymous expressions in the SOURCE LANGUAGE). 
+    - \`translation\`: the translation of example sentence above to **TRANSLATED** language, also keep the word being defined in bold. **IMPORTANT**: If the source and translated languages are the same, aka same language translation, **omit this field entirely**
+  - **Synonyms:** For each meaning entry, include a \`synonyms\` field containing an object with \`label\`, which is the word "Synonyms" in the **TRANSLATED** language; and \`items\`, which is the array of synonymous expressions in the **SOURCE** language (if the source language is non-Latin script, DO NOT need pronunciations for the expressions). 
     Provide comprehensive alternatives when available (aim for 3-10 items per meaning if they exist). If no synonymous expressions exist for a particular meaning, omit the synonyms field entirely. The items can include single words, phrasal verbs, collocations, and other equivalent expressions. Examples: for "dash" meaning "run quickly", translated to Vietnamese → {"label": "Từ đồng nghĩa", "items": ["rush", "race", "sprint", "hurry", "take off", "go hell for leather", "put on some speed"]}; for "dash" meaning "strike forcefully" → {"label": "Từ đồng nghĩa", "items": ["hurl", "smash", "crash", "slam", "fling"]}.
-    **🚨 CRITICAL: The synonyms must be in the SOURCE LANGUAGE, NOT the translated language! 🚨**
-  - **Idioms (Optional):** For each meaning entry, include an \`idioms\` field containing an object with \`label\` (the word "Idioms" in the translated language, e.g., "成语" in Chinese) and \`items\` (array of idiom objects). Each idiom object should have:
-    - \`idiom\`: the idiom expression in SOURCE LANGUAGE (remember, NOT translated language), DO NOT bold the idiom here
-    - \`meaning\`: explanation of the idiom's meaning in the TRANSLATED LANGUAGE, add appropriate register/style notes in parentheses just like in the definition field when needed
+  - **Idioms (Optional):** For each meaning entry, include an \`idioms\` field containing an object with \`label\` (the word "Idioms" in the **TRANSLATED** language, e.g., "成语" in Chinese) and \`items\` (array of idiom objects). Each idiom object should have:
+    - \`idiom\`: the idiom expression in **SOURCE** language, DO NOT bold the defined word in idiom here. If the source language is non-Latin script, DO NOT need pronunciation for the idiom.
+    - \`meaning\`: explanation of the idiom's meaning in the **TRANSLATED** language, add appropriate register/style notes in parentheses just like in the definition field when needed
     - \`examples\`: array of example sentences using the idiom, with same structure as regular examples (\`text\`, \`translation\`, and \`pronunciation\` (with fields omitted based on conditions mentioned earlier))
-    Only include idioms that specifically use the word being defined and relate to that particular meaning. If no relevant idioms exist for a meaning, omit the idioms field entirely. Examples: for "run" meaning "move quickly" → {"label": "Thành ngữ", "items": [{"idiom": "run for your life", "meaning": "chạy thật nhanh để thoát khỏi nguy hiểm", "examples": [{"text": "When they saw the bear, everyone started to **run for their lives**.", "translation": "Khi thấy con gấu, mọi người bắt đầu **chạy thật nhanh để cứu mạng**."}]}]}; for "break" meaning "damage" → {"label": "Idiomes", "items": [{"idiom": "break the ice", "meaning": "briser la glace, commencer une conversation", "examples": [{"text": "He told a joke to **break the ice** at the meeting.", "translation": "Il a raconté une blague pour **briser la glace** lors de la réunion."}]}]}.
+    Only include idioms that specifically use the word being defined and relate to that particular meaning. If no relevant idioms exist for a meaning, omit the \`idioms\` field entirely. Examples: for "run" meaning "move quickly" → {"label": "Thành ngữ", "items": [{"idiom": "run for your life", "meaning": "chạy thật nhanh để thoát khỏi nguy hiểm", "examples": [{"text": "When they saw the bear, everyone started to **run for their lives**.", "translation": "Khi thấy con gấu, mọi người bắt đầu **chạy thật nhanh để cứu mạng**."}]}]}; for "break" meaning "damage" → {"label": "Idiomes", "items": [{"idiom": "break the ice", "meaning": "briser la glace, commencer une conversation", "examples": [{"text": "He told a joke to **break the ice** at the meeting.", "translation": "Il a raconté une blague pour **briser la glace** lors de la réunion."}]}]}.
     Include all idioms that fit the criteria, aim for at least 3-5 common ones if they exist.
-  - **Phrasal Verbs (Optional):** For each meaning entry, include a \`phrasal_verbs\` field containing an object with \`label\` (the word "Phrasal Verbs" in the translated language, e.g., "Cụm động từ" in Vietnamese) and \`items\` (array of phrasal verb objects). Each phrasal verb object should have:
-    - \`phrasal_verb\`: the phrasal verb expression in source language (verb + particle(s)), DO NOT bold the phrasal verb here
-    - \`meaning\`: definition/translation of the phrasal verb in the translated language, add appropriate register/style notes in parentheses just like in the definition field when needed
+  - **Phrasal Verbs (Optional):** For each meaning entry, include a \`phrasal_verbs\` field containing an object with \`label\` (the word "Phrasal Verbs" in the **TRANSLATED** language, e.g., "Cụm động từ" in Vietnamese) and \`items\` (array of phrasal verb objects). Each phrasal verb object should have:
+    - \`phrasal_verb\`: the phrasal verb expression in **SOURCE** language (verb + particle(s)), DO NOT bold the defined word in phrasal verb here. If the source language is non-Latin script, DO NOT need pronunciation for the phrasal verb.
+    - \`meaning\`: definition/translation of the phrasal verb in the **TRANSLATED** language, add appropriate register/style notes in parentheses just like in the definition field when needed
     - \`examples\`: array of example sentences using the phrasal verb, with same structure as regular examples (\`text\`, \`translation\`, and \`pronunciation\` (with fields omitted based on conditions mentioned earlier))
-    Include all phrasal verbs that fit the criteria, aim for at least 3-10 common ones if they exist.
-    **IMPORTANT DISTINCTION:** Phrasal verbs are combinations of a verb + particle (preposition/adverb) that create a new meaning (e.g., "run out" = exhaust supply, "run into" = encounter). They are NOT idioms (which are non-literal expressions like "run for your life"). Only include phrasal verbs that use the word being defined as the main verb and relate to that specific meaning. If no relevant phrasal verbs exist for a meaning, omit the phrasal_verbs field entirely. Examples: for "run" meaning "move quickly" → {"label": "Động từ cụm", "items": [{"phrasal_verb": "run away", "meaning": "chạy trốn, bỏ chạy", "examples": [{"text": "The thief **ran away** when he saw the police.", "translation": "Tên trộm **bỏ chạy** khi thấy cảnh sát."}]}, {"phrasal_verb": "run after", "meaning": "chạy theo, đuổi theo", "examples": [{"text": "She **ran after** the bus but missed it.", "translation": "Cô ấy **chạy theo** xe buýt nhưng đã lỡ."}]}]}; for "break" meaning "damage" → {"label": "Verbes à particule", "items": [{"phrasal_verb": "break down", "meaning": "tomber en panne, se casser", "examples": [{"text": "My car **broke down** on the highway.", "translation": "Ma voiture **est tombée en panne** sur l'autoroute."}]}]}.
-  - If that word is a verb and has many conjugations, give enough examples to illustrate all the different forms.
-  - If the source and translated languages are the same, provide the dictionary entry and example sentences in that language without translations.
+    Include all phrasal verbs that fit the criteria, aim for at least 3-10 common ones if they exist. If no relevant phrasal verbs exist for a meaning, omit the \`phrasal_verbs\` field entirely.
+  - ***IMPORTANT DISTINCTION:*** Phrasal verbs are combinations of a verb + particle (preposition/adverb) that create a new meaning (e.g., "run out" = exhaust supply, "run into" = encounter). They are NOT idioms (which are non-literal expressions like "run for your life").
 
 - **Sentence/Phrase Translation Input:**
   - Provide only the translated language translation (simple text/translation JSON format).
@@ -439,7 +477,7 @@ export const generateTranslationPrompt = (
     \`\`\`
 
 - **SUMMARY IMPORTANT NOTES:** 
-  1. Synonyms, idioms, and phrasal verbs must ALL be in the SOURCE LANGUAGE (same language as the input word)!
+  1. Example sentences' \`text\` fields, synonyms, idioms, and phrasal verbs must ALL be in the SOURCE LANGUAGE (same language as the input word)!
   2. Add register notes in parentheses to definitions when appropriate: "(từ lóng)" for slang, "(thông tục)" for informal, "(trang trọng)" for formal, etc.
   3. All the labels (e.g., "Synonyms", "Idioms", "Phrasal Verbs") must be in the TRANSLATED LANGUAGE.
   4. All the example sentences must keep the word being defined in bold using markdown syntax (e.g., **word**) in both \`text\`, \`translation\`, and \`pronunciation\` (if applicable).
