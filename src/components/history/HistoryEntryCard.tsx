@@ -10,8 +10,8 @@ import { useTranslation } from "react-i18next";
 interface HistoryEntryCardProps {
   entry: HistoryEntry;
   isSelected: boolean;
-  onEntryClick: (entry: HistoryEntry) => void;
-  onToggleSelection: (entryId: string) => void;
+  onEntryClick: (entry: HistoryEntry, event?: React.MouseEvent) => void;
+  onToggleSelection: (entryId: string, event?: React.MouseEvent) => void;
   onPinEntry: (entryId: string, event: React.MouseEvent) => void;
   onRemoveEntry: (entryId: string, event: React.MouseEvent) => void;
   onLanguageBadgeClick: (
@@ -43,7 +43,7 @@ export function HistoryEntryCard({
 
   const handleSelectionClick = (event: React.MouseEvent) => {
     event.stopPropagation();
-    onToggleSelection(entry.id);
+    onToggleSelection(entry.id, event);
   };
 
   const formatTimestampForBadge = (timestamp: number, locale: string) => {
@@ -73,7 +73,7 @@ export function HistoryEntryCard({
   return (
     <div
       key={entry.id}
-      onClick={() => onEntryClick(entry)}
+      onClick={(e) => onEntryClick(entry, e)}
       className={`group relative cursor-pointer rounded-2xl border p-4 transition-all duration-300 active:scale-95 ${
         isSelected
           ? "border-indigo-400 bg-indigo-50/80 shadow-lg shadow-indigo-100/50"

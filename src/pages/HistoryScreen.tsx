@@ -26,6 +26,9 @@ export function HistoryScreen() {
   const [selectedEntries, setSelectedEntries] = useState<Set<string>>(
     new Set(),
   );
+  const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(
+    null,
+  );
 
   // @ts-ignore
   const [isLoading, setIsLoading] = useState(false);
@@ -111,6 +114,7 @@ export function HistoryScreen() {
       await clearHistory();
       setEntries([]);
       setSelectedEntries(new Set());
+      setLastSelectedIndex(null);
       setHistoryEntryStats(null);
     } catch (error) {
       console.error("Failed to clear history:", error);
@@ -169,10 +173,10 @@ export function HistoryScreen() {
     navigate(path, options);
   };
 
-  const handleEntryClick = (entry: HistoryEntry) => {
-    // If in selection mode, toggle selection instead of navigating
+  const handleEntryClick = (entry: HistoryEntry, event?: React.MouseEvent) => {
+    // If in selection mode
     if (selectedEntries.size > 0) {
-      handleToggleSelection(entry.id);
+      handleToggleSelection(entry.id, event);
       return;
     }
 
@@ -181,7 +185,38 @@ export function HistoryScreen() {
     customNavigate(`/history/${entry.id}`, { state: { entry } });
   };
 
-  const handleToggleSelection = (entryId: string) => {
+  const rangeSelect = (currentIndex: number) => {
+    const start = Math.min(lastSelectedIndex!, currentIndex);
+    const end = Math.max(lastSelectedIndex!, currentIndex);
+    const rangeIds = entries.slice(start, end + 1).map((e) => e.id);
+    // remove entry in `lastSelectedIndex` out of `rangeIds`
+    if (lastSelectedIndex! < currentIndex) {
+      rangeIds.shift();
+    } else {
+      rangeIds.pop();
+    }
+
+    setSelectedEntries((prev) => {
+      // list of currently selected entries (before range selection)
+      const newSet = new Set(prev);
+
+      // Check if any entry in `rangeIds` is already selected
+      const hasAnySelected = rangeIds.some((id) => newSet.has(id));
+
+      if (hasAnySelected) {
+        // Remove all entries in `rangeIds` + the `lastSelectedIndex` entry
+        rangeIds.forEach((id) => newSet.delete(id));
+        newSet.delete(entries[lastSelectedIndex!].id);
+      } else {
+        // Add all entries in `rangeIds`
+        rangeIds.forEach((id) => newSet.add(id));
+      }
+
+      return newSet;
+    });
+  };
+
+  const singleSelect = (entryId: string) => {
     setSelectedEntries((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(entryId)) {
@@ -193,11 +228,28 @@ export function HistoryScreen() {
     });
   };
 
+  const handleToggleSelection = (entryId: string, event?: React.MouseEvent) => {
+    const currentIndex = entries.findIndex((e) => e.id === entryId);
+
+    // If Shift key is held and there's a last selected index, do range selection
+    if (event?.shiftKey && lastSelectedIndex !== null) {
+      rangeSelect(currentIndex);
+    }
+    // Normal click: toggle single selection
+    else {
+      singleSelect(entryId);
+    }
+
+    setLastSelectedIndex(currentIndex);
+  };
+
   const handleSelectAll = () => {
     if (selectedEntries.size === entries.length) {
       setSelectedEntries(new Set());
+      setLastSelectedIndex(null);
     } else {
       setSelectedEntries(new Set(entries.map((e) => e.id)));
+      setLastSelectedIndex(entries.length - 1);
     }
   };
 
@@ -217,6 +269,7 @@ export function HistoryScreen() {
       // Delete all selected entries in a single operation
       await removeHistoryEntries(Array.from(selectedEntries));
       setSelectedEntries(new Set());
+      setLastSelectedIndex(null);
       setShowBulkDeleteConfirm(false);
       await displayResultedEntry();
     } catch (error) {
