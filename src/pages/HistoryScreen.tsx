@@ -23,10 +23,10 @@ export function HistoryScreen() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [entries, setEntries] = useState<HistoryEntry[]>([]); // displayed result
-  const [selectedEntries, setSelectedEntries] = useState<Set<string>>(
+  const [selectedEntries, setSelectedEntries] = useState<Set<string>>( // the current selected entries' IDs
     new Set(),
   );
-  const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(
+  const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>( // the last selected entry index for range selection
     null,
   );
 
