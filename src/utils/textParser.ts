@@ -45,7 +45,7 @@ export const renderText = (text: string) => {
 export const isDictionaryEntry = (
   translation: ParsedTranslation,
 ): translation is DictionaryEntry => {
-  return "meanings" in translation;
+  return "word" in translation;
 };
 
 /**

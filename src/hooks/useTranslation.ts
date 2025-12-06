@@ -5,7 +5,6 @@ import {
 import { saveTranslation, translateWithGemini } from "@/services";
 import { AppException, TranslationResult } from "@/types";
 import {
-  isDictionaryEntry,
   isSentenceTranslation,
   parseTranslationJSON,
   updatePopupHeight,
@@ -76,10 +75,9 @@ export const useTranslation = () => {
       // and stop the rest below
       const parsedTranslation = parseTranslationJSON(rawResponse);
 
-      // add another field `word` or `text` to the parsedTranslation for UI display in the future
-      if (isDictionaryEntry(parsedTranslation)) {
-        parsedTranslation.word = text;
-      } else if (isSentenceTranslation(parsedTranslation)) {
+      // add another field `text` to the sentence translation to store for UI
+      // display in the future
+      if (isSentenceTranslation(parsedTranslation)) {
         parsedTranslation.text = text;
       }
 
