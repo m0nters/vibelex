@@ -188,14 +188,17 @@ export function HistoryScreen() {
   const rangeSelect = (currentIndex: number) => {
     if (lastSelectedIndex === null) return;
 
-    const start = Math.min(lastSelectedIndex, currentIndex);
-    const end = Math.max(lastSelectedIndex, currentIndex);
-    const rangeIds = entries.slice(start, end + 1).map((e) => e.id);
-    // remove entry in `lastSelectedIndex` out of `rangeIds`
+    // list of entry IDs in the range between `lastSelectedIndex` (exclude) and `currentIndex` (include)
+    let rangeIds: string[] = [];
+
     if (lastSelectedIndex < currentIndex) {
-      rangeIds.shift();
+      rangeIds = entries
+        .slice(lastSelectedIndex + 1, currentIndex + 1)
+        .map((e) => e.id);
     } else {
-      rangeIds.pop();
+      rangeIds = entries
+        .slice(currentIndex, lastSelectedIndex)
+        .map((e) => e.id);
     }
 
     setSelectedEntries((prev) => {
