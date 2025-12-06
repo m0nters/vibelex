@@ -186,11 +186,13 @@ export function HistoryScreen() {
   };
 
   const rangeSelect = (currentIndex: number) => {
-    const start = Math.min(lastSelectedIndex!, currentIndex);
-    const end = Math.max(lastSelectedIndex!, currentIndex);
+    if (lastSelectedIndex === null) return;
+
+    const start = Math.min(lastSelectedIndex, currentIndex);
+    const end = Math.max(lastSelectedIndex, currentIndex);
     const rangeIds = entries.slice(start, end + 1).map((e) => e.id);
     // remove entry in `lastSelectedIndex` out of `rangeIds`
-    if (lastSelectedIndex! < currentIndex) {
+    if (lastSelectedIndex < currentIndex) {
       rangeIds.shift();
     } else {
       rangeIds.pop();
@@ -206,7 +208,7 @@ export function HistoryScreen() {
       if (hasAnySelected) {
         // Remove all entries in `rangeIds` + the `lastSelectedIndex` entry
         rangeIds.forEach((id) => newSet.delete(id));
-        newSet.delete(entries[lastSelectedIndex!].id);
+        newSet.delete(entries[lastSelectedIndex].id);
       } else {
         // Add all entries in `rangeIds`
         rangeIds.forEach((id) => newSet.add(id));
