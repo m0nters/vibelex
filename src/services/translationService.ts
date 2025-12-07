@@ -288,11 +288,11 @@ export const generateTranslationPrompt = (
     
     export const SynonymGroupSchema = z.object({
       label: z.string(),
-      items: z.array(z.string()),
+      items: z.array(z.string()), // list of synonymous expressions in source language ONLY, no need for pronunciation (if non-latin)
     });
     
     export const IdiomEntrySchema = z.object({
-      idiom: z.string(),
+      idiom: z.string(), // idiom expression in source language ONLY, no need for pronunciation (if non-latin)
       meaning: z.string(),
       examples: z.array(ExampleSentenceSchema),
     });
@@ -303,7 +303,7 @@ export const generateTranslationPrompt = (
     });
     
     export const PhrasalVerbEntrySchema = z.object({
-      phrasal_verb: z.string(),
+      phrasal_verb: z.string(), // phrasal verb expression in source language ONLY, no need for pronunciation (if non-latin)
       meaning: z.string(),
       examples: z.array(ExampleSentenceSchema),
     });
