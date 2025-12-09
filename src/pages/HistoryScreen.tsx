@@ -205,10 +205,10 @@ export function HistoryScreen() {
       // list of currently selected entries (before range selection)
       const newSet = new Set(prev);
 
-      // Check if any entry in `rangeIds` is already selected
-      const hasAnySelected = rangeIds.some((id) => newSet.has(id));
+      // Check if all entries in `rangeIds` are already selected
+      const hasAllSelected = rangeIds.every((id) => newSet.has(id));
 
-      if (hasAnySelected) {
+      if (hasAllSelected) {
         // Remove all entries in `rangeIds` + the `lastSelectedIndex` entry
         rangeIds.forEach((id) => newSet.delete(id));
         newSet.delete(entries[lastSelectedIndex].id);
