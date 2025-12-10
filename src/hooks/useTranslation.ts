@@ -51,6 +51,7 @@ export const useTranslation = () => {
       ...prev,
       text,
       loading: true,
+      error: undefined,
     }));
 
     try {
