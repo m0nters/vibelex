@@ -269,6 +269,7 @@ export const generateTranslationPrompt = (
   - Use search results to enhance the quality and accuracy of translations, but always format your response according to the JSON structure specified below.
 
 - **Output Format:** Output JSON only! Use JSON format with the structure following either \`DictionaryEntrySchema\` or \`SentenceTranslationSchema\` Zod schemas defined here:
+  **CRITICAL** Remember, which field is declared as "optional" in the schema means it's either conditionally included based on the rules above or can be completely omitted, DO NOT included with a null/undefined value!
   \`\`\`typescript
     export const PronunciationDetailSchema = z.object({
       ipa: z.array(z.string()),
