@@ -187,13 +187,13 @@ export const generateTranslationPrompt = (
     \`\`\`
   - Translate the meaning into the translated language, specifying its part of speech (in the translated language too, e.g., "Danh từ" for "Noun" in Vietnamese, "名词" for "Noun" in Chinese, "Idiome" for "Idiom" in French, etc.).
   - In the \`definition\` field, add appropriate register/style notes in parentheses when needed BEFORE the definition, using the translated language. Examples: if the translated language is Vietnamese then use "(từ lóng)" for slang, "(thông tục)" for informal in Vietnamese, "(trang trọng)" for formal, "(kỹ thuật)" for technical, etc. Example: \`"ass": (thông tục) mông, đít\`.
-  - Store the word to be translated in the \`word\` field always in its normalized form (lowercase by default), regardless of the original casing in the selected text.
-    Example: whether the user selects "Run", "RUN", or "run", the \`word\` field should contain "run".
-  - For proper nouns or fixed proper names that inherently require capitalization (e.g., "New York", "Eiffel Tower", "United Nations", etc.), apply the correct standard capitalization in the \`word\` field.  
+  - Store the word to be translated in the \`word\` field always in lowercase by default, regardless of the original casing in the selected text.
+    Example: whether the user selects "Runs", "RUNS", "rUnS" or "runs", the \`word\` field should contain "runs".
+  - But for proper nouns or fixed proper names that inherently require capitalization (e.g., "New York", "Eiffel Tower", "United Nations", etc.), apply the correct standard capitalization in the \`word\` field.  
   - If the word has multiple meanings or pronunciations, list each separately in the same entry format (meaning entry). List all of them, DO NOT limit.
     A word is considered to have multiple meanings if those meanings are **SIGNIFICANTLY** different from each other and not just variations of the same meaning. For example: "bank" (financial institution) and "bank" (side of a river) are different meanings; "run" (to move quickly) and "run" (to manage) are also different meanings. However, "run" (to move quickly) and "run" (walk fast) would be considered variations of the same meaning.
   - **Morphological Transformation Handling:**
-    - **Always translate the BASE/LEMMA form** of the word (infinitive for verbs, singular for nouns, positive degree for adjectives, etc.)
+    - **Always translate the BASE/LEMMA form** of the word (infinitive for verbs, singular for nouns, positive degree for adjectives, etc.). But ALWAYS keep the original input word in \`word\` field.
     - **If the input word is a morphological transformation** (conjugated verb, plural noun, comparative adjective, etc.), add a \`note\` field **inside the relevant meaning(s)** to document the transformation in the TRANSLATED LANGUAGE
     - The \`note\` field explains what form the user looked up, using bold for the base form. Examples:
       - "shelves" → translate "shelf", note: "số nhiều của **shelf**" (Vietnamese)
