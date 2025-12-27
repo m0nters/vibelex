@@ -23,7 +23,10 @@ export const saveTranslation = async (
     };
 
     // Add new entry at the beginning (most recent first)
-    const updatedEntries = sortHistoryEntries([newEntry, ...entries]);
+    const updatedEntries = sortHistoryEntries([newEntry, ...entries]).slice(
+      0,
+      100,
+    );
 
     // Save to chrome storage
     await saveHistoryToStorage(updatedEntries);
