@@ -1,5 +1,6 @@
 import { CopyButton, SpeakerButton } from "@/components";
 import { DEFAULT_SOURCE_LANGUAGE_CODE } from "@/constants";
+import { useScrollContainer } from "@/contexts/ScrollContainerContext";
 import { SentenceTranslation } from "@/types";
 import { renderText } from "@/utils";
 import { useEffect, useRef, useState } from "react";
@@ -20,13 +21,13 @@ function CollapsibleTextSection({
   const [isExpanded, setIsExpanded] = useState(isInitiallyExpanded);
   const [isSticky, setIsSticky] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useScrollContainer();
 
   // Only enable sticky behavior for history detail view (which has scrollable content)
   // Dictionary popup doesn't scroll internally, so skip sticky logic
   useEffect(() => {
-    const scrollableParent = containerRef.current?.closest(
-      ".overflow-y-auto",
-    ) as HTMLElement;
+    const scrollableParent = scrollContainerRef?.current;
+    if (!scrollableParent) return;
 
     const handleScroll = () => {
       if (!containerRef.current) return;
@@ -41,7 +42,7 @@ function CollapsibleTextSection({
     return () => {
       scrollableParent.removeEventListener("scroll", handleScroll);
     };
-  }, [isExpanded]);
+  }, [isExpanded, scrollContainerRef]);
 
   return (
     <div
@@ -63,7 +64,7 @@ function CollapsibleTextSection({
       </div>
       <CopyButton
         text={text}
-        className={isSticky ? "sticky top-20 shrink-0" : "shrink-0"}
+        className={`shrink-0 ${isSticky ? "sticky top-20" : ""}`}
       />
     </div>
   );

@@ -1,4 +1,5 @@
 import { BackButton } from "@/components";
+import { ScrollContainerContext } from "@/contexts/ScrollContainerContext";
 import { HistoryEntry } from "@/types";
 import { formatTimestampDetail } from "@/utils";
 import { toPng } from "html-to-image";
@@ -15,6 +16,7 @@ export function HistoryDetailScreen() {
   // @ts-ignore
   const { t, i18n } = useTranslation();
   const contentRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
 
   const handleDownload = async () => {
@@ -49,51 +51,64 @@ export function HistoryDetailScreen() {
   console.log(entry);
 
   return (
-    <div className="animate-slide-in-right h-full w-full overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50">
-      {/* Header */}
-      <div className="sticky top-0 z-10 border-b border-indigo-100 bg-white/70 backdrop-blur-sm select-none">
-        <div className="flex items-center justify-between p-4">
-          <div className="flex min-w-0 items-center space-x-2">
-            <BackButton />
-            <div className="min-w-0">
-              <h1 className="text-lg font-semibold text-gray-800">
-                {t("history:translationDetail")}
-              </h1>
-              <p
-                className="truncate text-xs text-gray-500 select-text"
-                title={formatTimestampDetail(entry.timestamp, i18n.language)}
-              >
-                {formatTimestampDetail(entry.timestamp, i18n.language)}
-              </p>
+    // why Provider?
+    // basically inside this component, there's component called
+    // `CollapsibleTextSection` which needs to know the scroll position of the
+    // parent container (this component) to determine when to apply sticky
+    // behavior to the copy button. By providing the scroll container ref
+    // through context, we can allow CollapsibleTextSection to listen to scroll
+    // events and update its state accordingly, without having to pass down
+    // props through multiple levels of components.
+    <ScrollContainerContext.Provider value={scrollContainerRef}>
+      <div
+        ref={scrollContainerRef}
+        className="animate-slide-in-right h-full w-full overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50"
+      >
+        {/* Header */}
+        <div className="sticky top-0 z-10 border-b border-indigo-100 bg-white/70 backdrop-blur-sm select-none">
+          <div className="flex items-center justify-between p-4">
+            <div className="flex min-w-0 items-center space-x-2">
+              <BackButton />
+              <div className="min-w-0">
+                <h1 className="text-lg font-semibold text-gray-800">
+                  {t("history:translationDetail")}
+                </h1>
+                <p
+                  className="truncate text-xs text-gray-500 select-text"
+                  title={formatTimestampDetail(entry.timestamp, i18n.language)}
+                >
+                  {formatTimestampDetail(entry.timestamp, i18n.language)}
+                </p>
+              </div>
             </div>
+            <button
+              onClick={handleDownload}
+              disabled={isDownloading}
+              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-gray-600 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed"
+              title={t("history:downloadAsPng")}
+            >
+              {isDownloading ? (
+                <LoaderCircle className="h-5 w-5 animate-spin text-indigo-600" />
+              ) : (
+                <Download className="h-5 w-5" />
+              )}
+            </button>
           </div>
-          <button
-            onClick={handleDownload}
-            disabled={isDownloading}
-            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-gray-600 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed"
-            title={t("history:downloadAsPng")}
-          >
-            {isDownloading ? (
-              <LoaderCircle className="h-5 w-5 animate-spin text-indigo-600" />
-            ) : (
-              <Download className="h-5 w-5" />
-            )}
-          </button>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="flex-1 p-4">
-        <div
-          ref={contentRef}
-          className="rounded-2xl border border-gray-200 bg-gray-50 p-5 shadow-xl backdrop-blur-sm"
-        >
-          <TranslationRenderer
-            translation={entry.translation}
-            isHistoryDetailView={true}
-          />
+        {/* Content */}
+        <div className="flex-1 p-4">
+          <div
+            ref={contentRef}
+            className="rounded-2xl border border-gray-200 bg-gray-50 p-5 shadow-xl backdrop-blur-sm"
+          >
+            <TranslationRenderer
+              translation={entry.translation}
+              isHistoryDetailView={true}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </ScrollContainerContext.Provider>
   );
 }
