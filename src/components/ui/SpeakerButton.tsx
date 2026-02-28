@@ -22,7 +22,7 @@ export function SpeakerButton({
 }) {
   const { t } = useTranslation();
   const [isPlaying, setIsPlaying] = useState(false);
-  const speakSlow = useRef(false);
+  const isSpeakingSlow = useRef(false);
 
   useEffect(() => {
     return () => ttsService.stop();
@@ -36,18 +36,18 @@ export function SpeakerButton({
     } else {
       // If not playing, start speech
       try {
-        await ttsService.speak(
-          word,
+        await ttsService.speak({
+          text: word,
           ttsCode,
-          speakSlow.current,
-          () => setIsPlaying(true),
-          () => setIsPlaying(false),
-          (error) => {
+          isSlow: isSpeakingSlow.current,
+          onStart: () => setIsPlaying(true),
+          onEnd: () => setIsPlaying(false),
+          onError: (error) => {
             console.error("TTS error:", error);
             setIsPlaying(false);
           },
-        );
-        speakSlow.current = !speakSlow.current;
+        });
+        isSpeakingSlow.current = !isSpeakingSlow.current;
       } catch (error) {
         console.error("TTS error:", error);
         setIsPlaying(false);

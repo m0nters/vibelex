@@ -1,6 +1,15 @@
 /**
  * Text-to-Speech service using Web Speech API
  */
+interface SpeakOptions {
+  text: string;
+  ttsCode: string;
+  isSlow?: boolean;
+  onStart?: () => void;
+  onEnd?: () => void;
+  onError?: (error: SpeechSynthesisErrorEvent) => void;
+}
+
 export class TTSService {
   private static instance: TTSService;
 
@@ -14,14 +23,8 @@ export class TTSService {
   /**
    * Speaks the given text using the specified TTS language code
    */
-  async speak(
-    text: string,
-    ttsCode: string,
-    isSlow: boolean = false,
-    onStart?: () => void,
-    onEnd?: () => void,
-    onError?: (error: SpeechSynthesisErrorEvent) => void,
-  ): Promise<void> {
+  async speak(options: SpeakOptions): Promise<void> {
+    const { text, ttsCode, isSlow = false, onStart, onEnd, onError } = options;
     try {
       // Try Web Speech API
       if (!("speechSynthesis" in window)) {
@@ -42,7 +45,10 @@ export class TTSService {
 
       // Set up event handlers
       utterance.onstart = () => {
-        console.log("TTS started");
+        const voice = window.speechSynthesis
+          .getVoices()
+          .find((v) => v.lang === ttsCode);
+        console.log("TTS started, voice:", voice?.name ?? "unknown");
         onStart?.();
       };
 
