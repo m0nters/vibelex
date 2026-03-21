@@ -1,6 +1,9 @@
 import type { HistoryEntry, SentenceTranslation } from "@/types";
 import {
+  getHistory,
   getHistoryEntryStatistics,
+  HISTORY_STORAGE_KEY,
+  saveHistoryToStorage,
   sortHistoryEntries,
 } from "./historyStorage";
 
@@ -120,5 +123,83 @@ describe("getHistoryEntryStatistics", () => {
   it("returns a non-null result for a single entry", () => {
     const entries = [makeEntry({ id: "x", timestamp: 999 })];
     expect(getHistoryEntryStatistics(entries)).not.toBeNull();
+  });
+});
+
+// ─── getHistory & saveHistoryToStorage ────────────────────────────────────────
+
+describe("Chrome Storage Operations", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  describe("getHistory", () => {
+    it("returns an empty array when storage is missing the key", async () => {
+      // Mock chrome.storage.local.get to resolve with empty object
+      vi.mocked(chrome.storage.local.get as any).mockResolvedValueOnce({});
+
+      const result = await getHistory();
+      expect(result).toEqual([]);
+      expect(chrome.storage.local.get).toHaveBeenCalledWith([
+        HISTORY_STORAGE_KEY,
+      ]);
+    });
+
+    it("returns the stored entries when found", async () => {
+      const mockEntries = [makeEntry({ id: "stored", timestamp: 123 })];
+      vi.mocked(chrome.storage.local.get as any).mockResolvedValueOnce({
+        [HISTORY_STORAGE_KEY]: mockEntries,
+      });
+
+      const result = await getHistory();
+      expect(result).toEqual(mockEntries);
+    });
+
+    it("returns an empty array and logs an error if storage.get throws", async () => {
+      const consoleErrorSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
+      vi.mocked(chrome.storage.local.get as any).mockRejectedValueOnce(
+        new Error("Storage failed"),
+      );
+
+      const result = await getHistory();
+      expect(result).toEqual([]);
+      expect(consoleErrorSpy).toHaveBeenCalled();
+      consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe("saveHistoryToStorage", () => {
+    it("sorts entries before saving them to storage", async () => {
+      const mockEntries = [
+        makeEntry({ id: "unpinned-old", timestamp: 100 }),
+        makeEntry({ id: "unpinned-new", timestamp: 200 }),
+      ];
+
+      await saveHistoryToStorage(mockEntries);
+
+      // It should call storage.set with the correctly SORTED entries
+      expect(chrome.storage.local.set).toHaveBeenCalledWith({
+        [HISTORY_STORAGE_KEY]: [
+          mockEntries[1], // unpinned-new comes first
+          mockEntries[0], // then unpinned-old
+        ],
+      });
+    });
+
+    it("catches and logs errors if storage.set throws", async () => {
+      const consoleErrorSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
+      vi.mocked(chrome.storage.local.set as any).mockRejectedValueOnce(
+        new Error("Storage failed"),
+      );
+
+      await expect(saveHistoryToStorage([])).resolves.not.toThrow();
+      expect(consoleErrorSpy).toHaveBeenCalled();
+
+      consoleErrorSpy.mockRestore();
+    });
   });
 });

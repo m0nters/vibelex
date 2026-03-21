@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES2023",
     "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
 
@@ -27,7 +27,7 @@
     "noFallthroughCasesInSwitch": true,
 
     /* Testing */
-    "types": ["vitest/globals", "vitest/import-meta"]
+    "types": ["vitest/globals", "vitest/import-meta", "chrome", "node"]
   },
   "include": ["src"],
   "exclude": ["scripts"]

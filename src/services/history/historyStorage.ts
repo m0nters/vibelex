@@ -7,7 +7,7 @@ export const HISTORY_STORAGE_KEY = "translationHistory";
  * Meaning we have to ensure the storage always saves the sorted list
  */
 export const sortHistoryEntries = (entries: HistoryEntry[]) => {
-  return entries.sort((a, b) => {
+  return entries.toSorted((a, b) => {
     // If one is pinned and the other isn't, prioritize pinned
     if (a.pinnedAt && !b.pinnedAt) return -1;
     if (!a.pinnedAt && b.pinnedAt) return 1;
