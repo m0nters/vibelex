@@ -8,5 +8,11 @@
   "dropdown": {
     "search": "検索...",
     "noOptionsFound": "オプションが見つかりません"
-  }
+  },
+  "sortDateAsc": "日付順に並べ替え（昇順）",
+  "sortDateDesc": "日付順に並べ替え（降順）",
+  "sortAlphabetAsc": "アルファベット順に並べ替え（昇順）",
+  "sortAlphabetDesc": "アルファベット順に並べ替え（降順）",
+  "date": "日付",
+  "alphabet": "アルファベット"
 }

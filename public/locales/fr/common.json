@@ -8,5 +8,11 @@
   "dropdown": {
     "search": "Rechercher...",
     "noOptionsFound": "Aucune option trouvée"
-  }
+  },
+  "sortDateAsc": "Trier par date ascendante",
+  "sortDateDesc": "Trier par date descendante",
+  "sortAlphabetAsc": "Trier par ordre alphabétique ascendante",
+  "sortAlphabetDesc": "Trier par ordre alphabétique descendante",
+  "date": "Date",
+  "alphabet": "Alphabet"
 }

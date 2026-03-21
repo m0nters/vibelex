@@ -3,10 +3,10 @@ import { LanguageData, TabType } from "@/types";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { LanguageDetailList } from "./LanguageDetailList";
-import { LanguagePieChart } from "./LanguagePieChart";
-import { StatisticsHeader } from "./StatisticsHeader";
-import { StatsSummaryCard } from "./StatsSummaryCard";
+import { LanguageDetailList } from "./components/LanguageDetailList";
+import { LanguagePieChart } from "./components/LanguagePieChart";
+import { StatisticsHeader } from "./components/StatisticsHeader";
+import { StatsSummaryCard } from "./components/StatsSummaryCard";
 
 export function StatisticsScreen() {
   const { t } = useTranslation();
