@@ -1,18 +1,12 @@
-import { ConfirmDialog } from "@/components";
 import { useDebounce } from "@/hooks";
 import {
-  clearHistory,
   getDisplayText,
   getHistoryEntryStatistics,
-  removeHistoryEntries,
-  removeHistoryEntry,
   searchHistory,
-  togglePinEntry,
 } from "@/services";
 import { HistoryEntry } from "@/types";
 import type React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   HistoryBulkActions,
@@ -24,7 +18,6 @@ import {
 } from "./components";
 
 export function HistoryScreen() {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -34,15 +27,9 @@ export function HistoryScreen() {
   const [selectedEntries, setSelectedEntries] = useState<Set<string>>(
     new Set(),
   );
-  const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(
-    null,
-  );
   const [sortBy, setSortBy] = useState<SortOrder>("date_desc");
 
-  // @ts-ignore
   const [isLoading, setIsLoading] = useState(false);
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const [historyEntryStats, setHistoryEntryStats] = useState<{
     historyEntryCount: number;
     historySize: string;
@@ -136,44 +123,6 @@ export function HistoryScreen() {
     }
   };
 
-  const handleConfirmClearHistory = async () => {
-    try {
-      await clearHistory();
-      setEntries([]);
-      setSelectedEntries(new Set());
-      setLastSelectedIndex(null);
-      setHistoryEntryStats(null);
-      setShowConfirmDialog(false);
-    } catch (error) {
-      console.error("Failed to clear history:", error);
-    }
-  };
-
-  const handleRemoveEntry = async (
-    entryId: string,
-    event: React.MouseEvent,
-  ) => {
-    event.stopPropagation();
-    saveScrollPosition();
-    try {
-      await removeHistoryEntry(entryId);
-      await displayResultedEntry();
-    } catch (error) {
-      console.error("Failed to remove history entry:", error);
-    }
-  };
-
-  const handlePinEntry = async (entryId: string, event: React.MouseEvent) => {
-    event.stopPropagation();
-    saveScrollPosition();
-    try {
-      await togglePinEntry(entryId);
-      await displayResultedEntry();
-    } catch (error) {
-      console.error("Failed to toggle pin status:", error);
-    }
-  };
-
   const saveScrollPosition = () => {
     if (scrollContainerRef.current) {
       sessionStorage.setItem(
@@ -195,93 +144,11 @@ export function HistoryScreen() {
     navigate(path, options);
   };
 
-  const handleEntryClick = (entry: HistoryEntry, event?: React.MouseEvent) => {
-    if (selectedEntries.size > 0) {
-      handleToggleSelection(entry.id, event);
-      return;
-    }
-    customNavigate(`/history/${entry.id}`, { state: { entry } });
-  };
-
-  const rangeSelect = (currentIndex: number) => {
-    if (lastSelectedIndex === null) return;
-
-    let rangeIds: string[] = [];
-
-    if (lastSelectedIndex < currentIndex) {
-      rangeIds = sortedEntries
-        .slice(lastSelectedIndex + 1, currentIndex + 1)
-        .map((e) => e.id);
-    } else {
-      rangeIds = sortedEntries
-        .slice(currentIndex, lastSelectedIndex)
-        .map((e) => e.id);
-    }
-
-    setSelectedEntries((prev) => {
-      const newSet = new Set(prev);
-      const hasAllSelected = rangeIds.every((id) => newSet.has(id));
-
-      if (hasAllSelected) {
-        rangeIds.forEach((id) => newSet.delete(id));
-        newSet.delete(sortedEntries[lastSelectedIndex].id);
-      } else {
-        rangeIds.forEach((id) => newSet.add(id));
-      }
-
-      return newSet;
-    });
-  };
-
-  const singleSelect = (entryId: string) => {
-    setSelectedEntries((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(entryId)) {
-        newSet.delete(entryId);
-      } else {
-        newSet.add(entryId);
-      }
-      return newSet;
-    });
-  };
-
-  const handleToggleSelection = (entryId: string, event?: React.MouseEvent) => {
-    const currentIndex = sortedEntries.findIndex((e) => e.id === entryId);
-
-    if (event?.shiftKey && lastSelectedIndex !== null) {
-      rangeSelect(currentIndex);
-    } else {
-      singleSelect(entryId);
-    }
-
-    setLastSelectedIndex(currentIndex);
-  };
-
   const handleSelectAll = () => {
     if (selectedEntries.size === entries.length) {
       setSelectedEntries(new Set());
-      setLastSelectedIndex(null);
     } else {
       setSelectedEntries(new Set(entries.map((e) => e.id)));
-      setLastSelectedIndex(entries.length - 1);
-    }
-  };
-
-  const handleBulkDelete = async () => {
-    if (selectedEntries.size === entries.length) {
-      handleConfirmClearHistory();
-      setShowBulkDeleteConfirm(false);
-      return;
-    }
-    saveScrollPosition();
-    try {
-      await removeHistoryEntries(Array.from(selectedEntries));
-      setSelectedEntries(new Set());
-      setLastSelectedIndex(null);
-      setShowBulkDeleteConfirm(false);
-      await displayResultedEntry();
-    } catch (error) {
-      console.error("Failed to delete selected entries:", error);
     }
   };
 
@@ -311,7 +178,11 @@ export function HistoryScreen() {
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         hasEntries={entries.length > 0}
-        onClearAllClick={() => setShowConfirmDialog(true)}
+        onCleared={() => {
+          setEntries([]);
+          setSelectedEntries(new Set());
+          setHistoryEntryStats(null);
+        }}
       />
 
       {historyEntryStats &&
@@ -330,24 +201,27 @@ export function HistoryScreen() {
         )}
 
       <HistoryBulkActions
-        selectedCount={selectedEntries.size}
+        selectedEntries={selectedEntries}
         totalCount={entries.length}
         onSelectAll={handleSelectAll}
-        onBulkDeleteClick={() => setShowBulkDeleteConfirm(true)}
+        onDeleted={() => {
+          setSelectedEntries(new Set());
+          displayResultedEntry();
+        }}
+        onBeforeAction={saveScrollPosition}
       />
 
       {!isLoading && (
         <HistoryList
           entries={sortedEntries}
           selectedEntries={selectedEntries}
+          setSelectedEntries={setSelectedEntries}
           searchQuery={searchQuery}
           isLoading={isLoading}
-          onEntryClick={handleEntryClick}
-          onToggleSelection={handleToggleSelection}
-          onPinEntry={handlePinEntry}
-          onRemoveEntry={handleRemoveEntry}
-          // @ts-ignore
+          onBeforeAction={saveScrollPosition}
+          onEntryModified={displayResultedEntry}
           onLanguageBadgeClick={handleLanguageBadgeClick}
+          customNavigate={customNavigate}
         />
       )}
 
@@ -355,53 +229,15 @@ export function HistoryScreen() {
         <HistoryList
           entries={[]}
           selectedEntries={new Set()}
+          setSelectedEntries={setSelectedEntries}
           searchQuery={""}
           isLoading={true}
-          onEntryClick={() => {}}
-          onToggleSelection={() => {}}
-          onPinEntry={() => {}}
-          onRemoveEntry={() => {}}
+          onBeforeAction={() => {}}
+          onEntryModified={() => {}}
           onLanguageBadgeClick={() => {}}
+          customNavigate={() => {}}
         />
       )}
-
-      <ConfirmDialog
-        isOpen={showConfirmDialog}
-        onClose={() => setShowConfirmDialog(false)}
-        onConfirm={handleConfirmClearHistory}
-        title={t("history:confirmClearAllTitle")}
-        message={t("history:confirmClearAllMessage")}
-        confirmText={t("history:clearAll")}
-        cancelText={t("common:cancel")}
-        variant="danger"
-      />
-
-      <ConfirmDialog
-        isOpen={showBulkDeleteConfirm}
-        onClose={() => setShowBulkDeleteConfirm(false)}
-        onConfirm={handleBulkDelete}
-        title={
-          selectedEntries.size === entries.length
-            ? t("history:confirmClearAllTitle")
-            : t("history:confirmBulkDeleteTitle", {
-                count: selectedEntries.size,
-              })
-        }
-        message={
-          selectedEntries.size === entries.length
-            ? t("history:confirmClearAllMessage")
-            : t("history:confirmBulkDeleteMessage", {
-                count: selectedEntries.size,
-              })
-        }
-        confirmText={
-          selectedEntries.size === entries.length
-            ? t("history:clearAll")
-            : t("history:deleteSelected")
-        }
-        cancelText={t("common:cancel")}
-        variant="danger"
-      />
     </div>
   );
 }

@@ -1,21 +1,34 @@
-import { BackButton } from "@/components";
+import { BackButton, ConfirmDialog } from "@/components";
+import { clearHistory } from "@/services";
 import { Clock, Search, Trash2, X } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 interface HistoryHeaderProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   hasEntries: boolean;
-  onClearAllClick: () => void;
+  onCleared: () => void;
 }
 
 export function HistoryHeader({
   searchQuery,
   setSearchQuery,
   hasEntries,
-  onClearAllClick,
+  onCleared,
 }: HistoryHeaderProps) {
   const { t } = useTranslation();
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+
+  const handleConfirmClearHistory = async () => {
+    try {
+      await clearHistory();
+      onCleared();
+      setShowConfirmDialog(false);
+    } catch (error) {
+      console.error("Failed to clear history:", error);
+    }
+  };
 
   return (
     <div className="sticky top-0 z-10 border-b border-indigo-100 bg-white/70 backdrop-blur-sm">
@@ -32,7 +45,7 @@ export function HistoryHeader({
 
         {hasEntries && (
           <button
-            onClick={onClearAllClick}
+            onClick={() => setShowConfirmDialog(true)}
             className="flex cursor-pointer items-center space-x-1 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs text-red-500 transition-all duration-200 hover:bg-red-100 hover:shadow-sm"
           >
             <Trash2 className="h-4 w-4" />
@@ -63,6 +76,17 @@ export function HistoryHeader({
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={showConfirmDialog}
+        onClose={() => setShowConfirmDialog(false)}
+        onConfirm={handleConfirmClearHistory}
+        title={t("history:confirmClearAllTitle")}
+        message={t("history:confirmClearAllMessage")}
+        confirmText={t("history:clearAll")}
+        cancelText={t("common:cancel")}
+        variant="danger"
+      />
     </div>
   );
 }

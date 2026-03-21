@@ -1,21 +1,51 @@
+import { ConfirmDialog } from "@/components";
 import { SelectionCheckbox } from "@/components/ui";
+import { clearHistory, removeHistoryEntries } from "@/services";
 import { Trash2 } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 interface HistoryBulkActionsProps {
-  selectedCount: number;
+  selectedEntries: Set<string>;
   totalCount: number;
   onSelectAll: () => void;
-  onBulkDeleteClick: () => void;
+  onDeleted: () => void;
+  onBeforeAction: () => void;
 }
 
 export function HistoryBulkActions({
-  selectedCount,
+  selectedEntries,
   totalCount,
   onSelectAll,
-  onBulkDeleteClick,
+  onDeleted,
+  onBeforeAction,
 }: HistoryBulkActionsProps) {
   const { t } = useTranslation();
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
+  
+  const selectedCount = selectedEntries.size;
+
+  const handleBulkDelete = async () => {
+    if (selectedCount === totalCount) {
+      try {
+        await clearHistory();
+        onDeleted();
+        setShowBulkDeleteConfirm(false);
+      } catch (error) {
+        console.error("Failed to clear history:", error);
+      }
+      return;
+    }
+    
+    onBeforeAction();
+    try {
+      await removeHistoryEntries(Array.from(selectedEntries));
+      onDeleted();
+      setShowBulkDeleteConfirm(false);
+    } catch (error) {
+      console.error("Failed to delete selected entries:", error);
+    }
+  };
 
   if (selectedCount === 0) return null;
 
@@ -39,12 +69,35 @@ export function HistoryBulkActions({
           </button>
         </div>
         <button
-          onClick={onBulkDeleteClick}
+          onClick={() => setShowBulkDeleteConfirm(true)}
           className="h-fit cursor-pointer rounded-lg border border-red-300 bg-red-100 p-3 text-xs text-red-600 transition-all duration-200 hover:bg-red-200 hover:shadow-sm"
         >
           <Trash2 className="h-4 w-4" />
         </button>
       </div>
+
+      <ConfirmDialog
+        isOpen={showBulkDeleteConfirm}
+        onClose={() => setShowBulkDeleteConfirm(false)}
+        onConfirm={handleBulkDelete}
+        title={
+          selectedCount === totalCount
+            ? t("history:confirmClearAllTitle")
+            : t("history:confirmBulkDeleteTitle", { count: selectedCount })
+        }
+        message={
+          selectedCount === totalCount
+            ? t("history:confirmClearAllMessage")
+            : t("history:confirmBulkDeleteMessage", { count: selectedCount })
+        }
+        confirmText={
+          selectedCount === totalCount
+            ? t("history:clearAll")
+            : t("history:deleteSelected")
+        }
+        cancelText={t("common:cancel")}
+        variant="danger"
+      />
     </div>
   );
 }
