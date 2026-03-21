@@ -24,7 +24,10 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    /* Testing */
+    "types": ["vitest/globals", "vitest/import-meta"]
   },
   "include": ["src"],
   "exclude": ["scripts"]
