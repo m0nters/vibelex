@@ -8,5 +8,11 @@
   "dropdown": {
     "search": "Tìm kiếm...",
     "noOptionsFound": "Không tìm thấy tùy chọn"
-  }
+  },
+  "sortDateAsc": "Sắp xếp theo ngày tăng dần",
+  "sortDateDesc": "Sắp xếp theo ngày giảm dần",
+  "sortAlphabetAsc": "Sắp xếp theo chữ cái tăng dần",
+  "sortAlphabetDesc": "Sắp xếp theo chữ cái giảm dần",
+  "date": "Ngày",
+  "alphabet": "Chữ cái"
 }

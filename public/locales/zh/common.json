@@ -8,5 +8,11 @@
   "dropdown": {
     "search": "搜索...",
     "noOptionsFound": "未找到选项"
-  }
+  },
+  "sortDateAsc": "按日期升序排序",
+  "sortDateDesc": "按日期降序排序",
+  "sortAlphabetAsc": "按字母升序排序",
+  "sortAlphabetDesc": "按字母降序排序",
+  "date": "日期",
+  "alphabet": "字母"
 }

@@ -11,8 +11,10 @@ import {
 } from "@/types";
 import { isDictionaryEntry, isSentenceTranslation } from "@/utils/";
 import { useEffect, useState } from "react";
-import { DictionaryEntryRenderer } from "./DictionaryEntryRenderer";
-import { SentenceTranslationRenderer } from "./SentenceTranslationRenderer";
+import {
+  DictionaryEntryRenderer,
+  SentenceTranslationRenderer,
+} from "./components";
 
 interface TranslationRendererProps {
   translation: ParsedTranslation;

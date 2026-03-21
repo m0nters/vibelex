@@ -8,5 +8,11 @@
   "dropdown": {
     "search": "검색...",
     "noOptionsFound": "옵션을 찾을 수 없습니다"
-  }
+  },
+  "sortDateAsc": "날짜순 정렬 (오름차순)",
+  "sortDateDesc": "날짜순 정렬 (내림차순)",
+  "sortAlphabetAsc": "알파벳순 정렬 (오름차순)",
+  "sortAlphabetDesc": "알파벳순 정렬 (내림차순)",
+  "date": "날짜",
+  "alphabet": "알파벳"
 }
