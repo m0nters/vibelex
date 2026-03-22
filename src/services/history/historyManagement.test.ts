@@ -1,4 +1,5 @@
 import type { SentenceTranslation } from "@/types";
+import { HISTORY_STORAGE_KEY } from "@/constants";
 import {
   clearHistory,
   removeHistoryEntries,
@@ -6,11 +7,7 @@ import {
   saveTranslation,
   togglePinEntry,
 } from "./historyManagement";
-import {
-  getHistory,
-  HISTORY_STORAGE_KEY,
-  saveHistoryToStorage,
-} from "./historyStorage";
+import { getHistory, saveHistoryToStorage } from "./historyStorage";
 
 // Deep mock of the storage module
 vi.mock("./historyStorage", async (importOriginal) => {

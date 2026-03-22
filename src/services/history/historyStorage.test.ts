@@ -1,8 +1,7 @@
 import type { HistoryEntry, SentenceTranslation } from "@/types";
+import { HISTORY_STORAGE_KEY } from "@/constants";
 import {
   getHistory,
-  getHistoryEntryStatistics,
-  HISTORY_STORAGE_KEY,
   saveHistoryToStorage,
   sortHistoryEntries,
 } from "./historyStorage";
@@ -86,43 +85,6 @@ describe("sortHistoryEntries", () => {
   it("returns a single entry unchanged", () => {
     const entry = makeEntry({ id: "solo", timestamp: 1000 });
     expect(sortHistoryEntries([entry])).toHaveLength(1);
-  });
-});
-
-// ─── getHistoryEntryStatistics ────────────────────────────────────────────────
-
-describe("getHistoryEntryStatistics", () => {
-  it("returns null for an empty entries array", () => {
-    expect(getHistoryEntryStatistics([])).toBeNull();
-  });
-
-  it("returns the correct entry count", () => {
-    const entries = [
-      makeEntry({ id: "1", timestamp: 1 }),
-      makeEntry({ id: "2", timestamp: 2 }),
-      makeEntry({ id: "3", timestamp: 3 }),
-    ];
-    const stats = getHistoryEntryStatistics(entries);
-    expect(stats?.historyEntryCount).toBe(3);
-  });
-
-  it("returns a size value that is a numeric string", () => {
-    const entries = [makeEntry({ id: "1", timestamp: 1 })];
-    const stats = getHistoryEntryStatistics(entries);
-    expect(Number.isNaN(parseFloat(stats!.historySize))).toBe(false);
-  });
-
-  it("returns unit 'B' for tiny entries (< 1 KB)", () => {
-    // A single small entry will always be < 1 KB
-    const entries = [makeEntry({ id: "1", timestamp: 1 })];
-    const stats = getHistoryEntryStatistics(entries);
-    // Small data → B or KB, but definitely not GB
-    expect(["B", "KB"]).toContain(stats?.historySizeUnit);
-  });
-
-  it("returns a non-null result for a single entry", () => {
-    const entries = [makeEntry({ id: "x", timestamp: 999 })];
-    expect(getHistoryEntryStatistics(entries)).not.toBeNull();
   });
 });
 

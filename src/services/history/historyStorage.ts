@@ -1,6 +1,5 @@
+import { HISTORY_STORAGE_KEY } from "@/constants";
 import { HistoryEntry } from "@/types";
-
-export const HISTORY_STORAGE_KEY = "translationHistory";
 
 /**
  * IMPORTANT RULE: EVERY SAVING HISTORY OPERATION HAS TO GO THROUGH THIS SORT FIRST!
@@ -46,35 +45,4 @@ export const getHistory = async (): Promise<HistoryEntry[]> => {
     console.error("Failed to retrieve history:", error);
     return [];
   }
-};
-
-/**
- * Get displayed entries count and size usage
- */
-export const getHistoryEntryStatistics = (entries: HistoryEntry[]) => {
-  if (entries.length === 0) return null;
-
-  // Convert entries to JSON string to calculate size
-  const entriesJson = JSON.stringify(entries);
-  const sizeBytes = new Blob([entriesJson]).size;
-
-  const formatBytes = (bytes: number) => {
-    if (bytes < 1024) {
-      return { value: bytes.toFixed(2), unit: "B" };
-    } else if (bytes < 1024 * 1024) {
-      return { value: (bytes / 1024).toFixed(2), unit: "KB" };
-    } else if (bytes < 1024 * 1024 * 1024) {
-      return { value: (bytes / (1024 * 1024)).toFixed(2), unit: "MB" }; // maybe? reach this number when the number of entries is about 1000
-    } else {
-      return { value: (bytes / (1024 * 1024 * 1024)).toFixed(2), unit: "GB" }; // impossible :D
-    }
-  };
-
-  const { value, unit } = formatBytes(sizeBytes);
-
-  return {
-    historyEntryCount: entries.length,
-    historySize: value,
-    historySizeUnit: unit,
-  };
 };

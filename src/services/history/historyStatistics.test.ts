@@ -1,5 +1,8 @@
-import type { HistoryEntry } from "@/types";
-import { getLanguageStatistics } from "./historyStatistics";
+import type { HistoryEntry, SentenceTranslation } from "@/types";
+import {
+  getHistoryEntryStatistics,
+  getLanguageStatistics,
+} from "./historyStatistics";
 import { getHistory } from "./historyStorage";
 
 // Mock the internal getHistory dependency (we don't need to test storage twice)
@@ -10,6 +13,62 @@ vi.mock("./historyStorage", async (importOriginal) => {
     getHistory: vi.fn(),
   };
 });
+
+// ─── Fixtures ─────────────────────────────────────────────────────────────────
+
+const makeSentenceTranslation = (
+  overrides: Partial<SentenceTranslation> = {},
+): SentenceTranslation => ({
+  translation: "Xin chào",
+  source_language_code: "en",
+  translated_language_code: "vi",
+  text: "Hello",
+  ...overrides,
+});
+
+const makeEntry = (
+  overrides: Partial<HistoryEntry> & { id: string; timestamp: number },
+): HistoryEntry => ({
+  translation: makeSentenceTranslation(),
+  ...overrides,
+});
+
+// ─── getHistoryEntryStatistics  ───────────────────────────────────────────────
+
+describe("getHistoryEntryStatistics", () => {
+  it("returns null for an empty entries array", () => {
+    expect(getHistoryEntryStatistics([])).toBeNull();
+  });
+
+  it("returns the correct entry count", () => {
+    const entries = [
+      makeEntry({ id: "1", timestamp: 1 }),
+      makeEntry({ id: "2", timestamp: 2 }),
+      makeEntry({ id: "3", timestamp: 3 }),
+    ];
+    const stats = getHistoryEntryStatistics(entries);
+    expect(stats?.historyEntryCount).toBe(3);
+  });
+
+  it("returns a numeric size value", () => {
+    const entries = [makeEntry({ id: "1", timestamp: 1 })];
+    const stats = getHistoryEntryStatistics(entries);
+    expect(Number.isNaN(parseFloat(stats!.historySize))).toBe(false);
+  });
+
+  it("returns 'B' or 'KB' for a tiny single entry", () => {
+    const entries = [makeEntry({ id: "1", timestamp: 1 })];
+    const stats = getHistoryEntryStatistics(entries);
+    expect(["B", "KB"]).toContain(stats?.historySizeUnit);
+  });
+
+  it("returns a non-null result for a single entry", () => {
+    const entries = [makeEntry({ id: "x", timestamp: 999 })];
+    expect(getHistoryEntryStatistics(entries)).not.toBeNull();
+  });
+});
+
+// ─── getLanguageStatistics ────────────────────────────────────────────────────
 
 describe("getLanguageStatistics", () => {
   beforeEach(() => {
