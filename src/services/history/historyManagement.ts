@@ -1,7 +1,7 @@
+import { HISTORY_ENTRY_LIMIT, HISTORY_STORAGE_KEY } from "@/constants/";
 import { HistoryEntry, ParsedTranslation } from "@/types";
 import {
   getHistory,
-  HISTORY_STORAGE_KEY,
   saveHistoryToStorage,
   sortHistoryEntries,
 } from "./historyStorage";
@@ -25,7 +25,7 @@ export const saveTranslation = async (
     // Add new entry at the beginning (most recent first)
     const updatedEntries = sortHistoryEntries([newEntry, ...entries]).slice(
       0,
-      100,
+      HISTORY_ENTRY_LIMIT,
     );
 
     // Save to chrome storage
