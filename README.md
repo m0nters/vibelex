@@ -38,7 +38,7 @@ Screenshots:
 - 📚 **Dictionary Mode**: For single words, shows pronunciation, meanings, synonyms, idioms, phrasal verbs, and example sentences just like professional dictionary standards
 - 💬 **Sentence Translation**: For phrases and sentences, provides clean translations
 - 🔊 **Text-to-Speech**: Listen to pronunciations with built-in TTS for multiple accents (e.g., UK/US for English)
-- 📖 **Translation History**: Automatically saves translations with advanced search functionality
+- 📖 **Translation History**: Automatically saves translations with advanced search functionality, support sort and filter
 - 📊 **Statistics Screen**: View detailed usage statistics for each language in source and target
 - 📌 **Pin Translations**: Pin important translations to keep them at the top
 - 🗑️ **Bulk Operations**: Select and delete multiple history entries at once
@@ -102,7 +102,8 @@ Before you can use the extension, you need to provide a Google Gemini API key:
 ### Using Translation History
 
 1. **Access history** by clicking the "History" button in the extension popup
-2. **Search your history** using the search bar at the top
+2. **Sort your history** by clicking the sort button in the extension popup, support sort by date, and alphabetically by primary text (word or phrase)
+3. **Search your history** using the search bar at the top
    - Search by original text, translations, pronunciations, or any content
    - Use advanced search operators for precise filtering:
 
@@ -116,15 +117,15 @@ Before you can use the extension, you need to provide a Google Gemini API key:
    - Mix with text search: `source:ja computer` finds "computer" in Japanese translations
    - Fuzzy matching: Works even with typos or partial words
 
-3. **Pin important entries** by clicking the pin icon - pinned items stay at the top
-4. **Select multiple entries**:
+4. **Pin important entries** by clicking the pin icon - pinned items stay at the top
+5. **Select multiple entries**:
    - Hover over any card to see the selection circle
    - Click to select/deselect individual entries
    - Use "Select All" / "Deselect All" buttons
    - Delete selected entries in bulk
-5. **View full details** by clicking on any history card
-6. **Download as PNG** by clicking the download button in the detail view, the translation is saved locally in your machine.
-7. **Clear all history** using the "Clear All" button (with confirmation)
+6. **View full details** by clicking on any history card
+7. **Download as PNG** by clicking the download button in the detail view, the translation is saved locally in your machine.
+8. **Clear all history** using the "Clear All" button (with confirmation)
 
 ### Using Statistics Screen
 
@@ -153,9 +154,6 @@ Before you can use the extension, you need to provide a Google Gemini API key:
 ```bash
 # Install dependencies
 npm install
-
-# Development mode (for popup only)
-npm run dev
 
 # Build for production
 npm run build
