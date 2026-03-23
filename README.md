@@ -20,7 +20,7 @@ Screenshots:
 ## Table of Contents
 
 - [Features](#features)
-- [Setup](#setup)
+- [Installation](#installation)
 - [Usage](#usage)
 - [Supported Languages](#supported-languages)
 - [Development](#development)
@@ -47,23 +47,25 @@ Screenshots:
 
 ---
 
-## Setup
+## Installation
 
-### 1. Build the Extension
+### 1. Clone the Project
+
+### 2. Build the Project
 
 ```bash
 npm install
 npm run build
 ```
 
-### 2. Install in Chrome
+### 3. Install in Chrome
 
 1. Open Chrome and go to `chrome://extensions/`
 2. Enable "Developer mode" (toggle in top right)
 3. Click "Load unpacked"
 4. Select the `dist` folder from this project
 
-### 3. Configure API Key
+### 4. Configure API Key
 
 Before you can use the extension, you need to provide a Google Gemini API key:
 
