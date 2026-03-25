@@ -2,10 +2,15 @@
 
 A Chrome extension that provides instant translation using Google's Gemini AI when you select text on any webpage.
 
-Screenshots:
+## Screenshots
 
 <div align="center">
-   <img src="examples\usage.png"  width="780" alt="Usage" />
+   <img src="examples\word.png"  width="780" alt="Usage" />
+   <p><i>word translation shows dictionary-like results</i></p>
+</div>
+<div align="center">
+   <img src="examples\sentence.png"  width="500" alt="Usage" />
+   <p><i>sentence translation (even includes vulgar words)</i></p>
 </div>
 
 <div align="center">
@@ -24,7 +29,7 @@ Screenshots:
 - [Usage](#usage)
 - [Supported Languages](#supported-languages)
 - [Development](#development)
-- [Adding Language](#adding-language)
+- [Adding a New Language for Interface](#adding-a-new-language-for-interface)
 - [Drawbacks (Developer log)](#drawbacks-developer-log)
 - [License](#license)
 
@@ -97,7 +102,7 @@ Before you can use the extension, you need to provide a Google Gemini API key:
 ### Managing the Extension
 
 1. **Open the extension popup** by clicking the extension icon in Chrome toolbar
-2. **Change app language** using the dropdown (changes UI language everywhere instantly)
+2. **Change app language (interface language)** using the dropdown (changes UI language everywhere instantly)
 3. **Select target translation language** from the "Translate to" dropdown
 4. **Toggle extension** on/off using the switch at the bottom
 
@@ -163,9 +168,9 @@ npm run build
 
 ---
 
-## Adding Language
+## Adding a New Language for Interface
 
-Adding a new (app) language to the extension requires updating several areas. Here's a step-by-step guide:
+Adding a new (interface) language to the extension requires updating several areas. Here's a step-by-step guide:
 
 ### 1. Create Language Locale Files For i18n
 
