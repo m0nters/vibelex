@@ -40,7 +40,10 @@ export const renderText = (text: string) => {
 };
 
 /**
- * Checks if a translation CAN BE a dictionary entry (narrow check)
+ * Checks if a translation CAN BE a dictionary entry (narrow check, fast,
+ * theoretically can return false positives in edge cases, but very reliable for
+ * normal use), use for frequent checking tasks like conditional rendering,
+ * search history, filters, etc.
  */
 export const isDictionaryEntry = (
   translation: ParsedTranslation,
@@ -49,15 +52,16 @@ export const isDictionaryEntry = (
 };
 
 /**
- * Checks if a translation data is VALID dictionary entry (deep check) so that
- * the UI can parse
+ * Checks if a translation data is VALID dictionary entry (deep check, slower,
+ * but guaranteed to be accurate), only use for correctness-critical mission like
+ * pre-parsing or sanitizing data before storing
  */
 export const isValidDictionaryEntry = (translation: any): boolean => {
   return DictionaryEntrySchema.safeParse(translation).success;
 };
 
 /**
- * Checks if a translation CAN BE a sentence/phrase (narrow check)
+ * Checks if a translation CAN BE a sentence/phrase
  */
 export const isSentenceTranslation = (
   translation: ParsedTranslation,
@@ -66,8 +70,7 @@ export const isSentenceTranslation = (
 };
 
 /**
- * Checks if a translation data is VALID sentence/phrase (deep check) so that
- * the UI can parse
+ * Checks if a translation data is VALID sentence/phrase
  */
 export const isValidSentenceTranslation = (translation: any): boolean => {
   return SentenceTranslationSchema.safeParse(translation).success;

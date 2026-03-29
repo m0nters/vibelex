@@ -76,11 +76,16 @@ export const useTranslation = () => {
       // and stop the rest below
       const parsedTranslation = parseTranslationJSON(rawResponse);
 
-      // a sentence has a lot of words (at least on average), if we include this
-      // field `text` in the prompt at the beginning, the AI will return the
-      // translation with the same format as the input, which wastes a lot of
-      // tokens, so we only add this field post-parse to the sentence translation
-      // to store for UI display in the future
+      /*
+        A sentence has a lot of words (at least on average), if we include this
+        field `text` in the prompt at the beginning, the AI will just rewrite
+        the whole input in the response, which wastes a lot of tokens, so we
+        only need AI to provide the `translation` field, and we manually add
+        this field `text` to the translation post-parse for UI display
+
+        Experiments show that we can reduce the output tokens by 33% on average
+        by doing this! Which saves us a lot of money.
+      */
       if (isSentenceTranslation(parsedTranslation)) {
         parsedTranslation.text = text;
       }
