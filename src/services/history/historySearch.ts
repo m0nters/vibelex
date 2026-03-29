@@ -122,7 +122,7 @@ const extractSearchableFields = (entry: HistoryEntry): string[] => {
       }
     });
   } else if (isSentenceTranslation(translation)) {
-    searchableFields.push(translation.text, translation.translation);
+    searchableFields.push(translation.text!, translation.translation);
   }
 
   return searchableFields;

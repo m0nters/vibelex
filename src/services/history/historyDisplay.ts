@@ -31,7 +31,7 @@ export const getDisplayText = (
     };
   } else if (isSentenceTranslation(translation)) {
     return {
-      primaryText: translation.text,
+      primaryText: translation.text!,
       secondaryText: "",
     };
   }

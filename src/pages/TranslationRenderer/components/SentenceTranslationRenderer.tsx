@@ -96,13 +96,13 @@ export function SentenceTranslationRenderer({
       )}
       {sentenceTranslation.source_tts_language_code && (
         <SpeakerButton
-          word={sentenceTranslation.text}
+          word={sentenceTranslation.text!}
           ttsCode={sentenceTranslation.source_tts_language_code}
           className="-translate-x-3"
         />
       )}
       <CollapsibleTextSection
-        text={sentenceTranslation.text}
+        text={sentenceTranslation.text!}
         isInitiallyExpanded={isHistoryDetailView}
       />
       {sentenceTranslation.translated_tts_language_code && (

@@ -8,56 +8,28 @@ export interface TranslationResult {
   error?: AppException; // appear when can't call to the API service, parse fail,...
 }
 
-// All the zod schemas here is to check whether the parsed JSON from AI is valid
-// according to our defined data structures
-export interface PronunciationDetail {
-  ipa: string[];
-  tts_code: string;
-}
+// ==================== Zod Schemas (Source of Truth) ====================
 
 export const PronunciationDetailSchema = z.object({
   ipa: z.array(z.string()),
   tts_code: z.string(),
 });
 
-export interface PronunciationVariants {
-  // currently, only these 2, in the future, you can add more
-  UK?: PronunciationDetail;
-  US?: PronunciationDetail;
-}
-
 export const PronunciationVariantsSchema = z.record(
   z.string(),
   PronunciationDetailSchema,
 );
 
-export interface ExampleSentence {
-  text: string;
-  pronunciation?: string; // For non-Latin languages like Chinese (pinyin), Japanese (romaji)
-  translation?: string; // Optional for same-language translations
-}
-
 export const ExampleSentenceSchema = z.object({
   text: z.string(),
-  pronunciation: z.string().optional(),
-  translation: z.string().optional(),
+  pronunciation: z.string().optional(), // For non-Latin languages like Chinese (pinyin), Japanese (romaji)
+  translation: z.string().optional(), // Optional for same-language translations
 });
-
-export interface SynonymGroup {
-  label: string;
-  items: string[];
-}
 
 export const SynonymGroupSchema = z.object({
   label: z.string(),
   items: z.array(z.string()),
 });
-
-export interface IdiomEntry {
-  idiom: string;
-  meaning: string;
-  examples: ExampleSentence[];
-}
 
 export const IdiomEntrySchema = z.object({
   idiom: z.string(),
@@ -65,21 +37,10 @@ export const IdiomEntrySchema = z.object({
   examples: z.array(ExampleSentenceSchema),
 });
 
-export interface IdiomGroup {
-  label: string;
-  items: IdiomEntry[];
-}
-
 export const IdiomGroupSchema = z.object({
   label: z.string(),
   items: z.array(IdiomEntrySchema),
 });
-
-export interface PhrasalVerbEntry {
-  phrasal_verb: string;
-  meaning: string;
-  examples: ExampleSentence[];
-}
 
 export const PhrasalVerbEntrySchema = z.object({
   phrasal_verb: z.string(),
@@ -87,71 +48,35 @@ export const PhrasalVerbEntrySchema = z.object({
   examples: z.array(ExampleSentenceSchema),
 });
 
-export interface PhrasalVerbGroup {
-  label: string;
-  items: PhrasalVerbEntry[];
-}
-
 export const PhrasalVerbGroupSchema = z.object({
   label: z.string(),
   items: z.array(PhrasalVerbEntrySchema),
 });
 
-export interface MeaningEntry {
-  pronunciation: string | PronunciationVariants;
-  part_of_speech: string;
-  definition: string;
-  note?: string; // For morphological transformations explanation (e.g., "số nhiều của **shelf**")
-  synonyms?: SynonymGroup;
-  idioms?: IdiomGroup;
-  phrasal_verbs?: PhrasalVerbGroup;
-  examples: ExampleSentence[];
-}
-
 export const MeaningEntrySchema = z.object({
   pronunciation: z.union([z.string(), PronunciationVariantsSchema]),
   part_of_speech: z.string(),
   definition: z.string(),
-  note: z.string().optional(),
+  note: z.string().optional(), // For morphological transformations explanation (e.g., "số nhiều của **shelf**")
   synonyms: SynonymGroupSchema.optional(),
   idioms: IdiomGroupSchema.optional(),
   phrasal_verbs: PhrasalVerbGroupSchema.optional(),
   examples: z.array(ExampleSentenceSchema),
 });
 
-interface BaseTranslation {
-  source_language_code: string; // ISO 639-1
-  translated_language_code: string; // ISO 639-1
-  source_language_main_country_code?: string; // ISO 3166-1 alpha-2
-  translated_language_main_country_code?: string; // ISO 3166-1 alpha-2
-  source_tts_language_code?: string; // IETF BCP 47
-  translated_tts_language_code?: string; // IETF BCP 47
-}
-
 export const BaseTranslationSchema = z.object({
-  source_language_code: z.string(),
-  translated_language_code: z.string(),
-  source_language_main_country_code: z.string().optional(),
-  translated_language_main_country_code: z.string().optional(),
-  source_tts_language_code: z.string().optional(),
-  translated_tts_language_code: z.string().optional(),
+  source_language_code: z.string(), // ISO 639-1
+  translated_language_code: z.string(), // ISO 639-1
+  source_language_main_country_code: z.string().optional(), // ISO 3166-1 alpha-2
+  translated_language_main_country_code: z.string().optional(), // ISO 3166-1 alpha-2
+  source_tts_language_code: z.string().optional(), // IETF BCP 47
+  translated_tts_language_code: z.string().optional(), // IETF BCP 47
 });
-
-export interface VerbForm {
-  label: string; // Category name in the translated language (e.g., "Thì quá khứ đơn", "Past tense")
-  form: string; // The actual verb form (e.g., "ran", "running")
-}
 
 export const VerbFormSchema = z.object({
-  label: z.string(),
-  form: z.string(),
+  label: z.string(), // Category name in the translated language (e.g., "Thì quá khứ đơn", "Past tense")
+  form: z.string(), // The actual verb form (e.g., "ran", "running")
 });
-
-export interface DictionaryEntry extends BaseTranslation {
-  word: string;
-  verb_forms?: VerbForm[];
-  meanings: MeaningEntry[];
-}
 
 export const DictionaryEntrySchema = BaseTranslationSchema.extend({
   word: z.string(), // the word to be translated in its normalized form
@@ -159,18 +84,24 @@ export const DictionaryEntrySchema = BaseTranslationSchema.extend({
   meanings: z.array(MeaningEntrySchema).min(1),
 });
 
-export interface SentenceTranslation extends BaseTranslation {
-  text: string;
-  translation: string;
-}
-
 export const SentenceTranslationSchema = BaseTranslationSchema.extend({
-  // in the newest version, we make the AI to genereate response that omits the
-  // `text` field in order to reduce the output token. Experiments show that the
-  // output tokens reduce by 33.33% on average when omitting the `text` field.
-
-  // text: z.string(),
+  text: z.string().optional(), // injected post-parse by the hook, not from the API
   translation: z.string(),
 });
+
+// ==================== Inferred Types ====================
+
+export type PronunciationDetail = z.infer<typeof PronunciationDetailSchema>;
+export type PronunciationVariants = z.infer<typeof PronunciationVariantsSchema>;
+export type ExampleSentence = z.infer<typeof ExampleSentenceSchema>;
+export type SynonymGroup = z.infer<typeof SynonymGroupSchema>;
+export type IdiomEntry = z.infer<typeof IdiomEntrySchema>;
+export type IdiomGroup = z.infer<typeof IdiomGroupSchema>;
+export type PhrasalVerbEntry = z.infer<typeof PhrasalVerbEntrySchema>;
+export type PhrasalVerbGroup = z.infer<typeof PhrasalVerbGroupSchema>;
+export type MeaningEntry = z.infer<typeof MeaningEntrySchema>;
+export type VerbForm = z.infer<typeof VerbFormSchema>;
+export type DictionaryEntry = z.infer<typeof DictionaryEntrySchema>;
+export type SentenceTranslation = z.infer<typeof SentenceTranslationSchema>;
 
 export type ParsedTranslation = DictionaryEntry | SentenceTranslation;
