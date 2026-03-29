@@ -51,7 +51,9 @@ const extractSearchableFields = (entry: HistoryEntry): string[] => {
 
     // Add verb forms if available
     if (translation.verb_forms) {
-      searchableFields.push(...translation.verb_forms);
+      translation.verb_forms.forEach((vf) => {
+        searchableFields.push(vf.form);
+      });
     }
 
     // Extract pronunciations from all meaning entries

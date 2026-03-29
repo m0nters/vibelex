@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "cross-env NODE_OPTIONS=--no-warnings && tsc -b && npm run i18n:check && npm run test:verbose && vite build && node build-postprocess.mjs",
-    "quick-build": "tsc -b && vite build && node build-postprocess.mjs",
+    "build:fast": "tsc -b && vite build && node build-postprocess.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "i18n:check": "i18n-check -l public/locales -s en -f i18next -u src/",

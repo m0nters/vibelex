@@ -1,0 +1,1 @@
+export const MAX_WORDS_LIMIT_PER_TRANSLATION = 300;
