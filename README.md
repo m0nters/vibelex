@@ -54,23 +54,19 @@ A Chrome extension that provides instant translation using Google's Gemini AI wh
 
 ## Installation
 
-### 1. Clone the Project
+### 1. Download the Extension
 
-### 2. Build the Project
+- Navigate to the **Releases** page and download the latest `.zip` file.
+- Extract the contents of the `.zip` file to a folder on your computer.
 
-```bash
-npm install
-npm run build
-```
-
-### 3. Install in Chrome
+### 2. Install in Chrome
 
 1. Open Chrome and go to `chrome://extensions/`
 2. Enable "Developer mode" (toggle in top right)
 3. Click "Load unpacked"
 4. Select the `dist` folder from this project
 
-### 4. Configure API Key
+### 3. Configure API Key
 
 Before you can use the extension, you need to provide a Google Gemini API key:
 
