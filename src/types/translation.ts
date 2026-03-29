@@ -137,15 +137,25 @@ export const BaseTranslationSchema = z.object({
   translated_tts_language_code: z.string().optional(),
 });
 
+export interface VerbForm {
+  label: string; // Category name in the translated language (e.g., "Thì quá khứ đơn", "Past tense")
+  form: string; // The actual verb form (e.g., "ran", "running")
+}
+
+export const VerbFormSchema = z.object({
+  label: z.string(),
+  form: z.string(),
+});
+
 export interface DictionaryEntry extends BaseTranslation {
   word: string;
-  verb_forms?: string[];
+  verb_forms?: VerbForm[];
   meanings: MeaningEntry[];
 }
 
 export const DictionaryEntrySchema = BaseTranslationSchema.extend({
   word: z.string(), // the word to be translated in its normalized form
-  verb_forms: z.array(z.string()).optional(),
+  verb_forms: z.array(VerbFormSchema).optional(),
   meanings: z.array(MeaningEntrySchema).min(1),
 });
 

@@ -1,5 +1,7 @@
+import type { VerbForm } from "@/types";
+
 interface VerbFormsRendererProps {
-  verbForms: string[];
+  verbForms: VerbForm[];
 }
 
 export function VerbFormsRenderer({ verbForms }: VerbFormsRendererProps) {
@@ -13,19 +15,15 @@ export function VerbFormsRenderer({ verbForms }: VerbFormsRendererProps) {
           </span>
         </div>
         <div className="grid grid-cols-1 gap-2">
-          {verbForms.map((form, formIndex) => (
+          {verbForms.map((verbForm, formIndex) => (
             <div
               key={formIndex}
               className="rounded-lg border border-violet-200 bg-white px-4 py-2.5 text-center font-semibold text-violet-800 shadow-sm transition-shadow duration-200 hover:shadow-md"
             >
-              <div className="text-sm font-medium">{form}</div>
-              {verbForms.length === 3 && (
-                <div className="mt-1 text-xs text-violet-500">
-                  {formIndex === 0 && "Infinitive"}
-                  {formIndex === 1 && "Past tense"}
-                  {formIndex === 2 && "Past participle"}
-                </div>
-              )}
+              <div className="text-sm font-medium">{verbForm.form}</div>
+              <div className="mt-1 text-xs text-violet-500">
+                {verbForm.label}
+              </div>
             </div>
           ))}
         </div>

@@ -1,7 +1,8 @@
 import { changeLanguage } from "@/config";
+import { MAX_WORDS_LIMIT_PER_TRANSLATION } from "@/constants";
 import { useTranslation } from "@/hooks";
 import "@/index.css";
-import { MAX_WORDS_LIMIT, ttsService } from "@/services";
+import { ttsService } from "@/services";
 import { AppException } from "@/types";
 import { updatePopupHeight } from "@/utils";
 import { LoaderCircle, RotateCcw, X } from "lucide-react";
@@ -142,7 +143,7 @@ export function DictionaryPopup() {
     switch (error.code) {
       case "TEXT_TOO_LONG":
         return t("errors:textTooLong", {
-          maxWords: MAX_WORDS_LIMIT,
+          maxWords: MAX_WORDS_LIMIT_PER_TRANSLATION,
           currentWords: parseInt(error.data?.wordCount || "0", 10),
         });
       case "API_KEY_MISSING":
