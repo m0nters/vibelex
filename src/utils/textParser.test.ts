@@ -142,6 +142,62 @@ describe("parseTranslationJSON", () => {
     expect(() => parseTranslationJSON(malformed)).not.toThrow();
   });
 
+  it("repairs mistyped keys using fuzzy search (e.g., phral_verb to phrasal_verb)", () => {
+    const malformedJsonWithTypo = `{
+  "source_language_code": "en",
+  "translated_language_code": "zh",
+  "source_language_main_country_code": "us",
+  "translated_language_main_country_code": "cn",
+  "source_tts_language_code": "en-US",
+  "translated_tts_language_code": "zh-CN",
+  "word": "build",
+  "verb_forms": [
+    { "label": "动词原形", "form": "build" }
+  ],
+  "meanings": [
+    {
+      "pronunciation": {
+        "UK": { "ipa": ["/bɪld/"], "tts_code": "en-GB" },
+        "US": { "ipa": ["/bɪld/"], "tts_code": "en-US" },
+      },
+      "part_of_speech": "动词",
+      "definition": "建造；修建；构筑",
+      "examples": [
+        {
+          "text": "They are **building** a new house by the river.",
+          "translation": "他们正在河边**建造**一座新房子。"
+        }
+      ],
+      "phrasal_verbs": {
+        "label": "短语动词",
+        "items": [
+          {
+            "phral_verb": "build up",
+            "meaning": "建立；增进；逐渐增强",
+            "examples": [
+              {
+                "text": "Pressure began to **build up**.",
+                "translation": "压力开始**逐渐增大**。"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}`;
+    const result = parseTranslationJSON(
+      malformedJsonWithTypo,
+    ) as DictionaryEntry;
+    expect(isDictionaryEntry(result)).toBe(true);
+    expect(result.meanings[0].phrasal_verbs?.items[0].phrasal_verb).toBe(
+      "build up",
+    );
+    expect(
+      (result.meanings[0].phrasal_verbs?.items[0] as any).phral_verb,
+    ).toBeUndefined();
+  });
+
   it("throws for completely invalid / unrecognized JSON structure", () => {
     expect(() => parseTranslationJSON('{"unknown_field": 42}')).toThrow(
       "Failed to parse JSON translation",

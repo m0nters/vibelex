@@ -4,6 +4,7 @@ import {
   PronunciationVariants,
   SentenceTranslation,
 } from "@/types";
+import { closest, distance } from "fastest-levenshtein";
 import { jsonrepair } from "jsonrepair";
 import Markdown from "markdown-to-jsx";
 import { createElement } from "react";
@@ -54,7 +55,11 @@ export const isDictionaryEntry = (
 /**
  * Checks if a translation data is VALID dictionary entry (deep check, slower,
  * but guaranteed to be accurate), only use for correctness-critical mission like
- * pre-parsing or sanitizing data before storing
+ * pre-parsing or sanitizing data before storing.
+ *
+ * NOTE: The data goes into Zod's `.safeParse()`. By default, Zod is extremely
+ * forgiving with extra keys. It simply ignores keys that aren't defined in the
+ * schema. If all the required keys are present, Zod says success: true.
  */
 export const isValidDictionaryEntry = (translation: any): boolean => {
   return DictionaryEntrySchema.safeParse(translation).success;
@@ -85,6 +90,78 @@ export const hasPronunciationVariants = (
   return typeof pronunciation === "object" && pronunciation !== null;
 };
 
+const EXPECTED_KEYS = [
+  "source_language_code",
+  "translated_language_code",
+  "source_language_main_country_code",
+  "translated_language_main_country_code",
+  "source_tts_language_code",
+  "translated_tts_language_code",
+  "word",
+  "verb_forms",
+  "label",
+  "form",
+  "meanings",
+  "pronunciation",
+  "ipa",
+  "tts_code",
+  "part_of_speech",
+  "definition",
+  "note",
+  "synonyms",
+  "items",
+  "idioms",
+  "idiom",
+  "phrasal_verbs",
+  "phrasal_verb",
+  "examples",
+  "text",
+  "translation",
+  "meaning",
+];
+
+/** Max edit distance ratio (distance / key length) to consider a match */
+const MAX_DISTANCE_RATIO = 0.4;
+
+/**
+ * Finds the closest expected key for a given unknown key using Levenshtein distance
+ */
+const findClosestKey = (key: string): string | null => {
+  const match = closest(key, EXPECTED_KEYS);
+  const maxAllowed = Math.ceil(key.length * MAX_DISTANCE_RATIO);
+  return distance(key, match) <= maxAllowed ? match : null;
+};
+
+/**
+ * Recursively fixes typos in JSON keys using Levenshtein distance against EXPECTED_KEYS
+ */
+export const fixJsonKeys = (data: any): any => {
+  if (data === null || typeof data !== "object") {
+    return data;
+  }
+
+  if (Array.isArray(data)) {
+    return data.map((item) => fixJsonKeys(item));
+  }
+
+  const fixedObj: Record<string, any> = {};
+
+  for (const [key, value] of Object.entries(data)) {
+    let finalKey = key;
+
+    if (!EXPECTED_KEYS.includes(key)) {
+      const closest = findClosestKey(key);
+      if (closest) {
+        finalKey = closest;
+      }
+    }
+
+    fixedObj[finalKey] = fixJsonKeys(value);
+  }
+
+  return fixedObj;
+};
+
 /**
  * Parses the JSON translation content from the API
  */
@@ -92,17 +169,18 @@ export const parseTranslationJSON = (content: string): ParsedTranslation => {
   try {
     const repairedJson = jsonrepair(content); // AI generated JSON format can be malformed, this 3rd party lib repairs it
     const parsed = JSON.parse(repairedJson);
+    const fixedParsed = fixJsonKeys(parsed); // Fix mistyped keys, for e.g. sometimes we get "phral_verb" instead of "phrasal_verb"
 
     // Try to validate as DictionaryEntry first
-    if (isDictionaryEntry(parsed)) {
-      if (isValidDictionaryEntry(parsed)) {
-        return parsed as DictionaryEntry;
+    if (isDictionaryEntry(fixedParsed)) {
+      if (isValidDictionaryEntry(fixedParsed)) {
+        return fixedParsed as DictionaryEntry;
       }
     }
     // Try to validate as SentenceTranslation
-    else if (isSentenceTranslation(parsed)) {
-      if (isValidSentenceTranslation(parsed)) {
-        return parsed as SentenceTranslation;
+    else if (isSentenceTranslation(fixedParsed)) {
+      if (isValidSentenceTranslation(fixedParsed)) {
+        return fixedParsed as SentenceTranslation;
       }
     }
 
