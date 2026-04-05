@@ -40,7 +40,10 @@ export function HistoryScreen() {
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const isFromStatistics = (location.state as any)?.fromStatistics === true;
 
-  // Sorting logic
+  /**
+   * the memo helps skip re-sorting when you toggle checkboxes or type in the
+   * search box, which causes re-rendering
+   */
   const sortedEntries = useMemo(() => {
     const sorted = [...entries];
     if (sortBy.startsWith("alphabet")) {
