@@ -183,11 +183,61 @@ describe("DropdownMenu", () => {
     render(<DropdownMenu {...defaultProps} canSearch />);
 
     await user.click(getTrigger()); // open
-    await user.type(screen.getByRole("textbox"), "zzzz");
+    await user.type(screen.getByRole("textbox"), "xyzxyzxyz");
 
     // t("dropdown.noOptionsFound") → "dropdown.noOptionsFound" in test env
     expect(screen.getByText("dropdown.noOptionsFound")).toBeInTheDocument();
     // No option buttons remain (only the trigger)
     expect(screen.getAllByRole("button")).toHaveLength(1);
+  });
+
+  // ─── searchTerms (transliteration) ─────────────────────────────────────────
+
+  it("matches options by searchTerms when label does not match", async () => {
+    const user = userEvent.setup();
+    const optionsWithSearchTerms = [
+      { value: "zh", label: "中文", searchTerms: ["Zhong Wen", "Chinese"] },
+      { value: "ja", label: "日本語", searchTerms: ["Ri Ben Yu", "Japanese"] },
+      { value: "en", label: "English" },
+    ];
+    render(
+      <DropdownMenu
+        {...defaultProps}
+        options={optionsWithSearchTerms}
+        canSearch
+      />,
+    );
+
+    await user.click(getTrigger()); // open
+    await user.type(screen.getByRole("textbox"), "Zhong");
+
+    const optionButtons = screen
+      .getAllByRole("button")
+      .filter((b) => b !== getTrigger());
+    expect(optionButtons.map((b) => b.textContent)).toEqual(["中文"]);
+  });
+
+  it("matches options by English name in searchTerms", async () => {
+    const user = userEvent.setup();
+    const optionsWithSearchTerms = [
+      { value: "zh", label: "中文", searchTerms: ["Zhong Wen", "Chinese"] },
+      { value: "ja", label: "日本語", searchTerms: ["Ri Ben Yu", "Japanese"] },
+      { value: "ko", label: "한국어", searchTerms: ["hangugeo", "Korean"] },
+    ];
+    render(
+      <DropdownMenu
+        {...defaultProps}
+        options={optionsWithSearchTerms}
+        canSearch
+      />,
+    );
+
+    await user.click(getTrigger()); // open
+    await user.type(screen.getByRole("textbox"), "Japanese");
+
+    const optionButtons = screen
+      .getAllByRole("button")
+      .filter((b) => b !== getTrigger());
+    expect(optionButtons.map((b) => b.textContent)).toEqual(["日本語"]);
   });
 });

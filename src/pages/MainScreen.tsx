@@ -21,6 +21,8 @@ import {
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { transliterate } from "transliteration";
+
 
 interface MainScreenProps {
   appLangCode: string;
@@ -380,6 +382,11 @@ export function MainScreen({
                     t('languages:unknown')
                     */
                     label: `${t(`languages:${lang.code}`)} (${lang.nativeName})`,
+                    searchTerms: [
+                      transliterate(lang.nativeName),
+                      transliterate(t(`languages:${lang.code}`)),
+                      lang.englishName,
+                    ],
                   })),
                 ]}
                 pin={{ value: "auto", label: t("mainScreen:autoDetect") }}
@@ -409,6 +416,11 @@ export function MainScreen({
                 options={SUPPORTED_TRANSLATED_LANGUAGE.map((lang) => ({
                   value: lang.code,
                   label: `${t(`languages:${lang.code}`)} (${lang.nativeName})`,
+                  searchTerms: [
+                    transliterate(lang.nativeName),
+                    transliterate(t(`languages:${lang.code}`)),
+                    lang.englishName,
+                  ],
                 }))}
                 onChange={handleTranslatedLanguageChange}
                 focusColor="indigo"

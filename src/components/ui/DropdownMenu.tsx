@@ -1,3 +1,4 @@
+import Fuse from "fuse.js";
 import { ChevronDown, Search } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -5,6 +6,7 @@ import { useTranslation } from "react-i18next";
 interface DropdownOption {
   value: string;
   label: string;
+  searchTerms?: string[]; // Extra strings to match against (e.g. transliterated labels)
 }
 
 interface DropdownMenuProps {
@@ -64,16 +66,22 @@ export function DropdownMenu({
     return result;
   }, [options, pin, isSorted]);
 
-  // Memoize lowercase search term to avoid repeated toLowerCase calls
-  const searchTermLower = useMemo(() => searchTerm.toLowerCase(), [searchTerm]);
+  // Memoize Fuse.js instance for fuzzy search
+  const fuse = useMemo(
+    () =>
+      new Fuse(sortedOptions, {
+        keys: ["label", "searchTerms"],
+        threshold: 0.4,
+        ignoreLocation: true,
+      }),
+    [sortedOptions],
+  );
 
-  // Memoize filtered options
+  // Memoize filtered options using Fuse.js for fuzzy + transliteration search
   const filteredOptions = useMemo(() => {
-    if (!searchTermLower) return sortedOptions;
-    return sortedOptions.filter((option) =>
-      option.label.toLowerCase().includes(searchTermLower),
-    );
-  }, [sortedOptions, searchTermLower]);
+    if (!searchTerm.trim()) return sortedOptions;
+    return fuse.search(searchTerm).map((result) => result.item);
+  }, [sortedOptions, searchTerm, fuse]);
 
   // Memoize selected option - find from original sortedOptions, not filtered
   const selectedOption = useMemo(

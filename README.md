@@ -15,6 +15,7 @@ A Chrome extension that provides instant translation using Google's Gemini AI wh
 
 <div align="center">
    <img src="examples\home.png" width="260" alt="Home Screen" />
+   <img src="examples\fuse-search.png" width="260" alt="Fuse Search" />
    <img src="examples\history.png" width="260" alt="History Screen" />
    <img src="examples\history2.png" width="260" alt="History Screen" />
    <img src="examples\history-detail.png" width="260" alt="History Detail Screen" />
@@ -39,11 +40,11 @@ A Chrome extension that provides instant translation using Google's Gemini AI wh
 
 - 📱 **Instant Translation**: Select any text and click "dictionary" to get translations
 - 🌍 **Multiple Languages**: Support for Vietnamese, English, Japanese, Korean, Chinese, French, German, and Spanish
-- 🎯 **Smart Detection**: Automatically detects any language (or you can choose manually if needed)
+- 🎯 **Smart Detection**: Automatically detects any language (or you can choose manually if needed), can search by transliterated text (fuzzy search)
 - 📚 **Dictionary Mode**: For single words, shows pronunciation, meanings, synonyms, idioms, phrasal verbs, and example sentences just like professional dictionary standards
 - 💬 **Sentence Translation**: For phrases and sentences, provides clean translations
 - 🔊 **Text-to-Speech**: Listen to pronunciations with built-in TTS for multiple accents (e.g., UK/US for English)
-- 📖 **Translation History**: Automatically saves translations with advanced search functionality, support sort and filter
+- 📖 **Translation History**: Automatically saves translations with advanced search functionality (fuzzy search), support sort and filter
 - 📊 **Statistics Screen**: View detailed usage statistics for each language in source and target
 - 📌 **Pin Translations**: Pin important translations to keep them at the top
 - 🗑️ **Bulk Operations**: Select and delete multiple history entries at once
