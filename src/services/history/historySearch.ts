@@ -39,9 +39,28 @@ const parseSearchOperators = (
 };
 
 /**
+ * Cache for the Fuse.js search index
+ * Prevents rebuilding the index on every search keystroke
+ */
+let cachedFuseInfo: {
+  fingerprint: string;
+  fuse: Fuse<HistoryEntry>;
+} | null = null;
+
+/**
+ * Cache for searchable text extraction, keyed by entry.id
+ * Prevents re-running the expensive extraction on every search keystroke
+ */
+const extractionCache = new Map<string, string[]>();
+
+/**
  * Extract all searchable text from a history entry
  */
 const extractSearchableFields = (entry: HistoryEntry): string[] => {
+  // Check cache first
+  const cached = extractionCache.get(entry.id);
+  if (cached) return cached;
+
   const { translation } = entry;
   const searchableFields: string[] = [];
 
@@ -125,6 +144,9 @@ const extractSearchableFields = (entry: HistoryEntry): string[] => {
     searchableFields.push(translation.text!, translation.translation);
   }
 
+  // Save to cache
+  extractionCache.set(entry.id, searchableFields);
+
   return searchableFields;
 };
 
@@ -167,15 +189,27 @@ export const searchHistory = async (query: string): Promise<HistoryEntry[]> => {
 
   // If there's remaining text, use fuzzy search
   if (searchTerm) {
-    const fuse = new Fuse(filteredEntries, {
-      keys: [
-        {
-          name: "searchableText",
-          getFn: (entry) => extractSearchableFields(entry as HistoryEntry),
-        },
-      ],
-      threshold: 0.4, // 0.0 = perfect match, 1.0 = match anything
-    });
+    // Computes a fast fingerprint of the current filtered entries
+    const currentFingerprint = filteredEntries.map((e) => e.id).join(",");
+
+    let fuse: Fuse<HistoryEntry>;
+
+    // if have cache, use it, else create new fuse
+    if (cachedFuseInfo?.fingerprint === currentFingerprint) {
+      fuse = cachedFuseInfo.fuse;
+    } else {
+      fuse = new Fuse(filteredEntries, {
+        keys: [
+          {
+            name: "searchableText",
+            getFn: (entry) => extractSearchableFields(entry as HistoryEntry),
+          },
+        ],
+        threshold: 0.4, // 0.0 = perfect match, 1.0 = match anything
+      });
+      // Update cache
+      cachedFuseInfo = { fingerprint: currentFingerprint, fuse };
+    }
 
     const results = fuse.search(searchTerm);
     return results.map((result) => result.item);
