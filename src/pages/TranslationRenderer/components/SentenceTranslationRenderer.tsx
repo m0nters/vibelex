@@ -2,7 +2,7 @@ import { CopyButton, SpeakerButton } from "@/components";
 import { DEFAULT_SOURCE_LANGUAGE_CODE } from "@/constants";
 import { useScrollContainer } from "@/contexts/ScrollContainerContext";
 import { SentenceTranslation } from "@/types";
-import { renderText } from "@/utils";
+import { renderMarkdownText } from "@/utils";
 import { useEffect, useRef, useState } from "react";
 import { SourceLanguageRenderer } from "./SourceLanguageRenderer";
 
@@ -59,7 +59,7 @@ function CollapsibleTextSection({
             !isExpanded ? "line-clamp-1" : ""
           }`}
         >
-          {renderText(text)}
+          {renderMarkdownText(text)}
         </p>
       </div>
       <CopyButton

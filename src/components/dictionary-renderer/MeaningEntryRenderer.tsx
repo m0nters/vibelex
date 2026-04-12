@@ -1,6 +1,6 @@
 import { SpeakerButton } from "@/components";
 import { MeaningEntry } from "@/types";
-import { renderText } from "@/utils";
+import { renderMarkdownText } from "@/utils";
 import { PronunciationRenderer } from "./PronunciationRenderer";
 
 interface MeaningEntryRendererProps {
@@ -37,7 +37,7 @@ export function MeaningEntryRenderer({
         </span>
         {entry.note && (
           <p className="mt-2 ml-1 text-xs text-gray-800 [&_strong]:text-sm [&_strong]:font-medium">
-            ({renderText(entry.note)})
+            ({renderMarkdownText(entry.note)})
           </p>
         )}
         <p className="mt-2 ml-1 text-sm font-medium text-gray-800">
@@ -55,7 +55,7 @@ export function MeaningEntryRenderer({
             >
               <div className="mb-1 flex items-start justify-between gap-1">
                 <p className="min-w-0 flex-1 text-sm font-medium wrap-break-word text-gray-800">
-                  {renderText(example.text)}
+                  {renderMarkdownText(example.text)}
                 </p>
                 <div className="flex h-5 w-5 shrink-0 items-center justify-center">
                   <SpeakerButton
@@ -67,13 +67,13 @@ export function MeaningEntryRenderer({
               </div>
               {example.pronunciation && (
                 <p className="mb-1 text-xs text-gray-600 italic">
-                  {renderText(example.pronunciation)}
+                  {renderMarkdownText(example.pronunciation)}
                 </p>
               )}
               {example.translation && (
                 <div className="flex items-start justify-between gap-1">
                   <p className="min-w-0 flex-1 text-sm font-normal wrap-break-word text-blue-700">
-                    {renderText(example.translation)}
+                    {renderMarkdownText(example.translation)}
                   </p>
                   <div className="flex h-5 w-5 shrink-0 items-center justify-center">
                     <SpeakerButton
@@ -107,7 +107,7 @@ export function MeaningEntryRenderer({
               >
                 <div className="mb-2 flex items-start gap-1">
                   <h4 className="text-sm font-semibold text-gray-800">
-                    {renderText(idiom.idiom)}
+                    {renderMarkdownText(idiom.idiom)}
                   </h4>
                   <SpeakerButton
                     word={idiom.idiom}
@@ -126,7 +126,7 @@ export function MeaningEntryRenderer({
                       <div key={exampleIndex}>
                         <div className="mb-1 flex items-start justify-between gap-1">
                           <p className="min-w-0 flex-1 border-l-4 border-teal-300 pl-3 text-xs font-medium wrap-break-word text-gray-800">
-                            {renderText(example.text)}
+                            {renderMarkdownText(example.text)}
                           </p>
                           <div className="flex h-5 w-5 shrink-0 items-center justify-center">
                             <SpeakerButton
@@ -142,13 +142,13 @@ export function MeaningEntryRenderer({
                         </div>
                         {example.pronunciation && (
                           <p className="mb-1 pl-4 text-xs text-gray-500 italic">
-                            {renderText(example.pronunciation)}
+                            {renderMarkdownText(example.pronunciation)}
                           </p>
                         )}
                         {example.translation && (
                           <div className="flex items-start justify-between gap-1">
                             <p className="min-w-0 flex-1 pl-4 text-xs wrap-break-word text-teal-700">
-                              {renderText(example.translation)}
+                              {renderMarkdownText(example.translation)}
                             </p>
                             <div className="flex h-5 w-5 shrink-0 items-center justify-center">
                               <SpeakerButton
@@ -191,7 +191,7 @@ export function MeaningEntryRenderer({
                 >
                   <div className="mb-2 flex items-start gap-1">
                     <h4 className="text-sm font-semibold text-gray-800">
-                      {renderText(phrasalVerb.phrasal_verb)}
+                      {renderMarkdownText(phrasalVerb.phrasal_verb)}
                     </h4>
                     <SpeakerButton
                       word={phrasalVerb.phrasal_verb}
@@ -212,7 +212,7 @@ export function MeaningEntryRenderer({
                         <div key={exampleIndex}>
                           <div className="mb-1 flex items-start justify-between gap-1">
                             <p className="min-w-0 flex-1 border-l-4 border-amber-300 pl-3 text-xs font-medium wrap-break-word text-gray-800">
-                              {renderText(example.text)}
+                              {renderMarkdownText(example.text)}
                             </p>
                             <div className="flex h-5 w-5 shrink-0 items-center justify-center">
                               <SpeakerButton
@@ -228,13 +228,13 @@ export function MeaningEntryRenderer({
                           </div>
                           {example.pronunciation && (
                             <p className="mb-1 pl-4 text-xs text-gray-500 italic">
-                              {renderText(example.pronunciation)}
+                              {renderMarkdownText(example.pronunciation)}
                             </p>
                           )}
                           {example.translation && (
                             <div className="flex items-start justify-between gap-1">
                               <p className="min-w-0 flex-1 pl-4 text-xs wrap-break-word text-amber-700">
-                                {renderText(example.translation)}
+                                {renderMarkdownText(example.translation)}
                               </p>
                               <div className="flex h-5 w-5 shrink-0 items-center justify-center">
                                 <SpeakerButton

@@ -6,7 +6,7 @@
   "emptyHistory": "아직 번역 기록이 없습니다",
   "noSearchResults": "검색 결과가 없습니다",
   "clearAll": "모두 지우기",
-  "confirmClearAllMessage": "모든 번역 기록을 지우시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+  "confirmClearAllMessage": "모든 번역 기록을 **모두** 지우시겠습니까? 이 작업은 되돌릴 수 없습니다.",
   "confirmClearAllTitle": "기록 지우기",
   "searchBySourceLanguage": "원어로 검색: {{language}}",
   "searchByTargetLanguage": "대상 언어로 검색: {{language}}",

@@ -1,3 +1,4 @@
+import { renderMarkdownText } from "@/utils";
 import { AlertTriangle, X } from "lucide-react";
 import React from "react";
 
@@ -95,7 +96,7 @@ export function ConfirmDialog({
 
         {/* Message */}
         <p className="mb-6 text-center text-sm leading-relaxed text-gray-600">
-          {message}
+          {renderMarkdownText(message)}
         </p>
 
         {/* Actions */}

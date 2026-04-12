@@ -6,7 +6,7 @@
   "emptyHistory": "Chưa có lịch sử dịch",
   "noSearchResults": "Không tìm thấy kết quả",
   "clearAll": "Xóa tất cả",
-  "confirmClearAllMessage": "Bạn có chắc chắn muốn xóa toàn bộ lịch sử dịch không? Hành động này không thể hoàn tác.",
+  "confirmClearAllMessage": "Bạn có chắc chắn muốn xóa **TOÀN BỘ** lịch sử dịch không? Hành động này không thể hoàn tác.",
   "confirmClearAllTitle": "Xóa lịch sử",
   "searchBySourceLanguage": "Tìm kiếm theo ngôn ngữ nguồn: {{language}}",
   "searchByTargetLanguage": "Tìm kiếm theo ngôn ngữ đích: {{language}}",

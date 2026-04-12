@@ -1,6 +1,6 @@
 import { DropdownMenu } from "@/components";
 import { SUPPORTED_APP_LANGUAGE } from "@/constants";
-import { renderText } from "@/utils";
+import { renderMarkdownText } from "@/utils";
 import {
   Check,
   ChevronRight,
@@ -180,25 +180,25 @@ export function ApiKeyScreen({
               <span className="flex h-5 w-5 shrink-0 -translate-y-0.5 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-600">
                 1
               </span>
-              {renderText(t("api:apiKeyStep1"))}
+              {renderMarkdownText(t("api:apiKeyStep1"))}
             </li>
             <li className="flex items-start space-x-2">
               <span className="flex h-5 w-5 shrink-0 -translate-y-0.5 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-600">
                 2
               </span>
-              {renderText(t("api:apiKeyStep2"))}
+              {renderMarkdownText(t("api:apiKeyStep2"))}
             </li>
             <li className="flex items-start space-x-2">
               <span className="flex h-5 w-5 shrink-0 -translate-y-0.5 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-600">
                 3
               </span>
-              {renderText(t("api:apiKeyStep3"))}
+              {renderMarkdownText(t("api:apiKeyStep3"))}
             </li>
             <li className="flex items-start space-x-2">
               <span className="flex h-5 w-5 shrink-0 -translate-y-0.5 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-600">
                 4
               </span>
-              {renderText(t("api:apiKeyStep4"))}
+              {renderMarkdownText(t("api:apiKeyStep4"))}
             </li>
           </ol>
         </div>

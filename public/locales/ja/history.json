@@ -6,7 +6,7 @@
   "emptyHistory": "翻訳履歴がまだありません",
   "noSearchResults": "結果が見つかりませんでした",
   "clearAll": "すべて削除",
-  "confirmClearAllMessage": "翻訳履歴をすべて削除しますか？この操作は元に戻せません。",
+  "confirmClearAllMessage": "翻訳履歴を**すべて**削除しますか？この操作は元に戻せません。",
   "confirmClearAllTitle": "履歴の削除",
   "searchBySourceLanguage": "元の言語で検索：{{language}}",
   "searchByTargetLanguage": "対象の言語で検索：{{language}}",

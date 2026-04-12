@@ -6,7 +6,7 @@
   "emptyHistory": "暂无翻译历史",
   "noSearchResults": "未找到结果",
   "clearAll": "全部清除",
-  "confirmClearAllMessage": "您确定要清除所有翻译历史吗？此操作无法撤销。",
+  "confirmClearAllMessage": "您确定要清除**所有**翻译历史吗？此操作无法撤销。",
   "confirmClearAllTitle": "清除历史记录",
   "searchBySourceLanguage": "按源语言搜索：{{language}}",
   "searchByTargetLanguage": "按目标语言搜索：{{language}}",

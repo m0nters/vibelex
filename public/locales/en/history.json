@@ -6,7 +6,7 @@
   "emptyHistory": "No translation history yet",
   "noSearchResults": "No results found",
   "clearAll": "Clear All",
-  "confirmClearAllMessage": "Are you sure you want to clear all translation history? This action cannot be undone.",
+  "confirmClearAllMessage": "Are you sure you want to clear **ALL** translation history? This action cannot be undone.",
   "confirmClearAllTitle": "Clear History",
   "searchBySourceLanguage": "Search by source language: {{language}}",
   "searchByTargetLanguage": "Search by target language: {{language}}",

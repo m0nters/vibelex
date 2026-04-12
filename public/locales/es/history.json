@@ -6,7 +6,7 @@
   "emptyHistory": "Aún no hay historial de traducciones",
   "noSearchResults": "No se encontraron resultados",
   "clearAll": "Borrar todo",
-  "confirmClearAllMessage": "¿Estás seguro de que quieres borrar todo el historial de traducciones? Esta acción no se puede deshacer.",
+  "confirmClearAllMessage": "¿Estás seguro de que quieres borrar **TODO** el historial de traducciones? Esta acción no se puede deshacer.",
   "confirmClearAllTitle": "Borrar historial",
   "searchBySourceLanguage": "Buscar por idioma de origen: {{language}}",
   "searchByTargetLanguage": "Buscar por idioma de destino: {{language}}",

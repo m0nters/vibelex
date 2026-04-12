@@ -14,7 +14,7 @@ import { DictionaryEntrySchema, SentenceTranslationSchema } from "@/types";
 /**
  * Renders text with support format using markdown-to-jsx
  */
-export const renderText = (text: string) => {
+export const renderMarkdownText = (text: string) => {
   return createElement(Markdown, {
     options: {
       overrides: {

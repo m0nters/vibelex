@@ -6,7 +6,7 @@
   "emptyHistory": "Aucun historique de traduction pour le moment",
   "noSearchResults": "Aucun résultat trouvé",
   "clearAll": "Tout effacer",
-  "confirmClearAllMessage": "Êtes-vous sûr de vouloir supprimer tout l'historique des traductions ? Cette action est irréversible.",
+  "confirmClearAllMessage": "Êtes-vous sûr de vouloir effacer **TOUT** l'historique des traductions? Cette action ne peut pas être annulée.",
   "confirmClearAllTitle": "Effacer l'historique",
   "searchBySourceLanguage": "Rechercher par langue source : {{language}}",
   "searchByTargetLanguage": "Rechercher par langue cible : {{language}}",
