@@ -22,6 +22,6 @@
   "deselectAll": "Bỏ chọn tất cả",
   "deleteSelected": "Xóa các mục đã chọn",
   "confirmBulkDeleteTitle": "Xóa mục đã chọn",
-  "confirmBulkDeleteMessage": "Bạn có chắc chắn muốn xóa {{count}} mục đã chọn không? Hành động này không thể hoàn tác.",
+  "confirmBulkDeleteMessage": "Bạn có chắc chắn muốn xóa **{{count}} mục** đã chọn không? Hành động này không thể hoàn tác.",
   "downloadAsPng": "Tải xuống dưới dạng PNG"
 }

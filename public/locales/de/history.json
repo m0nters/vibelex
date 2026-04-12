@@ -25,7 +25,7 @@
   "deleteSelected": "Ausgewählte löschen",
   "confirmBulkDeleteTitle_one": "Ausgewählten Eintrag löschen",
   "confirmBulkDeleteTitle_other": "Ausgewählte Einträge löschen",
-  "confirmBulkDeleteMessage_one": "Sind Sie sicher, dass Sie {{count}} ausgewählten Eintrag löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
-  "confirmBulkDeleteMessage_other": "Sind Sie sicher, dass Sie {{count}} ausgewählte Einträge löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+  "confirmBulkDeleteMessage_one": "Sind Sie sicher, dass Sie **{{count}} ausgewählten Eintrag** löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+  "confirmBulkDeleteMessage_other": "Sind Sie sicher, dass Sie **{{count}} ausgewählte Einträge** löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
   "downloadAsPng": "Als PNG herunterladen"
 }

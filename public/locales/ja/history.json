@@ -22,6 +22,6 @@
   "deselectAll": "すべて選択解除",
   "deleteSelected": "選択したものを削除",
   "confirmBulkDeleteTitle": "選択したエントリを削除",
-  "confirmBulkDeleteMessage": "{{count}}件の選択したエントリを削除しますか？この操作は元に戻せません。",
+  "confirmBulkDeleteMessage": "**{{count}}件の選択したエントリ**を削除しますか？この操作は元に戻せません。",
   "downloadAsPng": "PNGとしてダウンロード"
 }

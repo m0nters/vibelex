@@ -24,7 +24,7 @@
   "deleteSelected": "Delete selected",
   "confirmBulkDeleteTitle_one": "Delete Selected Entry",
   "confirmBulkDeleteTitle_other": "Delete Selected Entries",
-  "confirmBulkDeleteMessage_one": "Are you sure you want to delete {{count}} selected entry? This action cannot be undone.",
-  "confirmBulkDeleteMessage_other": "Are you sure you want to delete {{count}} selected entries? This action cannot be undone.",
+  "confirmBulkDeleteMessage_one": "Are you sure you want to delete **{{count}} selected entry**? This action cannot be undone.",
+  "confirmBulkDeleteMessage_other": "Are you sure you want to delete **{{count}} selected entries**? This action cannot be undone.",
   "downloadAsPng": "Download as PNG"
 }

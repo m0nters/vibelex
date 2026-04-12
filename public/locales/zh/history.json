@@ -22,6 +22,6 @@
   "deselectAll": "取消全选",
   "deleteSelected": "删除选定条目",
   "confirmBulkDeleteTitle": "删除选定条目",
-  "confirmBulkDeleteMessage": "您确定要删除{{count}}条选定条目吗？此操作无法撤销。",
+  "confirmBulkDeleteMessage": "您确定要删除**{{count}}条选定条目**吗？此操作无法撤销。",
   "downloadAsPng": "下载为PNG"
 }
