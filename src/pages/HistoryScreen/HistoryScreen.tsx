@@ -90,6 +90,7 @@ export function HistoryScreen() {
   }, []);
 
   useEffect(() => {
+    setSelectedEntries(new Set());
     displayResultedEntry();
   }, [debouncedSearchQuery]);
 
@@ -108,6 +109,28 @@ export function HistoryScreen() {
     }, 300);
     setShouldRestoreScroll(false);
   }, [shouldRestoreScroll]);
+
+  // Handle Ctrl + A to select all entries
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!e.ctrlKey || e.key !== "a") return;
+
+      // Don't intercept when the user is typing in an input/textarea
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+
+      if (entries.length === 0) return;
+
+      // Only activate select-all when already in bulk-select mode
+      if (selectedEntries.size === 0) return;
+
+      e.preventDefault();
+      handleSelectAll();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [entries, selectedEntries]);
 
   const displayResultedEntry = async () => {
     setIsLoading(true);
