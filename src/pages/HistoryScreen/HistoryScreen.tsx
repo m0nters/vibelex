@@ -8,13 +8,13 @@ import { HistoryEntry } from "@/types";
 import type React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import type { SortOrder } from "./components";
 import {
   HistoryBulkActions,
   HistoryFilters,
   HistoryHeader,
   HistoryList,
   HistoryStorageInfo,
-  SortOrder,
 } from "./components";
 
 export function HistoryScreen() {

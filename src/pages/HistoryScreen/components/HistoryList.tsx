@@ -1,10 +1,10 @@
-import { HistoryEntryCard } from "@/components";
 import { removeHistoryEntry, togglePinEntry } from "@/services";
 import { HistoryEntry } from "@/types";
 import { Clock } from "lucide-react";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { HistoryEntryCard } from "./HistoryEntryCard";
 
 interface HistoryListProps {
   entries: HistoryEntry[];
@@ -34,7 +34,9 @@ export function HistoryList({
   customNavigate,
 }: HistoryListProps) {
   const { t } = useTranslation();
-  const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null);
+  const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(
+    null,
+  );
 
   useEffect(() => {
     if (selectedEntries.size === 0) {
@@ -42,7 +44,10 @@ export function HistoryList({
     }
   }, [selectedEntries]);
 
-  const handleRemoveEntry = async (entryId: string, event: React.MouseEvent) => {
+  const handleRemoveEntry = async (
+    entryId: string,
+    event: React.MouseEvent,
+  ) => {
     event.stopPropagation();
     onBeforeAction();
     try {
@@ -76,9 +81,13 @@ export function HistoryList({
     if (lastSelectedIndex === null) return;
     let rangeIds: string[] = [];
     if (lastSelectedIndex < currentIndex) {
-      rangeIds = entries.slice(lastSelectedIndex + 1, currentIndex + 1).map((e) => e.id);
+      rangeIds = entries
+        .slice(lastSelectedIndex + 1, currentIndex + 1)
+        .map((e) => e.id);
     } else {
-      rangeIds = entries.slice(currentIndex, lastSelectedIndex).map((e) => e.id);
+      rangeIds = entries
+        .slice(currentIndex, lastSelectedIndex)
+        .map((e) => e.id);
     }
 
     setSelectedEntries((prev) => {

@@ -5,11 +5,15 @@ import "@/index.css";
 import { ttsService } from "@/services";
 import { AppException } from "@/types";
 import { updatePopupHeight } from "@/utils";
-import { LoaderCircle, RotateCcw, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { useTranslation as useReactI18next } from "react-i18next";
-import { TranslationRenderer } from "./TranslationRenderer";
+import { TranslationRenderer } from "../TranslationRenderer";
+import {
+  PopupErrorState,
+  PopupLoadingState,
+  PopupTopBar,
+} from "./components";
 
 export function DictionaryPopup() {
   const { result, translateText } = useTranslation();
@@ -18,9 +22,8 @@ export function DictionaryPopup() {
   const [loadingTime, setLoadingTime] = useState(0);
   const [finalLoadingTime, setFinalLoadingTime] = useState<number | null>(null); // final time after loading
 
-  // transfering messages stuff
+  // Transferring messages from content script
   useEffect(() => {
-    // Listen for messages from content script
     const handleMessage = (event: MessageEvent) => {
       // when this popup is ready (signal below to the parent -- content script),
       // content script fixed the height of the container, then send the signal
@@ -112,9 +115,7 @@ export function DictionaryPopup() {
       updatePopupHeight();
     });
 
-    const contentWrapper = document.getElementById(
-      "dictionary-content-wrapper",
-    );
+    const contentWrapper = document.getElementById("dictionary-content-wrapper");
     if (contentWrapper) {
       observer.observe(contentWrapper, {
         childList: true,
@@ -160,88 +161,43 @@ export function DictionaryPopup() {
 
   return (
     <div className="z-99999 flex h-full w-full flex-col bg-white">
-      {/* Close button - properly aligned */}
-      <div
-        className="sticky top-0 z-10 flex items-center justify-between bg-white/70 px-4 py-2 backdrop-blur-sm"
-        id="close-button"
-      >
-        {/* Show final loading time after translation completes */}
-        {!result.loading && finalLoadingTime !== null && (
-          <div className="text-xs text-gray-400">
-            {t("popup:thoughtFor", { time: finalLoadingTime.toFixed(1) })}
-          </div>
-        )}
-        <div className="flex-1"></div>
-        <button
-          onClick={closePopup}
-          className="flex cursor-pointer rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      </div>
+      <PopupTopBar
+        finalLoadingTime={finalLoadingTime}
+        isLoading={result.loading}
+        onClose={closePopup}
+      />
 
       {/* Scrollable content area */}
       <div
         className="flex-1 overflow-y-auto px-4 pb-4"
         id="dictionary-content-wrapper"
       >
-        {/* Translation Result - Dictionary Style */}
         <div className="w-full">
           {result.loading && (
-            <div
-              className="flex flex-col items-center justify-center py-12"
-              key="loading"
-            >
-              <div className="flex items-center">
-                <LoaderCircle className="h-6 w-6 animate-spin text-blue-600" />
-                <span className="ml-2 text-sm text-gray-500">
-                  {t("common:loading")}
-                </span>
-              </div>
-              <div className="mt-2 text-xs text-gray-400">
-                {loadingTime.toFixed(1)}s
-              </div>
-              {showLoadingTip && (
-                <p className="animate-fade-in mt-4 max-w-xs text-center text-xs text-gray-400">
-                  {t("popup:loadingTip")}
-                </p>
-              )}
-            </div>
+            <PopupLoadingState
+              loadingTime={loadingTime}
+              showLoadingTip={showLoadingTip}
+            />
           )}
 
           {result.error && (
-            <div
-              className="flex flex-col items-center justify-center text-center text-sm text-red-500"
-              key="error"
-            >
-              <p className="whitespace-pre-line">
-                {getErrorMessage(result.error)}
-              </p>
-              <button
-                onClick={() => {
-                  if (result.text) {
-                    translateText(result.text);
-                  }
-                }}
-                className="mt-3 cursor-pointer rounded-full p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
-              >
-                <RotateCcw className="h-4 w-4" />
-              </button>
-            </div>
+            <PopupErrorState
+              message={getErrorMessage(result.error)}
+              onRetry={() => {
+                if (result.text) translateText(result.text);
+              }}
+            />
           )}
 
           {!result.loading && !result.error && result.translation && (
             <TranslationRenderer translation={result.translation} />
           )}
 
-          {!result.loading &&
-            !result.error &&
-            !result.translation &&
-            result.text && (
-              <p className="py-8 text-center text-sm text-gray-400">
-                {t("popup:noTranslationAvailable")}
-              </p>
-            )}
+          {!result.loading && !result.error && !result.translation && result.text && (
+            <p className="py-8 text-center text-sm text-gray-400">
+              {t("popup:noTranslationAvailable")}
+            </p>
+          )}
 
           {!result.text && (
             <p className="py-8 text-center text-sm text-gray-400">
