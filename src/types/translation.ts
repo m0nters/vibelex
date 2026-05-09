@@ -22,8 +22,8 @@ export const PronunciationVariantsSchema = z.record(
 
 export const ExampleSentenceSchema = z.object({
   text: z.string(),
-  pronunciation: z.string().optional(), // For non-Latin languages like Chinese (pinyin), Japanese (romaji)
-  translation: z.string().optional(), // Optional for same-language translations
+  pronunciation: z.string().nullish(), // For non-Latin languages like Chinese (pinyin), Japanese (romaji)
+  translation: z.string().nullish(), // Optional for same-language translations
 });
 
 export const SynonymGroupSchema = z.object({
@@ -57,20 +57,20 @@ export const MeaningEntrySchema = z.object({
   pronunciation: z.union([z.string(), PronunciationVariantsSchema]),
   part_of_speech: z.string(),
   definition: z.string(),
-  note: z.string().optional(), // For morphological transformations explanation (e.g., "số nhiều của **shelf**")
-  synonyms: SynonymGroupSchema.optional(),
-  idioms: IdiomGroupSchema.optional(),
-  phrasal_verbs: PhrasalVerbGroupSchema.optional(),
+  note: z.string().nullish(), // For morphological transformations explanation (e.g., "số nhiều của **shelf**")
+  synonyms: SynonymGroupSchema.nullish(),
+  idioms: IdiomGroupSchema.nullish(),
+  phrasal_verbs: PhrasalVerbGroupSchema.nullish(),
   examples: z.array(ExampleSentenceSchema),
 });
 
 export const BaseTranslationSchema = z.object({
   source_language_code: z.string(), // ISO 639-1
   translated_language_code: z.string(), // ISO 639-1
-  source_language_main_country_code: z.string().optional(), // ISO 3166-1 alpha-2
-  translated_language_main_country_code: z.string().optional(), // ISO 3166-1 alpha-2
-  source_tts_language_code: z.string().optional(), // IETF BCP 47
-  translated_tts_language_code: z.string().optional(), // IETF BCP 47
+  source_language_main_country_code: z.string().nullish(), // ISO 3166-1 alpha-2
+  translated_language_main_country_code: z.string().nullish(), // ISO 3166-1 alpha-2
+  source_tts_language_code: z.string().nullish(), // IETF BCP 47
+  translated_tts_language_code: z.string().nullish(), // IETF BCP 47
 });
 
 export const VerbFormSchema = z.object({
@@ -80,12 +80,12 @@ export const VerbFormSchema = z.object({
 
 export const DictionaryEntrySchema = BaseTranslationSchema.extend({
   word: z.string(), // the word to be translated in its normalized form
-  verb_forms: z.array(VerbFormSchema).optional(),
+  verb_forms: z.array(VerbFormSchema).nullish(),
   meanings: z.array(MeaningEntrySchema).min(1),
 });
 
 export const SentenceTranslationSchema = BaseTranslationSchema.extend({
-  text: z.string().optional(), // injected post-parse by the hook, not from the API
+  text: z.string().nullish(), // injected post-parse by the hook, not from the API
   translation: z.string(),
 });
 

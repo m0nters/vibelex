@@ -266,6 +266,30 @@ describe("parseTranslationJSON", () => {
     ).toBeUndefined();
   });
 
+  it("parses successfully when AI outputs null instead of omitting optional fields (nullish)", () => {
+    const jsonWithNulls = `{
+      "source_language_code": "en",
+      "translated_language_code": "vi",
+      "word": "apparatus",
+      "verb_forms": null,
+      "meanings": [
+        {
+          "pronunciation": "/æp.əˈreɪ.təs/",
+          "part_of_speech": "Noun",
+          "definition": "A set of equipment.",
+          "examples": [{ "text": "The breathing apparatus." }],
+          "synonyms": null,
+          "idioms": null,
+          "phrasal_verbs": null
+        }
+      ]
+    }`;
+    const result = parseTranslationJSON(jsonWithNulls) as DictionaryEntry;
+    expect(isDictionaryEntry(result)).toBe(true);
+    expect(result.verb_forms).toBeNull();
+    expect(result.meanings[0].synonyms).toBeNull();
+  });
+
   it("throws for completely invalid / unrecognized JSON structure", () => {
     expect(() => parseTranslationJSON('{"unknown_field": 42}')).toThrow(
       "Failed to parse JSON translation",

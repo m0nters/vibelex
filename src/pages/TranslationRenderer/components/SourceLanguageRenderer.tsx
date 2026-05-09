@@ -3,7 +3,7 @@ import "/node_modules/flag-icons/css/flag-icons.min.css";
 
 interface SourceLanguageRendererProps {
   sourceLangCode: string;
-  mainCountryCode?: string;
+  mainCountryCode?: string | null;
   isAutoDetected: boolean;
 }
 
