@@ -5,3 +5,4 @@ export * from "./DropdownMenu";
 export * from "./SelectionCheckbox";
 export * from "./SpeakerButton";
 export * from "./ToggleSwitch";
+export * from "./DarkModeToggle";

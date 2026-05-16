@@ -27,8 +27,8 @@ const FOCUS_COLOR_CLASSES = {
     indigo: "focus:border-indigo-500 focus:ring-indigo-100",
   },
   option: {
-    purple: "bg-purple-50 text-purple-700",
-    indigo: "bg-indigo-50 text-indigo-700",
+    purple: "bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
+    indigo: "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300",
   },
 } as const;
 
@@ -224,11 +224,11 @@ export function DropdownMenu({
       <button
         type="button"
         onClick={toggleDropdown}
-        className={`w-full cursor-pointer appearance-none rounded-xl border-2 border-gray-200 bg-white p-3 text-left shadow-sm transition-all duration-200 hover:border-gray-300 focus:ring-4 focus:outline-none ${dropdownColorClass}`}
+        className={`w-full cursor-pointer appearance-none rounded-xl border-2 border-gray-200 bg-white p-3 text-left shadow-sm transition-all duration-200 hover:border-gray-300 focus:ring-4 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600 ${dropdownColorClass}`}
       >
         <div className="flex items-center justify-between">
           <span
-            className="truncate text-gray-900"
+            className="truncate text-gray-900 dark:text-slate-200"
             title={selectedOption?.label}
           >
             {selectedOption?.label}
@@ -243,7 +243,7 @@ export function DropdownMenu({
 
       {/* Dropdown Options */}
       <div
-        className={`absolute top-full right-0 left-0 z-50 mt-1 min-w-[170px] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl transition-all duration-300 ease-out ${
+        className={`absolute top-full right-0 left-0 z-50 mt-1 min-w-[170px] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl transition-all duration-300 ease-out dark:border-slate-700 dark:bg-slate-800 ${
           isOpen
             ? "translate-y-0 scale-100 opacity-100"
             : "pointer-events-none -translate-y-2 scale-95 opacity-0"
@@ -254,9 +254,9 @@ export function DropdownMenu({
       >
         {/* Search Bar */}
         {canSearch && (
-          <div className="border-b border-gray-100 p-2">
+          <div className="border-b border-gray-100 p-2 dark:border-slate-700">
             <div className="relative">
-              <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-slate-500" />
               <input
                 ref={searchInputRef}
                 type="text"
@@ -264,7 +264,7 @@ export function DropdownMenu({
                 onChange={handleSearchChange}
                 // onKeyDown={handleKeyDown}
                 placeholder={t("dropdown.search")}
-                className="w-full rounded-lg border border-gray-200 py-2 pr-3 pl-9 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none"
+                className="w-full rounded-lg border border-gray-200 py-2 pr-3 pl-9 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500"
                 onClick={(e) => e.stopPropagation()}
               />
             </div>
@@ -277,7 +277,7 @@ export function DropdownMenu({
           }`}
         >
           {filteredOptions.length === 0 ? (
-            <div className="px-3 py-2.5 text-sm text-gray-500">
+            <div className="px-3 py-2.5 text-sm text-gray-500 dark:text-slate-400">
               {t("dropdown.noOptionsFound")}
             </div>
           ) : (
@@ -293,8 +293,8 @@ export function DropdownMenu({
                   option.value === value
                     ? `${optionColorClass} font-medium` // priority to selected option CSS than focused option CSS
                     : index === focusedIndex
-                      ? "bg-gray-100"
-                      : "text-gray-900 hover:bg-gray-100 focus:bg-gray-100"
+                      ? "bg-gray-100 dark:bg-slate-700"
+                      : "text-gray-900 hover:bg-gray-100 focus:bg-gray-100 dark:text-slate-200 dark:hover:bg-slate-700 dark:focus:bg-slate-700"
                 } ${index === 0 && !canSearch ? "rounded-t-xl" : ""} ${
                   index === filteredOptions.length - 1 ? "rounded-b-xl" : ""
                 }`}

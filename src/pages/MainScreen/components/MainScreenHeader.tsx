@@ -1,4 +1,4 @@
-import { ToggleSwitch } from "@/components";
+import { ToggleSwitch, DarkModeToggle } from "@/components";
 import { useTranslation } from "react-i18next";
 
 interface MainScreenHeaderProps {
@@ -11,27 +11,31 @@ export function MainScreenHeader({
   onExtensionToggle,
 }: MainScreenHeaderProps) {
   const { t } = useTranslation();
-
   return (
     <div className="relative z-10 p-6 pb-0">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <img src="/logo/logo.png" alt="App Logo" className="h-16 w-16" />
           <div>
-            <h1 className="bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-xl font-bold text-transparent">
+            <h1 className="bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-xl font-bold text-transparent dark:from-indigo-400 dark:to-purple-400">
               VibeLex
             </h1>
-            <p className="text-sm text-gray-500">{t("mainScreen:appSubtitle")}</p>
+            <p className="text-sm text-gray-500 dark:text-slate-400">{t("mainScreen:appSubtitle")}</p>
           </div>
         </div>
 
-        {/* Toggle Switch */}
-        <div className="flex flex-col items-end">
-          <ToggleSwitch
-            initialValue={extensionEnabled}
-            onChange={onExtensionToggle}
-            label="Toggle Extension"
-          />
+        {/* Actions */}
+        <div className="flex items-center space-x-4">
+          <DarkModeToggle />
+
+          {/* Toggle Switch */}
+          <div className="flex flex-col items-end">
+            <ToggleSwitch
+              initialValue={extensionEnabled}
+              onChange={onExtensionToggle}
+              label="Toggle Extension"
+            />
+          </div>
         </div>
       </div>
     </div>
