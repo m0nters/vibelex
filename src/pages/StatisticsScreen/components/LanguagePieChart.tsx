@@ -35,13 +35,13 @@ function CustomTooltip({ active, payload }: any) {
   const data = payload[0].payload as LanguageData;
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
-      <p className="text-sm font-semibold text-gray-800">{data.name}</p>
-      <p className="text-xs text-gray-600">
+    <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-lg dark:border-slate-700 dark:bg-slate-800">
+      <p className="text-sm font-semibold text-gray-800 dark:text-slate-300">{data.name}</p>
+      <p className="text-xs text-gray-600 dark:text-slate-400">
         {t("statistics:count")}:{" "}
         <span className="text-sm font-medium">{data.value}</span>
       </p>
-      <p className="text-xs text-gray-600">
+      <p className="text-xs text-gray-600 dark:text-slate-400">
         {t("statistics:percentage")}:{" "}
         <span className="text-sm font-medium">{data.percentage}%</span>
       </p>
@@ -55,7 +55,7 @@ interface LanguagePieChartProps {
 
 export function LanguagePieChart({ data }: LanguagePieChartProps) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie
@@ -68,6 +68,7 @@ export function LanguagePieChart({ data }: LanguagePieChartProps) {
             fill="#8884d8"
             dataKey="value"
             animationDuration={1000}
+            className="stroke-white dark:stroke-slate-800"
           >
             {data.map((_, index) => (
               <Cell
@@ -81,7 +82,7 @@ export function LanguagePieChart({ data }: LanguagePieChartProps) {
       </ResponsiveContainer>
 
       {/* Legend */}
-      <div className="flex flex-wrap justify-center gap-2 border-t border-gray-100 pt-4 select-text">
+      <div className="flex flex-wrap justify-center gap-2 border-t border-gray-100 pt-4 select-text dark:border-slate-700">
         {data.map((item, index) => (
           <div
             key={`legend-${index}`}
@@ -92,7 +93,7 @@ export function LanguagePieChart({ data }: LanguagePieChartProps) {
               className="h-3 w-3 shrink-0 rounded-sm"
               style={{ backgroundColor: getColorForIndex(index, data.length) }}
             />
-            <span className="text-xs text-gray-700">{item.name}</span>
+            <span className="text-xs text-gray-700 dark:text-slate-300">{item.name}</span>
           </div>
         ))}
       </div>

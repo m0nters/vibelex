@@ -7,10 +7,10 @@ export function SpeakerButton({
   word,
   ttsCode,
   className = "",
-  hoverBackgroundColor = "hover:bg-gray-200",
-  hoverTextColor = "hover:text-gray-700",
-  speakingBackgroundColor = "bg-blue-100 ",
-  speakingTextColor = "text-blue-600",
+  hoverBackgroundColor = "hover:bg-gray-200 dark:hover:bg-slate-700",
+  hoverTextColor = "hover:text-gray-700 dark:hover:text-slate-300",
+  speakingBackgroundColor = "bg-blue-100 dark:bg-blue-900/30",
+  speakingTextColor = "text-blue-600 dark:text-blue-400",
 }: {
   word: string;
   ttsCode: string;
@@ -61,7 +61,7 @@ export function SpeakerButton({
       className={`rounded-full p-2 transition-colors ${
         isPlaying
           ? `cursor-pointer ${speakingBackgroundColor} ${speakingTextColor}`
-          : `cursor-pointer text-gray-500 ${hoverBackgroundColor} ${hoverTextColor}`
+          : `cursor-pointer text-gray-500 dark:text-slate-400 ${hoverBackgroundColor} ${hoverTextColor}`
       } ${className}`}
       title={isPlaying ? t("common:stop") : t("common:speak")}
     >

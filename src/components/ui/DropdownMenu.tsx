@@ -228,7 +228,7 @@ export function DropdownMenu({
       >
         <div className="flex items-center justify-between">
           <span
-            className="truncate text-gray-900 dark:text-slate-200"
+            className="truncate text-gray-900 dark:text-slate-300"
             title={selectedOption?.label}
           >
             {selectedOption?.label}
@@ -264,7 +264,7 @@ export function DropdownMenu({
                 onChange={handleSearchChange}
                 // onKeyDown={handleKeyDown}
                 placeholder={t("dropdown.search")}
-                className="w-full rounded-lg border border-gray-200 py-2 pr-3 pl-9 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:placeholder:text-slate-500"
+                className="w-full rounded-lg border border-gray-200 py-2 pr-3 pl-9 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:placeholder:text-slate-500"
                 onClick={(e) => e.stopPropagation()}
               />
             </div>
@@ -294,7 +294,7 @@ export function DropdownMenu({
                     ? `${optionColorClass} font-medium` // priority to selected option CSS than focused option CSS
                     : index === focusedIndex
                       ? "bg-gray-100 dark:bg-slate-700"
-                      : "text-gray-900 hover:bg-gray-100 focus:bg-gray-100 dark:text-slate-200 dark:hover:bg-slate-700 dark:focus:bg-slate-700"
+                      : "text-gray-900 hover:bg-gray-100 focus:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-700 dark:focus:bg-slate-700"
                 } ${index === 0 && !canSearch ? "rounded-t-xl" : ""} ${
                   index === filteredOptions.length - 1 ? "rounded-b-xl" : ""
                 }`}

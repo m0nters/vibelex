@@ -36,7 +36,7 @@ export function HistoryNavButton({ extensionEnabled }: HistoryNavButtonProps) {
           <div className="text-left">
             <h3
               className={`text-sm font-semibold transition-colors duration-300 ${
-                !extensionEnabled ? "text-gray-400 dark:text-slate-500" : "text-gray-700 dark:text-slate-200"
+                !extensionEnabled ? "text-gray-400 dark:text-slate-500" : "text-gray-700 dark:text-slate-300"
               }`}
             >
               {t("history:title")}

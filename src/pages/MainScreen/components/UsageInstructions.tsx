@@ -30,7 +30,7 @@ export function UsageInstructions({ extensionEnabled }: UsageInstructionsProps) 
         />
         <span>{t("mainScreen:howToUse")}</span>
       </h3>
-      <ul className="space-y-1 text-xs text-gray-600 dark:text-slate-200">
+      <ul className="space-y-1 text-xs text-gray-600 dark:text-slate-300">
         <li className="flex items-start space-x-2">
           <span className={dotClass}></span>
           <span>{t("mainScreen:step1")}</span>

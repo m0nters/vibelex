@@ -19,7 +19,7 @@ export function HistoryStorageInfo({
   const { t } = useTranslation();
 
   return (
-    <div className="sticky top-[118px] z-10 mx-4 mt-4 rounded-xl border border-gray-300 bg-white p-3 shadow-sm">
+    <div className="sticky top-[118px] z-10 mx-4 mt-4 rounded-xl border border-gray-300 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-800">
       <div className="flex items-center justify-between">
         {/* Statistics / Storage Usage Toggle Title */}
         {!isFromStatistics ? (
@@ -31,8 +31,8 @@ export function HistoryStorageInfo({
               className="absolute left-0 flex w-40 -translate-x-40 items-center space-x-2 transition-transform duration-300 group-hover:translate-x-0"
               title={t("statistics:statistics")}
             >
-              <ChartPie className="h-4 w-4 shrink-0 text-indigo-600" />
-              <span className="truncate text-sm font-medium text-indigo-600">
+              <ChartPie className="h-4 w-4 shrink-0 text-indigo-600 dark:text-indigo-400" />
+              <span className="truncate text-sm font-medium text-indigo-600 dark:text-indigo-400">
                 {t("statistics:statistics")}
               </span>
             </div>
@@ -40,8 +40,8 @@ export function HistoryStorageInfo({
               className="flex w-40 translate-x-0 items-center justify-start space-x-2 transition-transform duration-300 group-hover:translate-x-40"
               title={t("history:storageUsage")}
             >
-              <HardDrive className="h-4 w-4 shrink-0 text-gray-500" />
-              <span className="truncate text-sm font-medium text-gray-700">
+              <HardDrive className="h-4 w-4 shrink-0 text-gray-500 dark:text-slate-400" />
+              <span className="truncate text-sm font-medium text-gray-700 dark:text-slate-300">
                 {t("history:storageUsage")}
               </span>
             </div>
@@ -51,15 +51,15 @@ export function HistoryStorageInfo({
             className="flex w-40 items-center justify-start space-x-2"
             title={t("history:storageUsage")}
           >
-            <HardDrive className="h-4 w-4 shrink-0 text-gray-500" />
-            <span className="truncate text-sm font-medium text-gray-700">
+            <HardDrive className="h-4 w-4 shrink-0 text-gray-500 dark:text-slate-400" />
+            <span className="truncate text-sm font-medium text-gray-700 dark:text-slate-300">
               {t("history:storageUsage")}
             </span>
           </div>
         )}
 
         {/* Storage Usage Details on mobile */}
-        <div className="flex items-center space-x-3 text-xs text-gray-600 select-text sm:hidden">
+        <div className="flex items-center space-x-3 text-xs text-gray-600 select-text sm:hidden dark:text-slate-400">
           <span
             className="max-w-16 truncate"
             title={t("history:entriesCount", { count: historyEntryCount })}

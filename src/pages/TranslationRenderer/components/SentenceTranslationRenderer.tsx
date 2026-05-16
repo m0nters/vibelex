@@ -51,11 +51,11 @@ function CollapsibleTextSection({
     >
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className={`shrink-0 cursor-pointer rounded-full bg-blue-400 transition-all duration-300 ease-in-out ${isExpanded ? "mt-1 mr-2 h-6 w-1" : "mt-2 mr-0 h-3 w-3 -translate-x-1"}`}
+        className={`shrink-0 cursor-pointer rounded-full bg-blue-400 transition-all duration-300 ease-in-out dark:bg-blue-500 ${isExpanded ? "mt-1 mr-2 h-6 w-1" : "mt-2 mr-0 h-3 w-3 -translate-x-1"}`}
       />
       <div className="mr-2 min-w-0 flex-1">
         <p
-          className={`text-base leading-relaxed font-medium wrap-break-word whitespace-pre-wrap text-gray-800 ${
+          className={`text-base leading-relaxed font-medium wrap-break-word whitespace-pre-wrap text-gray-800 dark:text-slate-300 ${
             !isExpanded ? "line-clamp-1" : ""
           }`}
         >

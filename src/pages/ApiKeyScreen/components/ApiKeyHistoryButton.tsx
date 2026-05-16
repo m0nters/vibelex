@@ -17,7 +17,7 @@ export function ApiKeyHistoryButton() {
             <Clock className="h-4 w-4 text-purple-600 transition-colors duration-300 dark:text-purple-400" />
           </div>
           <div className="text-left">
-            <h3 className="text-sm font-semibold text-gray-700 transition-colors duration-300 dark:text-slate-200">
+            <h3 className="text-sm font-semibold text-gray-700 transition-colors duration-300 dark:text-slate-300">
               {t("history:title")}
             </h3>
             <p className="text-xs text-gray-600 transition-colors duration-300 dark:text-slate-400">

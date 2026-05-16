@@ -53,7 +53,7 @@ export function HistoryDetailScreen() {
     <ScrollContainerContext.Provider value={scrollContainerRef}>
       <div
         ref={scrollContainerRef}
-        className="animate-slide-in-right h-full w-full overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50"
+        className="animate-slide-in-right h-full w-full overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-slate-900 dark:text-slate-300"
       >
         <HistoryDetailHeader
           entry={entry}

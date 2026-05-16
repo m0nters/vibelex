@@ -20,7 +20,7 @@ export function ApiKeyGuide() {
           <Info className="h-4 w-4" />
           <span>{t("api:howToGetApiKey")}</span>
         </h3>
-        <ol className="space-y-2 text-xs text-gray-600 dark:text-slate-200">
+        <ol className="space-y-2 text-xs text-gray-600 dark:text-slate-300">
           {steps.map((step, index) => (
             <li key={index} className="flex items-start space-x-2">
               <span className="flex h-5 w-5 shrink-0 -translate-y-0.5 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-300">

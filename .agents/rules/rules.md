@@ -175,7 +175,7 @@ When implementing dark mode for new components or screens, follow these establis
 - **Tailwind v4**: We use the `@custom-variant dark (&:where(.dark, .dark *));` approach. Always use the `dark:` prefix for dark mode styles.
 - **Backgrounds**: Use `dark:bg-slate-800`, `dark:bg-slate-900`, or `dark:bg-slate-700` for main surfaces. For subtle tints, use opacity modifiers like `dark:bg-indigo-500/20`.
 - **Borders**: Use `dark:border-slate-700` or `dark:border-slate-600`.
-- **Text**: Use `dark:text-slate-200` for primary text, `dark:text-slate-300` for secondary, and `dark:text-slate-400` or `dark:text-slate-500` for tertiary/muted text.
+- **Text**: Use `dark:text-slate-300` for primary text to avoid eye strain, `dark:text-slate-400` for secondary, and `dark:text-slate-500` for tertiary/muted text. Avoid overly bright white colors like `text-white` or `text-slate-200` for body text in dark mode.
 - **Warning Text**: Use softer, less saturated colors for dark background like `dark:text-red-400`.
 - **Gradients**: Use softer, less saturated colors for gradients in dark mode to ensure readability (e.g., `dark:from-indigo-400 dark:to-purple-400`).
 - **Contrast**: Always ensure high contrast for text over dark backgrounds. Avoid excessively dark transparent layers over dark backgrounds (e.g., prefer `indigo-500/20` over `indigo-900/30`).

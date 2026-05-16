@@ -17,9 +17,15 @@ export function useDarkMode() {
     if (isDarkMode) {
       root.classList.add("dark");
       localStorage.setItem("theme", "dark");
+      if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+        chrome.storage.local.set({ theme: "dark" });
+      }
     } else {
       root.classList.remove("dark");
       localStorage.setItem("theme", "light");
+      if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+        chrome.storage.local.set({ theme: "light" });
+      }
     }
   }, [isDarkMode]);
 

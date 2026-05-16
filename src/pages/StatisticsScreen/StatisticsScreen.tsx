@@ -106,7 +106,7 @@ export function StatisticsScreen() {
   return (
     <div
       ref={scrollContainerRef}
-      className="animate-slide-in-right h-full w-full overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50 select-none"
+      className="animate-slide-in-right h-full w-full overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50 select-none dark:from-gray-900 dark:to-slate-900 dark:text-slate-300"
     >
       <StatisticsHeader activeTab={activeTab} onTabChange={setActiveTab} />
 
@@ -115,7 +115,7 @@ export function StatisticsScreen() {
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
               <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
-              <p className="text-gray-500">
+              <p className="text-gray-500 dark:text-slate-400">
                 {t("statistics:loadingStatistics")}...
               </p>
             </div>
