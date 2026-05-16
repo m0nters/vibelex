@@ -27,13 +27,13 @@ export function HistoryFilters({ sortBy, onSortChange }: HistoryFiltersProps) {
 
   return (
     <div className="mx-4 mt-3 flex items-center justify-end">
-      <div className="flex w-full items-center justify-between space-x-2 rounded-xl border border-gray-300 bg-white p-1.5 shadow-sm sm:w-auto sm:justify-end">
+      <div className="flex w-full items-center justify-between space-x-2 rounded-xl border border-gray-300 bg-white p-1.5 shadow-sm sm:w-auto sm:justify-end dark:border-slate-700 dark:bg-slate-800">
         <button
           onClick={() => handleSortClick("date")}
           className={`flex flex-1 cursor-pointer items-center justify-center space-x-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors sm:flex-none ${
             sortBy.startsWith("date")
-              ? "border border-indigo-100 bg-indigo-50 text-indigo-700 shadow-sm"
-              : "text-gray-600 hover:bg-gray-100"
+              ? "border border-indigo-100 bg-indigo-50 text-indigo-700 shadow-sm dark:border-indigo-900/50 dark:bg-indigo-900/30 dark:text-indigo-300"
+              : "text-gray-600 hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-slate-700"
           }`}
           title={
             sortBy === "date_desc"
@@ -54,8 +54,8 @@ export function HistoryFilters({ sortBy, onSortChange }: HistoryFiltersProps) {
           onClick={() => handleSortClick("alphabet")}
           className={`flex flex-1 cursor-pointer items-center justify-center space-x-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors sm:flex-none ${
             sortBy.startsWith("alphabet")
-              ? "border border-indigo-100 bg-indigo-50 text-indigo-700 shadow-sm"
-              : "text-gray-600 hover:bg-gray-100"
+              ? "border border-indigo-100 bg-indigo-50 text-indigo-700 shadow-sm dark:border-indigo-900/50 dark:bg-indigo-900/30 dark:text-indigo-300"
+              : "text-gray-600 hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-slate-700"
           }`}
           title={
             sortBy === "alphabet_asc"

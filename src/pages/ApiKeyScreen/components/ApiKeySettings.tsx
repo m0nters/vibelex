@@ -17,9 +17,9 @@ export function ApiKeySettings({
   const { t } = useTranslation();
 
   return (
-    <div className="mt-4 rounded-2xl border-2 border-gray-200 bg-gray-50 p-5">
+    <div className="mt-4 rounded-2xl border-2 border-gray-200 bg-gray-50 p-5 dark:border-slate-700 dark:bg-slate-800">
       <div>
-        <label className="mb-3 flex items-center space-x-2 text-sm font-semibold text-gray-700">
+        <label className="mb-3 flex items-center space-x-2 text-sm font-semibold text-gray-700 dark:text-slate-300">
           <Settings className="h-4 w-4 text-purple-500" />
           <span>{t("mainScreen:appLanguage")}</span>
         </label>

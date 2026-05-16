@@ -1,6 +1,6 @@
 import { changeLanguage } from "@/config";
 import { MAX_WORDS_LIMIT_PER_TRANSLATION } from "@/constants";
-import { useTranslation } from "@/hooks";
+import { useDarkMode, useTranslation } from "@/hooks";
 import "@/index.css";
 import { ttsService } from "@/services";
 import { AppException } from "@/types";
@@ -16,6 +16,7 @@ import {
 } from "./components";
 
 export function DictionaryPopup() {
+  useDarkMode(); // Apply dark mode class to iframe document
   const { result, translateText } = useTranslation();
   const { t } = useReactI18next();
   const [showLoadingTip, setShowLoadingTip] = useState(false);
@@ -160,7 +161,7 @@ export function DictionaryPopup() {
   };
 
   return (
-    <div className="z-99999 flex h-full w-full flex-col bg-white">
+    <div className="z-99999 flex h-full w-full flex-col bg-white dark:bg-slate-900">
       <PopupTopBar
         finalLoadingTime={finalLoadingTime}
         isLoading={result.loading}
@@ -194,13 +195,13 @@ export function DictionaryPopup() {
           )}
 
           {!result.loading && !result.error && !result.translation && result.text && (
-            <p className="py-8 text-center text-sm text-gray-400">
+            <p className="py-8 text-center text-sm text-gray-400 dark:text-slate-500">
               {t("popup:noTranslationAvailable")}
             </p>
           )}
 
           {!result.text && (
-            <p className="py-8 text-center text-sm text-gray-400">
+            <p className="py-8 text-center text-sm text-gray-400 dark:text-slate-500">
               {t("popup:selectTextToTranslate")}
             </p>
           )}

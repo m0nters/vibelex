@@ -76,8 +76,8 @@ export function HistoryEntryCard({
       onClick={(e) => onEntryClick(entry, e)}
       className={`group relative cursor-pointer rounded-2xl border p-4 transition-all duration-300 active:scale-95 ${
         isSelected
-          ? "border-indigo-400 bg-indigo-50/80 shadow-lg shadow-indigo-100/50"
-          : "border-gray-200 bg-white/60 hover:border-indigo-300 hover:bg-white/80 hover:shadow-xl hover:shadow-indigo-100/50"
+          ? "border-indigo-400 bg-indigo-50/80 shadow-lg shadow-indigo-100/50 dark:border-indigo-500 dark:bg-indigo-900/30 dark:shadow-indigo-900/20"
+          : "border-gray-200 bg-white/60 hover:border-indigo-300 hover:bg-white/80 hover:shadow-xl hover:shadow-indigo-100/50 dark:border-slate-700 dark:bg-slate-800/60 dark:hover:border-indigo-500/50 dark:hover:bg-slate-800/90 dark:hover:shadow-indigo-900/20"
       }`}
     >
       {/* Selection Circle - appears on hover or when selected */}
@@ -97,14 +97,14 @@ export function HistoryEntryCard({
         <div className="min-w-0 flex-1">
           <div className="mb-2">
             <h3
-              className="max-w-60 truncate text-base font-semibold text-gray-800 transition-colors group-hover:text-indigo-800"
+              className="max-w-60 truncate text-base font-semibold text-gray-800 transition-colors group-hover:text-indigo-800 dark:text-slate-300 dark:group-hover:text-indigo-300"
               title={displayInfo.primaryText}
             >
               {displayInfo.primaryText}
             </h3>
             {displayInfo.secondaryText && (
               <p
-                className="max-w-60 truncate font-mono text-sm text-gray-500"
+                className="max-w-60 truncate font-mono text-sm text-gray-500 dark:text-slate-400"
                 title={displayInfo.secondaryText}
               >
                 {displayInfo.secondaryText}
@@ -120,16 +120,16 @@ export function HistoryEntryCard({
                 onClick={(e) =>
                   onLanguageBadgeClick(e, "source", sourceLangCode)
                 }
-                className={`flex max-w-28 cursor-pointer items-center space-x-1.5 rounded-full border px-2 py-1 transition-all duration-200 ${isSourceLanguageUnknown ? "border-gray-300 bg-gray-100 hover:bg-gray-200 hover:shadow-none" : "border-blue-300 bg-blue-100 hover:bg-blue-200 hover:shadow-sm"}`}
+                className={`flex max-w-28 cursor-pointer items-center space-x-1.5 rounded-full border px-2 py-1 transition-all duration-200 ${isSourceLanguageUnknown ? "border-gray-300 bg-gray-100 hover:bg-gray-200 hover:shadow-none dark:border-slate-600 dark:bg-slate-700 dark:hover:bg-slate-600" : "border-blue-300 bg-blue-100 hover:bg-blue-200 hover:shadow-sm dark:border-blue-800 dark:bg-blue-900/30 dark:hover:bg-blue-900/50"}`}
                 title={t("history:searchBySourceLanguage", {
                   language: sourceLangName,
                 })}
               >
                 <Globe
-                  className={`h-3.5 w-3.5 ${isSourceLanguageUnknown ? "text-gray-500" : "text-blue-600"}`}
+                  className={`h-3.5 w-3.5 ${isSourceLanguageUnknown ? "text-gray-500 dark:text-slate-400" : "text-blue-600 dark:text-blue-400"}`}
                 />
                 <span
-                  className={`truncate font-semibold ${isSourceLanguageUnknown ? "text-gray-500" : "text-blue-700"}`}
+                  className={`truncate font-semibold ${isSourceLanguageUnknown ? "text-gray-500 dark:text-slate-400" : "text-blue-700 dark:text-blue-300"}`}
                 >
                   {sourceLangName}
                 </span>
@@ -143,13 +143,13 @@ export function HistoryEntryCard({
                 onClick={(e) =>
                   onLanguageBadgeClick(e, "target", translatedLangCode)
                 }
-                className="flex max-w-28 cursor-pointer items-center space-x-1.5 rounded-full border border-emerald-300 bg-emerald-100 px-2 py-1 transition-all duration-200 hover:bg-emerald-200 hover:shadow-sm"
+                className="flex max-w-28 cursor-pointer items-center space-x-1.5 rounded-full border border-emerald-300 bg-emerald-100 px-2 py-1 transition-all duration-200 hover:bg-emerald-200 hover:shadow-sm dark:border-emerald-800 dark:bg-emerald-900/30 dark:hover:bg-emerald-900/50"
                 title={t("history:searchByTargetLanguage", {
                   language: targetLangName,
                 })}
               >
-                <Globe className="h-3.5 w-3.5 text-emerald-600" />
-                <span className="truncate font-semibold text-emerald-700">
+                <Globe className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                <span className="truncate font-semibold text-emerald-700 dark:text-emerald-300">
                   {targetLangName}
                 </span>
               </div>
@@ -157,11 +157,11 @@ export function HistoryEntryCard({
 
             {/* Timestamp Badge */}
             <div
-              className="flex cursor-help items-center space-x-1.5 rounded-full border border-gray-300 bg-gray-100 px-2 py-1"
+              className="flex cursor-help items-center space-x-1.5 rounded-full border border-gray-300 bg-gray-100 px-2 py-1 dark:border-slate-600 dark:bg-slate-700"
               title={formatTimestampDetail(entry.timestamp, i18n.language)}
             >
-              <Clock className="h-3.5 w-3.5 text-gray-500" />
-              <span className="font-medium text-gray-600">
+              <Clock className="h-3.5 w-3.5 text-gray-500 dark:text-slate-400" />
+              <span className="font-medium text-gray-600 dark:text-slate-300">
                 {formatTimestampForBadge(entry.timestamp, i18n.language)}
               </span>
             </div>
@@ -175,8 +175,8 @@ export function HistoryEntryCard({
             onClick={(e) => onPinEntry(entry.id, e)}
             className={`cursor-pointer rounded-lg border p-3 transition-all duration-200 hover:shadow-sm ${
               entry.pinnedAt
-                ? "border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100"
-                : "border-gray-300 bg-gray-100 text-gray-500 hover:bg-gray-200"
+                ? "border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100 dark:border-amber-900/50 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50"
+                : "border-gray-300 bg-gray-100 text-gray-500 hover:bg-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
             }`}
             title={
               entry.pinnedAt ? t("history:unpinEntry") : t("history:pinEntry")
@@ -190,7 +190,7 @@ export function HistoryEntryCard({
           {/* Delete button */}
           <button
             onClick={(e) => onRemoveEntry(entry.id, e)}
-            className="cursor-pointer rounded-lg border border-red-200 bg-red-50 p-3 text-red-500 transition-all duration-200 hover:bg-red-100 hover:shadow-sm"
+            className="cursor-pointer rounded-lg border border-red-200 bg-red-50 p-3 text-red-500 transition-all duration-200 hover:bg-red-100 hover:shadow-sm dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40"
             title={t("history:removeEntry")}
           >
             <Trash2 className="h-4 w-4" />

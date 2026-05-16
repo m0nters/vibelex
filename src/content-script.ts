@@ -60,6 +60,34 @@ async function getDictionaryButtonText(): Promise<string> {
   }
 }
 
+async function getTheme(): Promise<"dark" | "light"> {
+  try {
+    const data = await new Promise<any>((resolve, reject) => {
+      if (
+        typeof chrome !== "undefined" &&
+        chrome.storage &&
+        chrome.storage.local
+      ) {
+        chrome.storage.local.get(["theme"], (result) => {
+          if (chrome.runtime.lastError) reject(chrome.runtime.lastError);
+          else resolve(result);
+        });
+      } else {
+        resolve({ theme: null });
+      }
+    });
+
+    if (data.theme) return data.theme;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  } catch (error) {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  }
+}
+
 const popupWidth = 300;
 let dictionaryButton: HTMLElement | null = null;
 let dictionaryPopup: HTMLIFrameElement | null = null;
@@ -179,6 +207,17 @@ async function showDictionaryButton(
 
     // Get translated button text
     const buttonText = await getDictionaryButtonText();
+    const theme = await getTheme();
+    const isDark = theme === "dark";
+
+    const bgNormal = isDark ? "#1e293b" : "white"; // slate-800
+    const textNormal = isDark ? "#818cf8" : "#4f46e5"; // indigo-400
+    const borderNormal = isDark ? "#6366f1" : "#4f46e5"; // indigo-500
+    const shadowColor = isDark ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.15)";
+
+    const bgHover = isDark ? "#4f46e5" : "#4f46e5"; // indigo-600
+    const textHover = "white";
+    const borderHover = isDark ? "#4f46e5" : "white";
 
     dictionaryButton = document.createElement("div");
     dictionaryButton.id = "dictionary-button";
@@ -187,16 +226,16 @@ async function showDictionaryButton(
       position: absolute;
       left: ${x}px;
       top: ${y}px;
-      background: white;
-      color: #4f46e5;
-      border: 1px solid #4f46e5;
+      background: ${bgNormal};
+      color: ${textNormal};
+      border: 1px solid ${borderNormal};
       padding: 6px 12px;
       border-radius: 6px;
       font-size: 12px;
       font-family: Roboto, sans-serif;
       cursor: pointer;
       z-index: 99999;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      box-shadow: 0 2px 8px ${shadowColor};
       user-select: none;
       pointer-events: auto;
       display: inline-block;
@@ -204,19 +243,20 @@ async function showDictionaryButton(
       text-align: center;
       white-space: nowrap;
       line-height: 1.2;
+      transition: all 0.2s ease;
     `;
 
     // Add hover effects to make it more obvious it's clickable
     dictionaryButton.addEventListener("mouseenter", () => {
-      dictionaryButton!.style.background = "#4f46e5";
-      dictionaryButton!.style.color = "white";
-      dictionaryButton!.style.border = "1px solid white";
+      dictionaryButton!.style.background = bgHover;
+      dictionaryButton!.style.color = textHover;
+      dictionaryButton!.style.border = `1px solid ${borderHover}`;
     });
 
     dictionaryButton.addEventListener("mouseleave", () => {
-      dictionaryButton!.style.background = "white";
-      dictionaryButton!.style.color = "#4f46e5";
-      dictionaryButton!.style.border = "1px solid #4f46e5";
+      dictionaryButton!.style.background = bgNormal;
+      dictionaryButton!.style.color = textNormal;
+      dictionaryButton!.style.border = `1px solid ${borderNormal}`;
     });
 
     // Prevent inspecting element
@@ -333,6 +373,9 @@ async function showDictionaryPopup(selectedText: string, x: number, y: number) {
 
     const { popupX, popupY } = getPopupPosition(x, y, popupInitialHeight);
 
+    const theme = await getTheme();
+    const isDark = theme === "dark";
+
     dictionaryPopup.style.cssText = `
       position: absolute;
       left: ${popupX}px;
@@ -341,12 +384,13 @@ async function showDictionaryPopup(selectedText: string, x: number, y: number) {
       height: ${popupInitialHeight}px;
       border: none;
       border-radius: 8px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      box-shadow: 0 10px 30px ${isDark ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.3)"};
       z-index: 99999;
-      background: white;
+      background: ${isDark ? "#0f172a" : "white"};
       overflow: auto;
       opacity: 0;
       visibility: hidden;
+      color-scheme: ${isDark ? "dark" : "light"};
     `;
 
     document.body.appendChild(dictionaryPopup);

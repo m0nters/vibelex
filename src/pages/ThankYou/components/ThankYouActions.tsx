@@ -32,7 +32,7 @@ export function ThankYouActions() {
 
       {/* <button
         onClick={handlePatreon}
-        className="group flex transform cursor-pointer items-center justify-center gap-3 rounded-2xl bg-white px-6 py-3 font-medium text-black shadow-md transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:bg-gray-200 hover:shadow-lg"
+        className="group flex transform cursor-pointer items-center justify-center gap-3 rounded-2xl bg-white px-6 py-3 font-medium text-black shadow-md transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:bg-gray-200 hover:shadow-lg dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
       >
         <SiPatreon className="h-5 w-5 text-black" />
         Patreon

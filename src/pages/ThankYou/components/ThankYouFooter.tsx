@@ -5,7 +5,7 @@ export function ThankYouFooter() {
 
   return (
     <div className="mt-8 flex items-end justify-center gap-1 text-center">
-      <p className="text-sm text-gray-500">{t("thankYou:author")}</p>
+      <p className="text-sm text-gray-500 dark:text-slate-500">{t("thankYou:author")}</p>
       <a
         href="https://github.com/m0nters"
         className="text-sm text-indigo-600 hover:text-indigo-800 hover:underline"

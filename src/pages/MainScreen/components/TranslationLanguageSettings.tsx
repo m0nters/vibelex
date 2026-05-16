@@ -30,13 +30,13 @@ export function TranslationLanguageSettings({
     <div
       className={`rounded-2xl border-2 p-5 transition-all duration-300 ${
         !extensionEnabled
-          ? "border-gray-300/30 bg-gray-100/70"
-          : "border-gray-200 bg-gray-50"
+          ? "border-gray-300/30 bg-gray-100/70 dark:border-slate-700/30 dark:bg-slate-800/70"
+          : "border-gray-200 bg-gray-50 dark:border-slate-700 dark:bg-slate-800"
       }`}
     >
       <label
         className={`mb-3 flex items-center space-x-2 text-sm font-semibold transition-colors duration-300 ${
-          !extensionEnabled ? "text-gray-400" : "text-gray-700"
+          !extensionEnabled ? "text-gray-400 dark:text-slate-500" : "text-gray-700 dark:text-slate-300"
         }`}
       >
         <Languages
@@ -51,7 +51,7 @@ export function TranslationLanguageSettings({
       <div className="flex items-center space-x-3">
         {/* Source Language Dropdown */}
         <div className="flex-1">
-          <div className="mb-2 translate-x-0.5 text-xs font-medium text-gray-600">
+          <div className="mb-2 translate-x-0.5 text-xs font-medium text-gray-600 dark:text-slate-400">
             {t("mainScreen:from")}
           </div>
           <DropdownMenu
@@ -274,7 +274,7 @@ export function TranslationLanguageSettings({
 
         {/* Target Language Dropdown */}
         <div className="flex-1">
-          <div className="mb-2 translate-x-0.5 text-xs font-medium text-gray-600">
+          <div className="mb-2 translate-x-0.5 text-xs font-medium text-gray-600 dark:text-slate-400">
             {t("mainScreen:to")}
           </div>
           <DropdownMenu

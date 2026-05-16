@@ -32,7 +32,7 @@ export function SelectionCheckbox({
       className={`flex cursor-pointer items-center justify-center rounded-full border-2 transition-all duration-200 ${
         isSelected
           ? "border-indigo-500 bg-indigo-500"
-          : "border-indigo-400 bg-white hover:border-indigo-500 hover:bg-indigo-50"
+          : "border-indigo-400 bg-white hover:border-indigo-500 hover:bg-indigo-50 dark:border-slate-500 dark:bg-slate-800 dark:hover:border-indigo-400 dark:hover:bg-slate-700"
       } ${sizeClasses[size]} ${className}`}
       title={title}
     >

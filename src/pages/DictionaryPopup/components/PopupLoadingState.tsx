@@ -17,12 +17,12 @@ export function PopupLoadingState({
   return (
     <div className="flex flex-col items-center justify-center py-12" key="loading">
       <div className="flex items-center">
-        <LoaderCircle className="h-6 w-6 animate-spin text-blue-600" />
-        <span className="ml-2 text-sm text-gray-500">{t("common:loading")}</span>
+        <LoaderCircle className="h-6 w-6 animate-spin text-blue-600 dark:text-blue-400" />
+        <span className="ml-2 text-sm text-gray-500 dark:text-slate-400">{t("common:loading")}</span>
       </div>
-      <div className="mt-2 text-xs text-gray-400">{loadingTime.toFixed(1)}s</div>
+      <div className="mt-2 text-xs text-gray-400 dark:text-slate-500">{loadingTime.toFixed(1)}s</div>
       {showLoadingTip && (
-        <p className="animate-fade-in mt-4 max-w-xs text-center text-xs text-gray-400">
+        <p className="animate-fade-in mt-4 max-w-xs text-center text-xs text-gray-400 dark:text-slate-500">
           {t("popup:loadingTip")}
         </p>
       )}

@@ -12,7 +12,7 @@ export function ApiKeyHeader() {
       <h1 className="bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-2xl font-bold text-transparent">
         {t("api:apiKeyRequired")}
       </h1>
-      <p className="mt-2 text-sm text-gray-600">{t("api:apiKeyDescription")}</p>
+      <p className="mt-2 text-sm text-gray-600 dark:text-slate-300">{t("api:apiKeyDescription")}</p>
     </div>
   );
 }

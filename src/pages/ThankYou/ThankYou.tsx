@@ -1,4 +1,5 @@
 import { changeLanguage } from "@/config/i18n";
+import { DarkModeToggle } from "@/components";
 import { useEffect, useState } from "react";
 import {
   ThankYouActions,
@@ -29,10 +30,13 @@ export function ThankYou() {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-linear-to-br from-gray-100 to-indigo-100 p-4">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-linear-to-br from-gray-100 to-indigo-100 p-4 dark:from-slate-900 dark:to-indigo-950">
       <ThankYouBackground />
 
-      <ThankYouLanguageSwitcher onLanguageChange={handleLanguageChange} />
+      <div className="absolute top-4 right-4 z-20 flex items-center gap-4">
+        <DarkModeToggle />
+        <ThankYouLanguageSwitcher onLanguageChange={handleLanguageChange} />
+      </div>
 
       {/* Main content with fade-in animation */}
       <div

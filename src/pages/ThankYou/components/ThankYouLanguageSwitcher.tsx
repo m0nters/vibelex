@@ -17,14 +17,12 @@ export function ThankYouLanguageSwitcher({
   }));
 
   return (
-    <div className="absolute top-4 right-4 z-20">
-      <DropdownMenu
-        value={i18n.language}
-        options={languageOptions}
-        onChange={onLanguageChange}
-        className="min-w-[140px]"
-        focusColor="indigo"
-      />
-    </div>
+    <DropdownMenu
+      value={i18n.language}
+      options={languageOptions}
+      onChange={onLanguageChange}
+      className="min-w-[140px]"
+      focusColor="indigo"
+    />
   );
 }

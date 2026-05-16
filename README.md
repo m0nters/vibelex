@@ -21,6 +21,9 @@ A Chrome extension that provides instant translation using Google's Gemini AI wh
    <img src="examples\history-detail.png" width="260" alt="History Detail Screen" />
    <img src="examples\statistics1.png" width="260" alt="Statistics Screen" />
    <img src="examples\statistics2.png" width="260" alt="Statistics Screen" />
+   <img src="examples\home-dark.png" width="260" alt="Home Screen Dark" />
+   <img src="examples\history-dark.png" width="260" alt="History Screen Dark" />
+   <img src="examples\history-detail-dark.png" width="260" alt="History Detail Screen Dark" />
 </div>
 
 ## Table of Contents
@@ -43,6 +46,7 @@ A Chrome extension that provides instant translation using Google's Gemini AI wh
 - 🎯 **Smart Detection**: Automatically detects any language (or you can choose manually if needed), can search by transliterated text (fuzzy search)
 - 📚 **Dictionary Mode**: For single words, shows pronunciation, meanings, synonyms, idioms, phrasal verbs, and example sentences just like professional dictionary standards
 - 💬 **Sentence Translation**: For phrases and sentences, provides clean translations
+- 🌙 **Dark Mode Support**: Full dark mode interface that seamlessly adapts to your preferences, ensuring comfortable reading at night
 - 🔊 **Text-to-Speech**: Listen to pronunciations with built-in TTS for multiple accents (e.g., UK/US for English)
 - 📖 **Translation History**: Automatically saves translations with advanced search functionality (fuzzy search), support sort and filter
 - 📊 **Statistics Screen**: View detailed usage statistics for each language in source and target
@@ -99,9 +103,10 @@ Before you can use the extension, you need to provide a Google Gemini API key:
 ### Managing the Extension
 
 1. **Open the extension popup** by clicking the extension icon in Chrome toolbar
-2. **Change app language (interface language)** using the dropdown (changes UI language everywhere instantly)
-3. **Select target translation language** from the "Translate to" dropdown
-4. **Toggle extension** on/off using the switch at the bottom
+2. **Toggle Dark Mode** using the moon/sun icon at the top right of the main screen or API key screen to switch between light and dark themes
+3. **Change app language (interface language)** using the dropdown (changes UI language everywhere instantly)
+4. **Select target translation language** from the "Translate to" dropdown
+5. **Toggle extension** on/off using the switch at the bottom
 
 ### Using Translation History
 
