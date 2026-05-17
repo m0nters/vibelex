@@ -23,7 +23,7 @@ describe("DarkModeToggle", () => {
 
     render(<DarkModeToggle />);
 
-    const checkbox = screen.getByRole("checkbox", { name: "Toggle Dark Mode" });
+    const checkbox = screen.getByRole("checkbox", { name: "darkMode" });
     expect(checkbox).toBeInTheDocument();
     expect(checkbox).toBeChecked();
 
@@ -39,7 +39,7 @@ describe("DarkModeToggle", () => {
 
     render(<DarkModeToggle />);
 
-    const checkbox = screen.getByRole("checkbox", { name: "Toggle Dark Mode" });
+    const checkbox = screen.getByRole("checkbox", { name: "lightMode" });
     expect(checkbox).toBeInTheDocument();
     expect(checkbox).not.toBeChecked();
 
@@ -55,7 +55,7 @@ describe("DarkModeToggle", () => {
 
     render(<DarkModeToggle />);
     const user = userEvent.setup();
-    const checkbox = screen.getByRole("checkbox", { name: "Toggle Dark Mode" });
+    const checkbox = screen.getByRole("checkbox", { name: "darkMode" });
     const label = checkbox.nextElementSibling!;
 
     await user.click(label);

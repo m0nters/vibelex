@@ -2,17 +2,17 @@ import { Power } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-interface ToggleSwitchProps {
+interface ExtensionToggleProps {
   initialValue?: boolean;
   onChange?: (enabled: boolean) => void;
   label?: string;
 }
 
-export function ToggleSwitch({
+export function ExtensionToggle({
   initialValue = true,
   onChange,
   label = "Enable Extension",
-}: ToggleSwitchProps) {
+}: ExtensionToggleProps) {
   const [enabled, setEnabled] = useState(initialValue);
 
   // Update internal state when initialValue changes

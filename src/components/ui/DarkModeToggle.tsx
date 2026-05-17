@@ -11,6 +11,9 @@ export function DarkModeToggle({ className = "" }: DarkModeToggleProps) {
   return (
     <div className={className} title={isDarkMode ? t("lightMode") : t("darkMode")}>
       <div className="relative block h-6 w-12">
+        {/* There're many small parts in the original "picture" in the switch,
+            so I choose to draw them in original size (h-15 w-30), and scale
+            them down later to match the final size (h-6 w-12) */}
         <div className="absolute top-0 left-0 h-15 w-30 origin-top-left scale-[0.4]">
           <input
             type="checkbox"
@@ -85,40 +88,6 @@ export function DarkModeToggle({ className = "" }: DarkModeToggleProps) {
           </label>
         </div>
       </div>
-
-      <style>{`
-        @keyframes twinkle-1 {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.2; }
-        }
-        @keyframes twinkle-2 {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.2; }
-        }
-        @keyframes twinkle-3 {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.2; }
-        }
-        
-        .animate-twinkle-1 {
-          animation: twinkle-1 0.6s infinite;
-        }
-        .animate-twinkle-2 {
-          animation: twinkle-2 0.6s infinite -0.2s;
-        }
-        .animate-twinkle-3 {
-          animation: twinkle-3 0.8s infinite -0.6s;
-        }
-        
-        @keyframes cloud {
-          0% { transform: translate(0%, -50%); }
-          50% { transform: translate(-50%, -50%); }
-          100% { transform: translate(0%, -50%); }
-        }
-        .animate-cloud {
-          animation: cloud 8s linear infinite;
-        }
-      `}</style>
     </div>
   );
 }

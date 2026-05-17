@@ -1,4 +1,4 @@
-import { DarkModeToggle, ToggleSwitch } from "@/components";
+import { DarkModeToggle, ExtensionToggle } from "@/components";
 import { useTranslation } from "react-i18next";
 
 interface MainScreenHeaderProps {
@@ -29,7 +29,7 @@ export function MainScreenHeader({
         {/* Actions */}
         <div className="flex flex-col items-end space-y-3">
           {/* Toggle Switch */}
-          <ToggleSwitch
+          <ExtensionToggle
             initialValue={extensionEnabled}
             onChange={onExtensionToggle}
             label="Toggle Extension"
