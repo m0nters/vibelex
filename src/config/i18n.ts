@@ -80,6 +80,22 @@ export const changeLanguage = async (languageCode: string) => {
           return;
         }
       });
+      
+      // Broadcast language change to all content scripts (dictionary popups)
+      if (chrome.tabs) {
+        chrome.tabs.query({}, (tabs) => {
+          tabs.forEach((tab) => {
+            if (tab.id) {
+              chrome.tabs.sendMessage(tab.id, {
+                type: "LANGUAGE_CHANGED",
+                language: languageCode,
+              }).catch(() => {
+                // Silently handle content script not being available
+              });
+            }
+          });
+        });
+      }
     }
   } catch (error) {
     console.error("Failed to change app language:", error);

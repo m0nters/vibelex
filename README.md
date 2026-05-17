@@ -24,6 +24,7 @@ A Chrome extension that provides instant translation using Google's Gemini AI wh
    <img src="examples\home-dark.png" width="260" alt="Home Screen Dark" />
    <img src="examples\history-dark.png" width="260" alt="History Screen Dark" />
    <img src="examples\history-detail-dark.png" width="260" alt="History Detail Screen Dark" />
+   <img src="examples\statistics-dark.png" width="260" alt="Statistics Screen Dark" />
 </div>
 
 ## Table of Contents

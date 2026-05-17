@@ -1,4 +1,7 @@
+import { DarkModeToggle } from "@/components";
+import { changeLanguage } from "@/config";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ApiKeyBackground,
   ApiKeyForm,
@@ -7,19 +10,15 @@ import {
   ApiKeyHistoryButton,
   ApiKeySettings,
 } from "./components";
-import { DarkModeToggle } from "@/components";
 
 interface ApiKeyScreenProps {
   onApiKeySubmit: (apiKey: string) => void;
-  appLangCode: string;
-  onChangeAppLanguage: (value: string) => Promise<void>;
 }
 
-export function ApiKeyScreen({
-  onApiKeySubmit,
-  appLangCode,
-  onChangeAppLanguage,
-}: ApiKeyScreenProps) {
+export function ApiKeyScreen({ onApiKeySubmit }: ApiKeyScreenProps) {
+  const { i18n } = useTranslation();
+  const appLangCode = i18n.language;
+
   const [apiKey, setApiKey] = useState("");
   const [error, setError] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -31,20 +30,49 @@ export function ApiKeyScreen({
 
   const handleAppLanguageChange = async (langCode: string) => {
     if (langCode === appLangCode) return;
-    await onChangeAppLanguage(langCode);
+    await changeLanguage(langCode);
     displaySave();
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (apiKey.trim().length !== 39 || !apiKey.trim().startsWith("AIzaSy")) {
+    const newApiKey = apiKey.trim();
+
+    if (newApiKey.length !== 39 || !newApiKey.startsWith("AIzaSy")) {
       setError(true);
       setTimeout(() => setError(false), 3000);
       return;
     }
 
-    onApiKeySubmit(apiKey.trim());
+    // Save to chrome storage
+    chrome.storage.sync.set(
+      { geminiApiKey: newApiKey, extensionEnabled: true },
+      () => {
+        if (chrome.runtime.lastError) {
+          console.error(
+            "Failed to save API key to storage:",
+            chrome.runtime.lastError,
+          );
+        } else {
+          // Broadcast extension enabled to all tabs
+          chrome.tabs.query({}, (tabs) => {
+            tabs.forEach((tab) => {
+              if (tab.id) {
+                chrome.tabs
+                  .sendMessage(tab.id, {
+                    type: "EXTENSION_TOGGLE",
+                    enabled: true,
+                  })
+                  .catch(() => {});
+              }
+            });
+          });
+        }
+      },
+    );
+
+    onApiKeySubmit(newApiKey);
   };
 
   const handleApiKeyChange = (value: string) => {
@@ -53,7 +81,7 @@ export function ApiKeyScreen({
   };
 
   return (
-    <div className="animate-slide-in-right relative h-full w-full overflow-x-hidden overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-slate-900 dark:text-slate-300 select-none">
+    <div className="animate-slide-in-right relative h-full w-full overflow-x-hidden overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50 select-none dark:from-gray-900 dark:to-slate-900 dark:text-slate-300">
       <ApiKeyBackground />
 
       {/* Dark Mode Toggle */}

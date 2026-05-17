@@ -1,5 +1,11 @@
+import { changeLanguage } from "@/config";
+import {
+  DEFAULT_LANGUAGE_CODE,
+  DEFAULT_SOURCE_LANGUAGE_CODE,
+} from "@/constants";
 import { checkPrivilegePage } from "@/utils";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   AppLanguageSettings,
   DeleteApiKeySection,
@@ -13,31 +19,49 @@ import {
 } from "./components";
 
 interface MainScreenProps {
-  appLangCode: string;
-  sourceLangCode: string;
-  translatedLangCode: string;
-  onChangeSourceLanguage: (value: string) => void;
-  onChangeTranslatedLanguage: (value: string) => void;
-  onChangeAppLanguage: (value: string) => Promise<void>;
-  extensionEnabled: boolean;
-  onExtensionToggle: (enabled: boolean) => void;
   onDeleteApiKey: () => void;
 }
 
-export function MainScreen({
-  appLangCode,
-  sourceLangCode,
-  translatedLangCode,
-  onChangeSourceLanguage,
-  onChangeTranslatedLanguage,
-  onChangeAppLanguage,
-  extensionEnabled,
-  onExtensionToggle,
-  onDeleteApiKey,
-}: MainScreenProps) {
+export function MainScreen({ onDeleteApiKey }: MainScreenProps) {
+  const { i18n } = useTranslation();
+  const appLangCode = i18n.language;
+
+  const [sourceLangCode, setSourceLangCode] = useState<string>(
+    DEFAULT_SOURCE_LANGUAGE_CODE,
+  );
+  const [translatedLangCode, setTranslatedLangCode] = useState<string>(
+    DEFAULT_LANGUAGE_CODE,
+  );
+  const [extensionEnabled, setExtensionEnabled] = useState(true);
+
   const [isPrivilegePage, setIsPrivilegePage] = useState(false);
   const [savedLanguages, setSavedLanguages] = useState(false);
   const [savedAppLang, setSavedAppLang] = useState(false);
+
+  useEffect(() => {
+    chrome.storage.sync.get(
+      ["translatedLangCode", "sourceLangCode", "extensionEnabled"],
+      (data) => {
+        if (
+          data.translatedLangCode &&
+          data.translatedLangCode !== DEFAULT_LANGUAGE_CODE
+        ) {
+          setTranslatedLangCode(data.translatedLangCode);
+        }
+
+        if (
+          data.sourceLangCode &&
+          data.sourceLangCode !== DEFAULT_SOURCE_LANGUAGE_CODE
+        ) {
+          setSourceLangCode(data.sourceLangCode);
+        }
+
+        if (typeof data.extensionEnabled === "boolean") {
+          setExtensionEnabled(data.extensionEnabled);
+        }
+      },
+    );
+  }, []);
 
   // Check if current tab is a privilege page
   useEffect(() => {
@@ -62,20 +86,47 @@ export function MainScreen({
 
   const handleSourceLanguageChange = (langCode: string) => {
     if (langCode === sourceLangCode) return;
-    onChangeSourceLanguage(langCode);
+    setSourceLangCode(langCode);
+    chrome.storage.sync.set({ sourceLangCode: langCode }, () => {
+      if (chrome.runtime.lastError) {
+        console.error("Failed to save source language to storage:", chrome.runtime.lastError);
+      }
+    });
     displaySavedLanguages();
   };
 
   const handleTranslatedLanguageChange = (langCode: string) => {
     if (langCode === translatedLangCode) return;
-    onChangeTranslatedLanguage(langCode);
+    setTranslatedLangCode(langCode);
+    chrome.storage.sync.set({ translatedLangCode: langCode }, () => {
+      if (chrome.runtime.lastError) {
+        console.error("Failed to save translated language to storage:", chrome.runtime.lastError);
+      }
+    });
     displaySavedLanguages();
   };
 
   const handleAppLanguageChange = async (langCode: string) => {
     if (langCode === appLangCode) return;
-    await onChangeAppLanguage(langCode);
+    await changeLanguage(langCode);
     displaySavedAppLang();
+  };
+
+  const handleExtensionToggle = (enabled: boolean) => {
+    setExtensionEnabled(enabled);
+    chrome.storage.sync.set({ extensionEnabled: enabled }, () => {
+      if (chrome.runtime.lastError) {
+        console.warn("Failed to save extension enabled state:", chrome.runtime.lastError);
+        return;
+      }
+      chrome.tabs.query({}, (tabs) => {
+        tabs.forEach((tab) => {
+          if (tab.id) {
+            chrome.tabs.sendMessage(tab.id, { type: "EXTENSION_TOGGLE", enabled }).catch(() => {});
+          }
+        });
+      });
+    });
   };
 
   return (
@@ -84,7 +135,7 @@ export function MainScreen({
 
       <MainScreenHeader
         extensionEnabled={extensionEnabled}
-        onExtensionToggle={onExtensionToggle}
+        onExtensionToggle={handleExtensionToggle}
       />
 
       {/* Main content */}
