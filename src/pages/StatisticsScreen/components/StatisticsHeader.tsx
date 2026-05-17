@@ -15,13 +15,13 @@ export function StatisticsHeader({
   const { t } = useTranslation();
 
   return (
-    <div className="sticky top-0 z-10 border-b border-indigo-100 bg-white/70 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/70">
+    <div className="sticky top-0 z-10 border-b border-indigo-100 bg-white/70 backdrop-blur-sm transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900/70">
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center space-x-2">
           <BackButton />
           <div className="flex items-center space-x-2">
             <ChartPie className="h-5 w-5 text-indigo-600" />
-            <h1 className="text-lg font-semibold text-gray-800 dark:text-slate-300">
+            <h1 className="text-lg font-semibold text-gray-800 transition-colors duration-300 dark:text-slate-300">
               {t("statistics:title")}
             </h1>
           </div>
@@ -29,7 +29,7 @@ export function StatisticsHeader({
       </div>
 
       {/* Tabs */}
-      <div className="flex border-t border-gray-200 bg-white/50 dark:border-slate-700 dark:bg-slate-800/50">
+      <div className="flex border-t border-gray-200 bg-white/50 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800/50">
         <button
           onClick={() => onTabChange("source")}
           className={`flex-1 cursor-pointer border-b-2 px-4 py-3 text-sm font-medium transition-colors ${

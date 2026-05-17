@@ -26,7 +26,9 @@ describe("ToggleSwitch", () => {
 
   it("uses the label prop as aria-label on the button", () => {
     render(<ToggleSwitch label="Dark mode" />);
-    expect(screen.getByRole("button", { name: "Dark mode" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Dark mode" }),
+    ).toBeInTheDocument();
   });
 
   it("uses the default aria-label 'Enable Extension' when no label provided", () => {

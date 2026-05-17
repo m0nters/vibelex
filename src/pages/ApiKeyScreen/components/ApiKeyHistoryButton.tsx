@@ -1,4 +1,4 @@
-import { Clock, ChevronRight } from "lucide-react";
+import { ChevronRight, Clock } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
@@ -10,7 +10,7 @@ export function ApiKeyHistoryButton() {
     <div className="mt-4">
       <button
         onClick={() => navigate("/history")}
-        className="flex w-full cursor-pointer items-center justify-between rounded-xl border-2 border-gray-200 bg-gray-50 p-4 transition-all duration-300 hover:bg-gray-100 hover:shadow-md dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+        className="flex w-full cursor-pointer items-center justify-between rounded-xl border-2 border-gray-200 bg-gray-50 p-4 transition-colors duration-300 hover:bg-gray-100 hover:shadow-md dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
       >
         <div className="flex items-center space-x-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100 transition-colors duration-300 dark:bg-purple-900/50">

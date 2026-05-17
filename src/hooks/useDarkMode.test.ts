@@ -40,7 +40,7 @@ describe("useDarkMode", () => {
     window.matchMedia = vi.fn().mockImplementation((query) => ({
       matches: query === "(prefers-color-scheme: dark)",
     })) as any;
-    
+
     const { result } = renderHook(() => useDarkMode());
     expect(result.current.isDarkMode).toBe(true);
     expect(document.documentElement.classList.contains("dark")).toBe(true);
@@ -48,7 +48,7 @@ describe("useDarkMode", () => {
 
   it("should toggle dark mode state and update localStorage/DOM", () => {
     const { result } = renderHook(() => useDarkMode());
-    
+
     act(() => {
       result.current.toggleDarkMode();
     });

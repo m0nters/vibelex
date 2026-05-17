@@ -85,7 +85,7 @@ export function TranslationRenderer({
   // Fallback for unknown format
   return (
     <div className="dictionary-content">
-      <div className="text-gray-600 dark:text-slate-400">
+      <div className="text-gray-600 transition-colors duration-300 dark:text-slate-400">
         <pre className="whitespace-pre-wrap">
           {JSON.stringify(translation, null, 2)}
         </pre>

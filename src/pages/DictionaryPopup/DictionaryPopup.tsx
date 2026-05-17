@@ -9,11 +9,7 @@ import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { useTranslation as useReactI18next } from "react-i18next";
 import { TranslationRenderer } from "../TranslationRenderer";
-import {
-  PopupErrorState,
-  PopupLoadingState,
-  PopupTopBar,
-} from "./components";
+import { PopupErrorState, PopupLoadingState, PopupTopBar } from "./components";
 
 export function DictionaryPopup() {
   useDarkMode(); // Apply dark mode class to iframe document
@@ -116,7 +112,9 @@ export function DictionaryPopup() {
       updatePopupHeight();
     });
 
-    const contentWrapper = document.getElementById("dictionary-content-wrapper");
+    const contentWrapper = document.getElementById(
+      "dictionary-content-wrapper",
+    );
     if (contentWrapper) {
       observer.observe(contentWrapper, {
         childList: true,
@@ -161,7 +159,7 @@ export function DictionaryPopup() {
   };
 
   return (
-    <div className="z-99999 flex h-full w-full flex-col bg-white dark:bg-slate-900">
+    <div className="z-99999 flex h-full w-full flex-col bg-white transition-colors duration-300 dark:bg-slate-900">
       <PopupTopBar
         finalLoadingTime={finalLoadingTime}
         isLoading={result.loading}
@@ -194,14 +192,17 @@ export function DictionaryPopup() {
             <TranslationRenderer translation={result.translation} />
           )}
 
-          {!result.loading && !result.error && !result.translation && result.text && (
-            <p className="py-8 text-center text-sm text-gray-400 dark:text-slate-500">
-              {t("popup:noTranslationAvailable")}
-            </p>
-          )}
+          {!result.loading &&
+            !result.error &&
+            !result.translation &&
+            result.text && (
+              <p className="py-8 text-center text-sm text-gray-400 transition-colors duration-300 dark:text-slate-500">
+                {t("popup:noTranslationAvailable")}
+              </p>
+            )}
 
           {!result.text && (
-            <p className="py-8 text-center text-sm text-gray-400 dark:text-slate-500">
+            <p className="py-8 text-center text-sm text-gray-400 transition-colors duration-300 dark:text-slate-500">
               {t("popup:selectTextToTranslate")}
             </p>
           )}

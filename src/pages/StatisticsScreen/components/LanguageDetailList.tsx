@@ -15,13 +15,13 @@ export function LanguageDetailList({
   const { t } = useTranslation();
 
   return (
-    <div className="mt-4 rounded-xl border border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
-      <div className="border-b border-gray-200 p-4 dark:border-slate-700">
-        <h2 className="text-sm font-semibold text-gray-800 dark:text-slate-300">
+    <div className="mt-4 rounded-xl border border-gray-200 bg-white shadow-sm transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800">
+      <div className="border-b border-gray-200 p-4 transition-colors duration-300 dark:border-slate-700">
+        <h2 className="text-sm font-semibold text-gray-800 transition-colors duration-300 dark:text-slate-300">
           {t("statistics:detailedBreakdown")}
         </h2>
       </div>
-      <div className="divide-y divide-gray-200 dark:divide-slate-700">
+      <div className="divide-y divide-gray-200 transition-colors duration-300 dark:divide-slate-700">
         {data.map((item, index) => (
           <div
             key={index}
@@ -36,20 +36,20 @@ export function LanguageDetailList({
                 }}
               />
               <span
-                className="max-w-16 truncate font-medium text-gray-800 dark:text-slate-300"
+                className="max-w-16 truncate font-medium text-gray-800 transition-colors duration-300 dark:text-slate-300"
                 title={item.name}
               >
                 {item.name}
               </span>
             </div>
-            <div className="flex shrink-0 items-center space-x-4 transition-all group-hover:space-x-6">
+            <div className="flex shrink-0 items-center space-x-4 transition-colors group-hover:space-x-6">
               <span
-                className="max-w-24 truncate text-sm text-gray-600 dark:text-slate-400"
+                className="max-w-24 truncate text-sm text-gray-600 transition-colors duration-300 dark:text-slate-400"
                 title={t("statistics:translations", { count: item.value })}
               >
                 {t("statistics:translations", { count: item.value })}
               </span>
-              <span className="rounded-full bg-indigo-100 px-3 py-1 text-sm font-semibold text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300">
+              <span className="rounded-full bg-indigo-100 px-3 py-1 text-sm font-semibold text-indigo-700 transition-colors duration-300 dark:bg-indigo-900/50 dark:text-indigo-300">
                 {item.percentage}%
               </span>
               <ChevronRight className="h-5 w-5 text-gray-400 transition-colors group-hover:text-indigo-600 dark:text-slate-500 dark:group-hover:text-indigo-400" />

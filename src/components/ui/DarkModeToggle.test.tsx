@@ -22,10 +22,10 @@ describe("DarkModeToggle", () => {
     });
 
     render(<DarkModeToggle />);
-    
+
     const button = screen.getByRole("button", { name: "Toggle Dark Mode" });
     expect(button).toBeInTheDocument();
-    
+
     // Check if the Sun icon is rendered (it has the text-amber-500 class)
     const icon = button.querySelector("svg");
     expect(icon).toHaveClass("text-amber-500");
@@ -38,10 +38,10 @@ describe("DarkModeToggle", () => {
     });
 
     render(<DarkModeToggle />);
-    
+
     const button = screen.getByRole("button", { name: "Toggle Dark Mode" });
     expect(button).toBeInTheDocument();
-    
+
     // Check if the Moon icon is rendered (it has the text-indigo-600 class)
     const icon = button.querySelector("svg");
     expect(icon).toHaveClass("text-indigo-600");
@@ -70,7 +70,7 @@ describe("DarkModeToggle", () => {
 
     render(<DarkModeToggle className="custom-class" />);
     const button = screen.getByRole("button", { name: "Toggle Dark Mode" });
-    
+
     expect(button).toHaveClass("custom-class");
   });
 });

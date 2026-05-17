@@ -37,7 +37,7 @@ export function PronunciationRenderer({
                   className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
                     styleMap[key as keyof typeof styleMap] ||
                     "bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-slate-300"
-                  }`}
+                  } transition-colors duration-300`}
                 >
                   {key}
                 </span>
@@ -45,7 +45,10 @@ export function PronunciationRenderer({
               </div>
               <div className="flex flex-wrap gap-2">
                 {ipaTexts.map((ipa, index) => (
-                  <span key={index} className="text-base text-gray-600 dark:text-slate-400">
+                  <span
+                    key={index}
+                    className="text-base text-gray-600 transition-colors duration-300 dark:text-slate-400"
+                  >
                     {ipa}
                   </span>
                 ))}
@@ -60,7 +63,7 @@ export function PronunciationRenderer({
   return (
     <span className="inline-flex items-end gap-1">
       {pronunciation && (
-        <span className="text-base text-gray-600 dark:text-slate-400">
+        <span className="text-base text-gray-600 transition-colors duration-300 dark:text-slate-400">
           {pronunciation as string}
         </span>
       )}

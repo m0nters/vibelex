@@ -146,7 +146,10 @@ describe("DropdownMenu", () => {
 
   it("places the pinned option first even when alphabetical sort is on", () => {
     render(
-      <DropdownMenu {...defaultProps} pin={{ value: "vi", label: "Vietnamese" }} />,
+      <DropdownMenu
+        {...defaultProps}
+        pin={{ value: "vi", label: "Vietnamese" }}
+      />,
     );
     // Option buttons are 1-3; index 1 should be the pinned option
     const firstOption = screen.getAllByRole("button")[1];

@@ -89,7 +89,10 @@ export function MainScreen({ onDeleteApiKey }: MainScreenProps) {
     setSourceLangCode(langCode);
     chrome.storage.sync.set({ sourceLangCode: langCode }, () => {
       if (chrome.runtime.lastError) {
-        console.error("Failed to save source language to storage:", chrome.runtime.lastError);
+        console.error(
+          "Failed to save source language to storage:",
+          chrome.runtime.lastError,
+        );
       }
     });
     displaySavedLanguages();
@@ -100,7 +103,10 @@ export function MainScreen({ onDeleteApiKey }: MainScreenProps) {
     setTranslatedLangCode(langCode);
     chrome.storage.sync.set({ translatedLangCode: langCode }, () => {
       if (chrome.runtime.lastError) {
-        console.error("Failed to save translated language to storage:", chrome.runtime.lastError);
+        console.error(
+          "Failed to save translated language to storage:",
+          chrome.runtime.lastError,
+        );
       }
     });
     displaySavedLanguages();
@@ -116,13 +122,18 @@ export function MainScreen({ onDeleteApiKey }: MainScreenProps) {
     setExtensionEnabled(enabled);
     chrome.storage.sync.set({ extensionEnabled: enabled }, () => {
       if (chrome.runtime.lastError) {
-        console.warn("Failed to save extension enabled state:", chrome.runtime.lastError);
+        console.warn(
+          "Failed to save extension enabled state:",
+          chrome.runtime.lastError,
+        );
         return;
       }
       chrome.tabs.query({}, (tabs) => {
         tabs.forEach((tab) => {
           if (tab.id) {
-            chrome.tabs.sendMessage(tab.id, { type: "EXTENSION_TOGGLE", enabled }).catch(() => {});
+            chrome.tabs
+              .sendMessage(tab.id, { type: "EXTENSION_TOGGLE", enabled })
+              .catch(() => {});
           }
         });
       });
@@ -130,7 +141,7 @@ export function MainScreen({ onDeleteApiKey }: MainScreenProps) {
   };
 
   return (
-    <div className="animate-slide-in-right relative h-full w-full overflow-x-hidden overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-slate-900 dark:text-slate-300 select-none">
+    <div className="animate-slide-in-right relative h-full w-full overflow-x-hidden overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50 select-none dark:from-gray-900 dark:to-slate-900 dark:text-slate-300">
       <MainScreenBackground />
 
       <MainScreenHeader
@@ -140,7 +151,7 @@ export function MainScreen({ onDeleteApiKey }: MainScreenProps) {
 
       {/* Main content */}
       <div
-        className={`relative z-10 px-6 pb-6 transition-all duration-300 ${
+        className={`relative z-10 px-6 pb-6 transition-opacity duration-300 ${
           !extensionEnabled ? "pointer-events-none opacity-50" : ""
         }`}
       >

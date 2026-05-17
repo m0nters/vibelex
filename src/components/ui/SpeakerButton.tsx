@@ -58,7 +58,7 @@ export function SpeakerButton({
   return (
     <button
       onClick={handleSpeak}
-      className={`rounded-full p-2 transition-colors ${
+      className={`rounded-full p-2 transition-colors duration-300 ${
         isPlaying
           ? `cursor-pointer ${speakingBackgroundColor} ${speakingTextColor}`
           : `cursor-pointer text-gray-500 dark:text-slate-400 ${hoverBackgroundColor} ${hoverTextColor}`

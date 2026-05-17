@@ -25,7 +25,9 @@ describe("ConfirmDialog", () => {
   it("renders title and message when open", () => {
     render(<ConfirmDialog {...baseProps} />);
     expect(screen.getByText("Delete item?")).toBeInTheDocument();
-    expect(screen.getByText("This action cannot be undone.")).toBeInTheDocument();
+    expect(
+      screen.getByText("This action cannot be undone."),
+    ).toBeInTheDocument();
   });
 
   it("renders default button labels when none are provided", () => {
@@ -36,7 +38,11 @@ describe("ConfirmDialog", () => {
 
   it("renders custom button labels when provided", () => {
     render(
-      <ConfirmDialog {...baseProps} confirmText="Yes, delete" cancelText="No, keep" />,
+      <ConfirmDialog
+        {...baseProps}
+        confirmText="Yes, delete"
+        cancelText="No, keep"
+      />,
     );
     expect(screen.getByText("Yes, delete")).toBeInTheDocument();
     expect(screen.getByText("No, keep")).toBeInTheDocument();
@@ -71,7 +77,9 @@ describe("ConfirmDialog", () => {
     // The X button is the only button without visible text
     const buttons = screen.getAllByRole("button");
     const closeButton = buttons.find(
-      (b) => !b.textContent?.includes("Confirm") && !b.textContent?.includes("Cancel"),
+      (b) =>
+        !b.textContent?.includes("Confirm") &&
+        !b.textContent?.includes("Cancel"),
     )!;
 
     await user.click(closeButton);

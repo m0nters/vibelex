@@ -20,7 +20,7 @@ export function MeaningEntryRenderer({
     <div className="whitespace-pre-line">
       {/* Word and Pronunciation Header (original style) */}
       <div className="mb-4">
-        <h1 className="mb-1 text-xl font-semibold wrap-break-word text-blue-600 dark:text-blue-400">
+        <h1 className="mb-1 text-xl font-semibold wrap-break-word text-blue-600 transition-colors duration-300 dark:text-blue-400">
           {word}
         </h1>
         <PronunciationRenderer
@@ -32,15 +32,15 @@ export function MeaningEntryRenderer({
 
       {/* Part of Speech and Translation/Definition (original style) */}
       <div className="mb-4">
-        <span className="rounded-full border border-green-200 bg-green-50 px-2 py-1 text-xs font-medium text-green-600 dark:border-green-900/50 dark:bg-green-900/30 dark:text-green-400">
+        <span className="rounded-full border border-green-200 bg-green-50 px-2 py-1 text-xs font-medium text-green-600 transition-colors duration-300 dark:border-green-900/50 dark:bg-green-900/30 dark:text-green-400">
           {entry.part_of_speech}
         </span>
         {entry.note && (
-          <p className="mt-2 ml-1 text-xs text-gray-800 [&_strong]:text-sm [&_strong]:font-medium dark:text-slate-300">
+          <p className="mt-2 ml-1 text-xs text-gray-800 transition-colors duration-300 dark:text-slate-300 [&_strong]:text-sm [&_strong]:font-medium">
             ({renderMarkdownText(entry.note)})
           </p>
         )}
-        <p className="mt-2 ml-1 text-sm font-medium text-gray-800 dark:text-slate-300">
+        <p className="mt-2 ml-1 text-sm font-medium text-gray-800 transition-colors duration-300 dark:text-slate-300">
           {entry.definition}
         </p>
       </div>
@@ -51,10 +51,10 @@ export function MeaningEntryRenderer({
           {entry.examples.map((example, exampleIndex) => (
             <div
               key={exampleIndex}
-              className="mb-3 ml-4 rounded-lg border-l-4 border-blue-200 bg-blue-50 p-3 dark:border-blue-900/50 dark:bg-blue-900/20"
+              className="mb-3 ml-4 rounded-lg border-l-4 border-blue-200 bg-blue-50 p-3 transition-colors duration-300 dark:border-blue-900/50 dark:bg-blue-900/20"
             >
               <div className="mb-1 flex items-start justify-between gap-1">
-                <p className="min-w-0 flex-1 text-sm font-medium wrap-break-word text-gray-800 dark:text-slate-300">
+                <p className="min-w-0 flex-1 text-sm font-medium wrap-break-word text-gray-800 transition-colors duration-300 dark:text-slate-300">
                   {renderMarkdownText(example.text)}
                 </p>
                 <div className="flex h-5 w-5 shrink-0 items-center justify-center">
@@ -66,13 +66,13 @@ export function MeaningEntryRenderer({
                 </div>
               </div>
               {example.pronunciation && (
-                <p className="mb-1 text-xs text-gray-600 italic dark:text-slate-400">
+                <p className="mb-1 text-xs text-gray-600 italic transition-colors duration-300 dark:text-slate-400">
                   {renderMarkdownText(example.pronunciation)}
                 </p>
               )}
               {example.translation && (
                 <div className="flex items-start justify-between gap-1">
-                  <p className="min-w-0 flex-1 text-sm font-normal wrap-break-word text-blue-700 dark:text-blue-300">
+                  <p className="min-w-0 flex-1 text-sm font-normal wrap-break-word text-blue-700 transition-colors duration-300 dark:text-blue-300">
                     {renderMarkdownText(example.translation)}
                   </p>
                   <div className="flex h-5 w-5 shrink-0 items-center justify-center">
@@ -94,7 +94,7 @@ export function MeaningEntryRenderer({
         <div className="mt-8 mb-4">
           {/* Label */}
           <div className="mb-2 flex items-center space-x-2">
-            <span className="rounded-full border border-teal-200 bg-teal-50 px-2 py-1 text-xs font-medium text-teal-600 dark:border-teal-900/50 dark:bg-teal-900/30 dark:text-teal-400">
+            <span className="rounded-full border border-teal-200 bg-teal-50 px-2 py-1 text-xs font-medium text-teal-600 transition-colors duration-300 dark:border-teal-900/50 dark:bg-teal-900/30 dark:text-teal-400">
               {entry.idioms.label}
             </span>
           </div>
@@ -103,10 +103,10 @@ export function MeaningEntryRenderer({
             {entry.idioms.items.map((idiom, index) => (
               <div
                 key={index}
-                className="rounded-lg border border-teal-200 bg-teal-50 p-3 dark:border-teal-900/50 dark:bg-teal-900/20"
+                className="rounded-lg border border-teal-200 bg-teal-50 p-3 transition-colors duration-300 dark:border-teal-900/50 dark:bg-teal-900/20"
               >
                 <div className="mb-2 flex items-start gap-1">
-                  <h4 className="text-sm font-semibold text-gray-800 dark:text-slate-300">
+                  <h4 className="text-sm font-semibold text-gray-800 transition-colors duration-300 dark:text-slate-300">
                     {renderMarkdownText(idiom.idiom)}
                   </h4>
                   <SpeakerButton
@@ -119,13 +119,15 @@ export function MeaningEntryRenderer({
                     className="-translate-y-0.5"
                   />
                 </div>
-                <p className="mb-2 text-sm text-gray-700 dark:text-slate-300">{idiom.meaning}</p>
+                <p className="mb-2 text-sm text-gray-700 transition-colors duration-300 dark:text-slate-300">
+                  {idiom.meaning}
+                </p>
                 {idiom.examples && idiom.examples.length > 0 && (
                   <div className="space-y-2">
                     {idiom.examples.map((example, exampleIndex) => (
                       <div key={exampleIndex}>
                         <div className="mb-1 flex items-start justify-between gap-1">
-                          <p className="min-w-0 flex-1 border-l-4 border-teal-300 pl-3 text-xs font-medium wrap-break-word text-gray-800 dark:border-teal-700 dark:text-slate-300">
+                          <p className="min-w-0 flex-1 border-l-4 border-teal-300 pl-3 text-xs font-medium wrap-break-word text-gray-800 transition-colors duration-300 dark:border-teal-700 dark:text-slate-300">
                             {renderMarkdownText(example.text)}
                           </p>
                           <div className="flex h-5 w-5 shrink-0 items-center justify-center">
@@ -141,13 +143,13 @@ export function MeaningEntryRenderer({
                           </div>
                         </div>
                         {example.pronunciation && (
-                          <p className="mb-1 pl-4 text-xs text-gray-500 italic dark:text-slate-400">
+                          <p className="mb-1 pl-4 text-xs text-gray-500 italic transition-colors duration-300 dark:text-slate-400">
                             {renderMarkdownText(example.pronunciation)}
                           </p>
                         )}
                         {example.translation && (
                           <div className="flex items-start justify-between gap-1">
-                            <p className="min-w-0 flex-1 pl-4 text-xs wrap-break-word text-teal-700 dark:text-teal-300">
+                            <p className="min-w-0 flex-1 pl-4 text-xs wrap-break-word text-teal-700 transition-colors duration-300 dark:text-teal-300">
                               {renderMarkdownText(example.translation)}
                             </p>
                             <div className="flex h-5 w-5 shrink-0 items-center justify-center">
@@ -179,7 +181,7 @@ export function MeaningEntryRenderer({
         entry.phrasal_verbs.items.length > 0 && (
           <div className="mt-8 mb-4">
             <div className="mb-2 flex items-center space-x-2">
-              <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-1 text-xs font-medium text-amber-600 dark:border-amber-900/50 dark:bg-amber-900/30 dark:text-amber-400">
+              <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-1 text-xs font-medium text-amber-600 transition-colors duration-300 dark:border-amber-900/50 dark:bg-amber-900/30 dark:text-amber-400">
                 {entry.phrasal_verbs.label}
               </span>
             </div>
@@ -187,10 +189,10 @@ export function MeaningEntryRenderer({
               {entry.phrasal_verbs.items.map((phrasalVerb, index) => (
                 <div
                   key={index}
-                  className="rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-900/50 dark:bg-amber-900/20"
+                  className="rounded-lg border border-amber-200 bg-amber-50 p-3 transition-colors duration-300 dark:border-amber-900/50 dark:bg-amber-900/20"
                 >
                   <div className="mb-2 flex items-start gap-1">
-                    <h4 className="text-sm font-semibold text-gray-800 dark:text-slate-300">
+                    <h4 className="text-sm font-semibold text-gray-800 transition-colors duration-300 dark:text-slate-300">
                       {renderMarkdownText(phrasalVerb.phrasal_verb)}
                     </h4>
                     <SpeakerButton
@@ -203,7 +205,7 @@ export function MeaningEntryRenderer({
                       className="-translate-y-0.5"
                     />
                   </div>
-                  <p className="mb-2 text-sm text-gray-700 dark:text-slate-300">
+                  <p className="mb-2 text-sm text-gray-700 transition-colors duration-300 dark:text-slate-300">
                     {phrasalVerb.meaning}
                   </p>
                   {phrasalVerb.examples && phrasalVerb.examples.length > 0 && (
@@ -211,7 +213,7 @@ export function MeaningEntryRenderer({
                       {phrasalVerb.examples.map((example, exampleIndex) => (
                         <div key={exampleIndex}>
                           <div className="mb-1 flex items-start justify-between gap-1">
-                            <p className="min-w-0 flex-1 border-l-4 border-amber-300 pl-3 text-xs font-medium wrap-break-word text-gray-800 dark:border-amber-700 dark:text-slate-300">
+                            <p className="min-w-0 flex-1 border-l-4 border-amber-300 pl-3 text-xs font-medium wrap-break-word text-gray-800 transition-colors duration-300 dark:border-amber-700 dark:text-slate-300">
                               {renderMarkdownText(example.text)}
                             </p>
                             <div className="flex h-5 w-5 shrink-0 items-center justify-center">
@@ -227,13 +229,13 @@ export function MeaningEntryRenderer({
                             </div>
                           </div>
                           {example.pronunciation && (
-                            <p className="mb-1 pl-4 text-xs text-gray-500 italic dark:text-slate-400">
+                            <p className="mb-1 pl-4 text-xs text-gray-500 italic transition-colors duration-300 dark:text-slate-400">
                               {renderMarkdownText(example.pronunciation)}
                             </p>
                           )}
                           {example.translation && (
                             <div className="flex items-start justify-between gap-1">
-                              <p className="min-w-0 flex-1 pl-4 text-xs wrap-break-word text-amber-700 dark:text-amber-300">
+                              <p className="min-w-0 flex-1 pl-4 text-xs wrap-break-word text-amber-700 transition-colors duration-300 dark:text-amber-300">
                                 {renderMarkdownText(example.translation)}
                               </p>
                               <div className="flex h-5 w-5 shrink-0 items-center justify-center">
@@ -268,7 +270,7 @@ export function MeaningEntryRenderer({
         entry.synonyms.items.length > 0 && (
           <div className="mt-8 mb-4">
             <div className="mb-2 flex items-center space-x-2">
-              <span className="rounded-full border border-purple-200 bg-purple-50 px-2 py-1 text-xs font-medium text-purple-600 dark:border-purple-900/50 dark:bg-purple-900/30 dark:text-purple-400">
+              <span className="rounded-full border border-purple-200 bg-purple-50 px-2 py-1 text-xs font-medium text-purple-600 transition-colors duration-300 dark:border-purple-900/50 dark:bg-purple-900/30 dark:text-purple-400">
                 {entry.synonyms.label}
               </span>
             </div>
@@ -276,7 +278,7 @@ export function MeaningEntryRenderer({
               {entry.synonyms.items.map((synonym, index) => (
                 <span
                   key={index}
-                  className="inline-block rounded-full border border-gray-300 bg-gray-100 px-2 py-1 text-xs text-gray-900 transition-colors duration-200 hover:bg-gray-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                  className="inline-block rounded-full border border-gray-300 bg-gray-100 px-2 py-1 text-xs text-gray-900 transition-colors duration-300 hover:bg-gray-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                 >
                   {synonym}
                 </span>

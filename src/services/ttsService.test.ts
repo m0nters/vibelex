@@ -2,10 +2,7 @@ import { TTSService } from "./ttsService";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-function fakeVoice(
-  lang: string,
-  name = `Voice-${lang}`,
-): SpeechSynthesisVoice {
+function fakeVoice(lang: string, name = `Voice-${lang}`): SpeechSynthesisVoice {
   return {
     lang,
     name,

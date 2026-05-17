@@ -30,7 +30,7 @@ export function ThankYou() {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-linear-to-br from-gray-100 to-indigo-100 p-4 dark:from-slate-900 dark:to-indigo-950">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-linear-to-br from-gray-100 to-indigo-100 p-4 transition-colors duration-300 dark:from-slate-900 dark:to-indigo-950">
       <ThankYouBackground />
 
       <div className="absolute top-4 right-4 z-20 flex items-center gap-4">

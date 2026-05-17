@@ -133,7 +133,9 @@ export function HistoryList({
             <div className="absolute inset-0 rounded-full border-4 border-indigo-100"></div>
             <div className="absolute inset-0 animate-spin rounded-full border-4 border-transparent border-t-indigo-600 border-r-indigo-600"></div>
           </div>
-          <p className="text-sm text-gray-500 dark:text-slate-400">{t("common:loading")}</p>
+          <p className="text-sm text-gray-500 transition-colors duration-300 dark:text-slate-400">
+            {t("common:loading")}
+          </p>
         </div>
       </div>
     );
@@ -145,7 +147,7 @@ export function HistoryList({
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
             <Clock className="mx-auto mb-3 h-12 w-12 text-gray-300" />
-            <p className="text-gray-500 dark:text-slate-400">
+            <p className="text-gray-500 transition-colors duration-300 dark:text-slate-400">
               {searchQuery
                 ? t("history:noSearchResults")
                 : t("history:emptyHistory")}

@@ -17,9 +17,9 @@ export function ApiKeySettings({
   const { t } = useTranslation();
 
   return (
-    <div className="mt-4 rounded-2xl border-2 border-gray-200 bg-gray-50 p-5 dark:border-slate-700 dark:bg-slate-800">
+    <div className="mt-4 rounded-2xl border-2 border-gray-200 bg-gray-50 p-5 transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800">
       <div>
-        <label className="mb-3 flex items-center space-x-2 text-sm font-semibold text-gray-700 dark:text-slate-300">
+        <label className="mb-3 flex items-center space-x-2 text-sm font-semibold text-gray-700 transition-colors duration-300 dark:text-slate-300">
           <Settings className="h-4 w-4 text-purple-500" />
           <span>{t("mainScreen:appLanguage")}</span>
         </label>
@@ -42,7 +42,7 @@ export function ApiKeySettings({
           saved ? "mt-3 max-h-20" : "mt-0 max-h-0"
         }`}
       >
-        <div className="animate-fade-in flex items-center space-x-2 text-green-600">
+        <div className="animate-fade-in flex items-center space-x-2 text-green-600 transition-colors duration-300">
           <Check className="h-4 w-4" />
           <span className="text-xs font-medium">{t("mainScreen:saved")}</span>
         </div>

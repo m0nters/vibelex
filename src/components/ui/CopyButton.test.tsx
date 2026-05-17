@@ -61,7 +61,9 @@ describe("CopyButton", () => {
     });
 
     // isCopied=true → cursor-not-allowed
-    expect(screen.getByRole("button").className).toContain("cursor-not-allowed");
+    expect(screen.getByRole("button").className).toContain(
+      "cursor-not-allowed",
+    );
   });
 
   it("reverts the 'copied' state after the 2 second timeout fires", async () => {
@@ -70,13 +72,17 @@ describe("CopyButton", () => {
     await act(async () => {
       fireEvent.click(screen.getByRole("button"));
     });
-    expect(screen.getByRole("button").className).toContain("cursor-not-allowed");
+    expect(screen.getByRole("button").className).toContain(
+      "cursor-not-allowed",
+    );
 
     // Advance past 2000ms reset timeout and flush state
     await act(async () => {
       vi.advanceTimersByTime(2100);
     });
 
-    expect(screen.getByRole("button").className).not.toContain("cursor-not-allowed");
+    expect(screen.getByRole("button").className).not.toContain(
+      "cursor-not-allowed",
+    );
   });
 });

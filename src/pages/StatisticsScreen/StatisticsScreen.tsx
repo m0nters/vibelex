@@ -115,7 +115,7 @@ export function StatisticsScreen() {
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
               <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
-              <p className="text-gray-500 dark:text-slate-400">
+              <p className="text-gray-500 transition-colors duration-300 dark:text-slate-400">
                 {t("statistics:loadingStatistics")}...
               </p>
             </div>

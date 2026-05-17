@@ -4,5 +4,11 @@ export const ScrollContainerContext =
   createContext<RefObject<HTMLElement | null> | null>(null);
 
 export function useScrollContainer() {
-  return useContext(ScrollContainerContext);
+  const context = useContext(ScrollContainerContext);
+  if (!context) {
+    throw new Error(
+      "useScrollContainer must be used within ScrollContainerProvider",
+    );
+  }
+  return context;
 }

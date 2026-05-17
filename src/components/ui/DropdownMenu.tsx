@@ -27,8 +27,10 @@ const FOCUS_COLOR_CLASSES = {
     indigo: "focus:border-indigo-500 focus:ring-indigo-100",
   },
   option: {
-    purple: "bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
-    indigo: "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300",
+    purple:
+      "bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
+    indigo:
+      "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300",
   },
 } as const;
 
@@ -224,7 +226,7 @@ export function DropdownMenu({
       <button
         type="button"
         onClick={toggleDropdown}
-        className={`w-full cursor-pointer appearance-none rounded-xl border-2 border-gray-200 bg-white p-3 text-left shadow-sm transition-all duration-200 hover:border-gray-300 focus:ring-4 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600 ${dropdownColorClass}`}
+        className={`w-full cursor-pointer appearance-none rounded-xl border-2 border-gray-200 bg-white p-3 text-left shadow-sm transition-colors duration-300 hover:border-gray-300 focus:ring-4 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600 ${dropdownColorClass}`}
       >
         <div className="flex items-center justify-between">
           <span
@@ -289,7 +291,7 @@ export function DropdownMenu({
                 }}
                 type="button"
                 onClick={() => handleOptionClick(option.value)}
-                className={`w-full truncate px-3 py-2.5 text-left text-sm transition-all duration-150 focus:outline-none ${
+                className={`w-full truncate px-3 py-2.5 text-left text-sm transition-colors duration-150 focus:outline-none ${
                   option.value === value
                     ? `${optionColorClass} font-medium` // priority to selected option CSS than focused option CSS
                     : index === focusedIndex

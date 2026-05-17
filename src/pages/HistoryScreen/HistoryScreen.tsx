@@ -198,7 +198,7 @@ export function HistoryScreen() {
   return (
     <div
       ref={scrollContainerRef}
-      className="animate-slide-in-right h-full w-full overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-slate-900 dark:text-slate-300 select-none"
+      className="animate-slide-in-right h-full w-full overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50 transition-colors duration-300 select-none dark:from-gray-900 dark:to-slate-900 dark:text-slate-300"
     >
       <HistoryHeader
         searchQuery={searchQuery}
