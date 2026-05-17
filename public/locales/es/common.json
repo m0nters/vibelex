@@ -2,6 +2,8 @@
   "loading": "Cargando...",
   "enableExtension": "Habilitar extensión",
   "disableExtension": "Deshabilitar extensión",
+  "darkMode": "Activar modo oscuro",
+  "lightMode": "Activar modo claro",
   "cancel": "Cancelar",
   "speak": "Hablar",
   "stop": "Detener",

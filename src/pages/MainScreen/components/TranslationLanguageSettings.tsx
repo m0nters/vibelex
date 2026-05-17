@@ -261,7 +261,7 @@ export function TranslationLanguageSettings({
             onChange={onChangeSourceLanguage}
             focusColor="indigo"
             canSearch={true}
-            className="w-[125px]"
+            className="w-31.25"
           />
         </div>
 
@@ -293,7 +293,7 @@ export function TranslationLanguageSettings({
             onChange={onChangeTranslatedLanguage}
             focusColor="indigo"
             canSearch={true}
-            className="w-[125px]"
+            className="w-31.25"
           />
         </div>
       </div>

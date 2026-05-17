@@ -245,7 +245,7 @@ export function DropdownMenu({
 
       {/* Dropdown Options */}
       <div
-        className={`absolute top-full right-0 left-0 z-50 mt-1 min-w-[170px] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl transition-all duration-300 ease-out dark:border-slate-700 dark:bg-slate-800 ${
+        className={`absolute top-full right-0 left-0 z-50 mt-1 min-w-42.5 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl transition-all duration-300 ease-out dark:border-slate-700 dark:bg-slate-800 ${
           isOpen
             ? "translate-y-0 scale-100 opacity-100"
             : "pointer-events-none -translate-y-2 scale-95 opacity-0"

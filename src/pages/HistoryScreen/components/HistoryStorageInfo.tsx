@@ -19,7 +19,7 @@ export function HistoryStorageInfo({
   const { t } = useTranslation();
 
   return (
-    <div className="sticky top-[118px] z-10 mx-4 mt-4 rounded-xl border border-gray-300 bg-white p-3 shadow-sm transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800">
+    <div className="sticky top-29.5 z-10 mx-4 mt-4 rounded-xl border border-gray-300 bg-white p-3 shadow-sm transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800">
       <div className="flex items-center justify-between">
         {/* Statistics / Storage Usage Toggle Title */}
         {!isFromStatistics ? (

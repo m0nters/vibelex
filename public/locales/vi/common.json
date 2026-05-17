@@ -2,6 +2,8 @@
   "loading": "Đang tải...",
   "enableExtension": "Bật extension",
   "disableExtension": "Tắt extension",
+  "darkMode": "Bật chế độ tối",
+  "lightMode": "Bật chế độ sáng",
   "cancel": "Hủy",
   "speak": "Nói",
   "stop": "Dừng",

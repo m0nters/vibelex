@@ -21,7 +21,7 @@ export function ThankYouLanguageSwitcher({
       value={i18n.language}
       options={languageOptions}
       onChange={onLanguageChange}
-      className="min-w-[140px]"
+      className="min-w-35"
       focusColor="indigo"
     />
   );

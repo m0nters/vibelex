@@ -31,10 +31,10 @@ export function ToggleSwitch({
   return (
     <button
       onClick={handleToggle}
-      className={`relative inline-flex h-6 w-12 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-slate-900 ${
+      className={`relative inline-flex h-6 w-12 cursor-pointer items-center rounded-full transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
         enabled
-          ? "bg-linear-to-r from-indigo-500 to-purple-600 focus:ring-indigo-500 dark:focus:ring-indigo-400"
-          : "bg-gray-300 focus:ring-gray-300 dark:bg-slate-700 dark:focus:ring-slate-600"
+          ? "bg-linear-to-r from-indigo-500 to-purple-600 focus-visible:ring-indigo-500 dark:focus-visible:ring-indigo-400"
+          : "bg-gray-300 focus-visible:ring-gray-300 dark:bg-slate-700 dark:focus-visible:ring-slate-600"
       }`}
       aria-pressed={enabled}
       title={

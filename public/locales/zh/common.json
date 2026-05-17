@@ -2,6 +2,8 @@
   "loading": "加载中...",
   "enableExtension": "启用扩展",
   "disableExtension": "禁用扩展",
+  "darkMode": "启用深色模式",
+  "lightMode": "启用浅色模式",
   "cancel": "取消",
   "speak": "说话",
   "stop": "停止",

@@ -62,7 +62,7 @@ function App() {
 
   return (
     <MemoryRouter>
-      <div className="relative h-[574px] w-100 overflow-hidden bg-linear-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-slate-900">
+      <div className="relative h-143.5 w-100 overflow-hidden bg-linear-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-slate-900">
         <Routes>
           <Route
             path="/"

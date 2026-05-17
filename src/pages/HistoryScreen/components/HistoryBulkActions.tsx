@@ -50,7 +50,7 @@ export function HistoryBulkActions({
   if (selectedCount === 0) return null;
 
   return (
-    <div className="sticky top-[164px] z-10 mx-4 mt-2 rounded-xl border border-indigo-300 bg-indigo-50 p-3 shadow-sm transition-colors duration-300 dark:border-indigo-900/50 dark:bg-slate-800">
+    <div className="sticky top-41 z-10 mx-4 mt-2 rounded-xl border border-indigo-300 bg-indigo-50 p-3 shadow-sm transition-colors duration-300 dark:border-indigo-900/50 dark:bg-slate-800">
       <div className="flex justify-between">
         <div className="flex flex-col items-start gap-2">
           <span className="text-sm font-medium text-indigo-900 transition-colors duration-300 dark:text-indigo-300">

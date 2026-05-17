@@ -2,6 +2,8 @@
   "loading": "Laden...",
   "enableExtension": "Erweiterung aktivieren",
   "disableExtension": "Erweiterung deaktivieren",
+  "darkMode": "Dunkelmodus aktivieren",
+  "lightMode": "Hellmodus aktivieren",
   "cancel": "Abbrechen",
   "speak": "Sprechen",
   "stop": "Stoppen",

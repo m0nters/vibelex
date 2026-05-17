@@ -2,6 +2,8 @@
   "loading": "Loading...",
   "enableExtension": "Enable Extension",
   "disableExtension": "Disable Extension",
+  "darkMode": "Turn on dark mode",
+  "lightMode": "Turn on light mode",
   "cancel": "Cancel",
   "speak": "Speak",
   "stop": "Stop",
