@@ -1,3 +1,4 @@
+import { DarkModeToggle } from "@/components";
 import { Key } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -6,6 +7,8 @@ export function ApiKeyHeader() {
 
   return (
     <div className="mb-6 flex flex-col items-center text-center">
+      <DarkModeToggle className="absolute top-6 right-6 z-20" />
+
       <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-br from-indigo-500 to-purple-500 shadow-lg transition-colors duration-300">
         <Key className="h-8 w-8 text-white" />
       </div>

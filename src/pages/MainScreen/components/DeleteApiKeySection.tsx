@@ -23,7 +23,7 @@ export function DeleteApiKeySection({
           <span>{t("api:deleteApiKey")}</span>
         </button>
       ) : (
-        <div className="animate-fade-in rounded-xl border-2 border-red-300 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-900/20">
+        <div className="animate-fade-in rounded-xl border-2 border-red-300 bg-red-50 p-4 transition-colors duration-300 dark:border-red-900/50 dark:bg-red-900/20">
           <p className="mb-3 text-center text-sm font-semibold text-red-700 transition-colors duration-300 dark:text-red-300">
             {t("api:deleteApiKeyConfirm")}
           </p>

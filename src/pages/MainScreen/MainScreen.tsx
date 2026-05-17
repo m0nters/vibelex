@@ -141,7 +141,7 @@ export function MainScreen({ onDeleteApiKey }: MainScreenProps) {
   };
 
   return (
-    <div className="animate-slide-in-right relative h-full w-full overflow-x-hidden overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50 select-none dark:from-gray-900 dark:to-slate-900 dark:text-slate-300">
+    <div className="animate-slide-in-right relative h-full w-full overflow-x-hidden overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50 select-none transition-colors duration-300 dark:from-gray-900 dark:to-slate-900 dark:text-slate-300">
       <MainScreenBackground />
 
       <MainScreenHeader

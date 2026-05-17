@@ -1,7 +1,7 @@
 {
   "loading": "로드 중...",
-  "on": "켜기",
-  "off": "끄기",
+  "enableExtension": "확장 기능을 활성화합니다",
+  "disableExtension": "확장 기능을 비활성화합니다",
   "cancel": "취소",
   "speak": "말하기",
   "stop": "멈춤",

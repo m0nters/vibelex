@@ -15,23 +15,7 @@ describe("DarkModeToggle", () => {
     vi.clearAllMocks();
   });
 
-  it("should render Sun icon when isDarkMode is true", () => {
-    vi.mocked(useDarkMode).mockReturnValue({
-      isDarkMode: true,
-      toggleDarkMode: mockToggleDarkMode,
-    });
-
-    render(<DarkModeToggle />);
-
-    const button = screen.getByRole("button", { name: "Toggle Dark Mode" });
-    expect(button).toBeInTheDocument();
-
-    // Check if the Sun icon is rendered (it has the text-amber-500 class)
-    const icon = button.querySelector("svg");
-    expect(icon).toHaveClass("text-amber-500");
-  });
-
-  it("should render Moon icon when isDarkMode is false", () => {
+  it("should render sun styling when isDarkMode is false", () => {
     vi.mocked(useDarkMode).mockReturnValue({
       isDarkMode: false,
       toggleDarkMode: mockToggleDarkMode,
@@ -39,12 +23,28 @@ describe("DarkModeToggle", () => {
 
     render(<DarkModeToggle />);
 
-    const button = screen.getByRole("button", { name: "Toggle Dark Mode" });
-    expect(button).toBeInTheDocument();
+    const checkbox = screen.getByRole("checkbox", { name: "Toggle Dark Mode" });
+    expect(checkbox).toBeInTheDocument();
+    expect(checkbox).toBeChecked();
 
-    // Check if the Moon icon is rendered (it has the text-indigo-600 class)
-    const icon = button.querySelector("svg");
-    expect(icon).toHaveClass("text-indigo-600");
+    const label = checkbox.nextElementSibling;
+    expect(label).toHaveClass("bg-[#8FB5F5]");
+  });
+
+  it("should render moon styling when isDarkMode is true", () => {
+    vi.mocked(useDarkMode).mockReturnValue({
+      isDarkMode: true,
+      toggleDarkMode: mockToggleDarkMode,
+    });
+
+    render(<DarkModeToggle />);
+
+    const checkbox = screen.getByRole("checkbox", { name: "Toggle Dark Mode" });
+    expect(checkbox).toBeInTheDocument();
+    expect(checkbox).not.toBeChecked();
+
+    const label = checkbox.nextElementSibling;
+    expect(label).toHaveClass("bg-[#2B2B2B]");
   });
 
   it("should call toggleDarkMode when clicked", async () => {
@@ -55,9 +55,10 @@ describe("DarkModeToggle", () => {
 
     render(<DarkModeToggle />);
     const user = userEvent.setup();
-    const button = screen.getByRole("button", { name: "Toggle Dark Mode" });
+    const checkbox = screen.getByRole("checkbox", { name: "Toggle Dark Mode" });
+    const label = checkbox.nextElementSibling!;
 
-    await user.click(button);
+    await user.click(label);
 
     expect(mockToggleDarkMode).toHaveBeenCalledTimes(1);
   });
@@ -68,9 +69,7 @@ describe("DarkModeToggle", () => {
       toggleDarkMode: mockToggleDarkMode,
     });
 
-    render(<DarkModeToggle className="custom-class" />);
-    const button = screen.getByRole("button", { name: "Toggle Dark Mode" });
-
-    expect(button).toHaveClass("custom-class");
+    const { container } = render(<DarkModeToggle className="custom-class" />);
+    expect(container.firstChild).toHaveClass("custom-class");
   });
 });

@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.16",
-    "@tailwindcss/vite": "^4.1.13",
+    "@tailwindcss/vite": "^4.3.0",
     "fastest-levenshtein": "^1.0.16",
     "flag-icons": "^7.5.0",
     "fuse.js": "^7.1.0",
@@ -32,7 +32,7 @@
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.8.2",
     "recharts": "^3.4.1",
-    "tailwindcss": "^4.1.13",
+    "tailwindcss": "^4.3.0",
     "transliteration": "^2.6.1",
     "zod": "^4.1.13"
   },
@@ -56,7 +56,7 @@
     "globals": "^16.3.0",
     "jsdom": "^27.0.1",
     "prettier": "^3.6.2",
-    "prettier-plugin-tailwindcss": "^0.6.14",
+    "prettier-plugin-tailwindcss": "^0.8.0",
     "tsx": "^4.20.5",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.39.1",

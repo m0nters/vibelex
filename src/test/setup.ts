@@ -7,7 +7,7 @@ Element.prototype.scrollIntoView = vi.fn();
 
 // ─── react-i18next global mock ─────────────────────────────────────────────
 // Returns the translation key as-is so component tests don't need a real i18n
-// backend. Tests assert on keys like "common:on" rather than actual copy.
+// backend. Tests assert on keys like "common:enableExtension" rather than actual copy.
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string) => key,

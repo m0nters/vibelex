@@ -1,7 +1,7 @@
 {
   "loading": "Laden...",
-  "on": "AN",
-  "off": "AUS",
+  "enableExtension": "Erweiterung aktivieren",
+  "disableExtension": "Erweiterung deaktivieren",
   "cancel": "Abbrechen",
   "speak": "Sprechen",
   "stop": "Stoppen",

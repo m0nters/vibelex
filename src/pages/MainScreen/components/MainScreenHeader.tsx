@@ -27,17 +27,15 @@ export function MainScreenHeader({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center space-x-4">
-          <DarkModeToggle />
-
+        <div className="flex flex-col items-end space-y-3">
           {/* Toggle Switch */}
-          <div className="flex flex-col items-end">
-            <ToggleSwitch
-              initialValue={extensionEnabled}
-              onChange={onExtensionToggle}
-              label="Toggle Extension"
-            />
-          </div>
+          <ToggleSwitch
+            initialValue={extensionEnabled}
+            onChange={onExtensionToggle}
+            label="Toggle Extension"
+          />
+
+          <DarkModeToggle />
         </div>
       </div>
     </div>

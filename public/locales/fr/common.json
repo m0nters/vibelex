@@ -1,7 +1,7 @@
 {
   "loading": "Chargement...",
-  "on": "ACTIVÉ",
-  "off": "DÉSACTIVÉ",
+  "enableExtension": "Activer l'extension",
+  "disableExtension": "Désactiver l'extension",
   "cancel": "Annuler",
   "speak": "Parler",
   "stop": "Arrêter",

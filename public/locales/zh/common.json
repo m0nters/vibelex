@@ -1,7 +1,7 @@
 {
   "loading": "加载中...",
-  "on": "开启",
-  "off": "关闭",
+  "enableExtension": "启用扩展",
+  "disableExtension": "禁用扩展",
   "cancel": "取消",
   "speak": "说话",
   "stop": "停止",

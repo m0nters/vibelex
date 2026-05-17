@@ -1,4 +1,3 @@
-import { DarkModeToggle } from "@/components";
 import { changeLanguage } from "@/config";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -81,11 +80,8 @@ export function ApiKeyScreen({ onApiKeySubmit }: ApiKeyScreenProps) {
   };
 
   return (
-    <div className="animate-slide-in-right relative h-full w-full overflow-x-hidden overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50 select-none dark:from-gray-900 dark:to-slate-900 dark:text-slate-300">
+    <div className="animate-slide-in-right h-full w-full overflow-x-hidden overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50 transition-colors duration-300 select-none dark:from-gray-900 dark:to-slate-900 dark:text-slate-300">
       <ApiKeyBackground />
-
-      {/* Dark Mode Toggle */}
-      <DarkModeToggle className="absolute top-6 right-6 z-20" />
 
       <div className="relative z-10 p-6">
         <ApiKeyHeader />

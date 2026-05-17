@@ -230,7 +230,7 @@ export function DropdownMenu({
       >
         <div className="flex items-center justify-between">
           <span
-            className="truncate text-gray-900 dark:text-slate-300"
+            className="truncate text-gray-900 transition-colors duration-300 dark:text-slate-300"
             title={selectedOption?.label}
           >
             {selectedOption?.label}
@@ -291,7 +291,7 @@ export function DropdownMenu({
                 }}
                 type="button"
                 onClick={() => handleOptionClick(option.value)}
-                className={`w-full truncate px-3 py-2.5 text-left text-sm transition-colors duration-150 focus:outline-none ${
+                className={`w-full truncate px-3 py-2.5 text-left text-sm transition-colors duration-300 focus:outline-none ${
                   option.value === value
                     ? `${optionColorClass} font-medium` // priority to selected option CSS than focused option CSS
                     : index === focusedIndex

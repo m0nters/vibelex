@@ -1,7 +1,7 @@
 {
   "loading": "Cargando...",
-  "on": "ON",
-  "off": "OFF",
+  "enableExtension": "Habilitar extensión",
+  "disableExtension": "Deshabilitar extensión",
   "cancel": "Cancelar",
   "speak": "Hablar",
   "stop": "Detener",

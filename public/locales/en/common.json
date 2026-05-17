@@ -1,7 +1,7 @@
 {
   "loading": "Loading...",
-  "on": "ON",
-  "off": "OFF",
+  "enableExtension": "Enable Extension",
+  "disableExtension": "Disable Extension",
   "cancel": "Cancel",
   "speak": "Speak",
   "stop": "Stop",

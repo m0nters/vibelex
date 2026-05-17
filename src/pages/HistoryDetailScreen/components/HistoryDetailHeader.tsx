@@ -42,7 +42,7 @@ export function HistoryDetailHeader({
           title={t("history:downloadAsPng")}
         >
           {isDownloading ? (
-            <LoaderCircle className="h-5 w-5 animate-spin text-indigo-600 dark:text-indigo-400" />
+            <LoaderCircle className="h-5 w-5 animate-spin text-indigo-600 transition-colors duration-300 dark:text-indigo-400" />
           ) : (
             <Download className="h-5 w-5" />
           )}

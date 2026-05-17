@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { ToggleSwitch } from "./ToggleSwitch";
 
 // react-i18next is globally mocked in src/test/setup.ts
-// t("common:on") → "common:on", t("common:off") → "common:off"
+// t("common:enableExtension") → "common:enableExtension", t("common:disableExtension") → "common:disableExtension"
 
 describe("ToggleSwitch", () => {
   beforeEach(() => {
@@ -38,15 +38,14 @@ describe("ToggleSwitch", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows the i18n on-key text when enabled", () => {
+  it("shows the i18n disableExtension-key title when enabled", () => {
     render(<ToggleSwitch initialValue={true} />);
-    // t("common:on") returns "common:on" in test environment
-    expect(screen.getByText("common:on")).toBeInTheDocument();
+    expect(screen.getByTitle("common:disableExtension")).toBeInTheDocument();
   });
 
-  it("shows the i18n off-key text when disabled", () => {
+  it("shows the i18n enableExtension-key title when disabled", () => {
     render(<ToggleSwitch initialValue={false} />);
-    expect(screen.getByText("common:off")).toBeInTheDocument();
+    expect(screen.getByTitle("common:enableExtension")).toBeInTheDocument();
   });
 
   // ─── Interaction ────────────────────────────────────────────────────────────
