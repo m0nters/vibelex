@@ -105,21 +105,42 @@
 
   /* Dark Mode Toggle animations */
   @keyframes twinkle-1 {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.2; }
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.2;
+    }
   }
   @keyframes twinkle-2 {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.2; }
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.2;
+    }
   }
   @keyframes twinkle-3 {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.2; }
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.2;
+    }
   }
   @keyframes cloud {
-    0% { transform: translate(0%, -50%); }
-    50% { transform: translate(-50%, -50%); }
-    100% { transform: translate(0%, -50%); }
+    0% {
+      transform: translate(0%, -50%);
+    }
+    50% {
+      transform: translate(-50%, -50%);
+    }
+    100% {
+      transform: translate(0%, -50%);
+    }
   }
 
   --animate-twinkle-1: twinkle-1 2s infinite;

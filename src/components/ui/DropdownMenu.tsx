@@ -23,8 +23,10 @@ interface DropdownMenuProps {
 // Move color classes outside component to avoid recreation
 const FOCUS_COLOR_CLASSES = {
   dropdown: {
-    purple: "focus:border-purple-500 focus:ring-purple-100",
-    indigo: "focus:border-indigo-500 focus:ring-indigo-100",
+    purple:
+      "focus-visible:border-purple-500 focus-visible:ring-purple-100 dark:focus-visible:border-purple-400 dark:focus-visible:ring-purple-500/30",
+    indigo:
+      "focus-visible:border-indigo-500 focus-visible:ring-indigo-100 dark:focus-visible:border-indigo-400 dark:focus-visible:ring-indigo-500/30",
   },
   option: {
     purple:
@@ -226,7 +228,7 @@ export function DropdownMenu({
       <button
         type="button"
         onClick={toggleDropdown}
-        className={`w-full cursor-pointer appearance-none rounded-xl border-2 border-gray-200 bg-white p-3 text-left shadow-sm transition-colors duration-300 hover:border-gray-300 focus:ring-4 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600 ${dropdownColorClass}`}
+        className={`w-full cursor-pointer appearance-none rounded-xl border-2 border-gray-200 bg-white p-3 text-left shadow-sm transition-colors duration-300 hover:border-gray-300 focus-visible:ring-4 focus-visible:outline-none dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600 ${dropdownColorClass}`}
       >
         <div className="flex items-center justify-between">
           <span
@@ -262,11 +264,12 @@ export function DropdownMenu({
               <input
                 ref={searchInputRef}
                 type="text"
+                tabIndex={isOpen ? 0 : -1}
                 value={searchTerm}
                 onChange={handleSearchChange}
                 // onKeyDown={handleKeyDown}
                 placeholder={t("dropdown.search")}
-                className="w-full rounded-lg border border-gray-200 py-2 pr-3 pl-9 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:placeholder:text-slate-500"
+                className="w-full rounded-lg border border-gray-200 py-2 pr-3 pl-9 text-sm focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-100 focus-visible:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:placeholder:text-slate-500 dark:focus-visible:border-indigo-400 dark:focus-visible:ring-indigo-500/30"
                 onClick={(e) => e.stopPropagation()}
               />
             </div>
@@ -290,6 +293,7 @@ export function DropdownMenu({
                   optionRefs.current[index] = el;
                 }}
                 type="button"
+                tabIndex={isOpen ? 0 : -1}
                 onClick={() => handleOptionClick(option.value)}
                 className={`w-full truncate px-3 py-2.5 text-left text-sm transition-colors duration-300 focus:outline-none ${
                   option.value === value

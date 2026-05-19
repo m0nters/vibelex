@@ -39,9 +39,14 @@ export function MainScreen({ onDeleteApiKey }: MainScreenProps) {
   const [savedAppLang, setSavedAppLang] = useState(false);
 
   useEffect(() => {
-    chrome.storage.sync.get(
-      ["translatedLangCode", "sourceLangCode", "extensionEnabled"],
-      (data) => {
+    const loadSettings = async () => {
+      try {
+        const data = await chrome.storage.sync.get([
+          "translatedLangCode",
+          "sourceLangCode",
+          "extensionEnabled",
+        ]);
+
         if (
           data.translatedLangCode &&
           data.translatedLangCode !== DEFAULT_LANGUAGE_CODE
@@ -59,19 +64,30 @@ export function MainScreen({ onDeleteApiKey }: MainScreenProps) {
         if (typeof data.extensionEnabled === "boolean") {
           setExtensionEnabled(data.extensionEnabled);
         }
-      },
-    );
+      } catch (error) {
+        console.error("Failed to load settings from storage:", error);
+      }
+    };
+    loadSettings();
   }, []);
 
   // Check if current tab is a privilege page
   useEffect(() => {
-    chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
-      const tab = tabs[0];
-      if (tab.id) {
-        const isRestricted = await checkPrivilegePage(tab.id);
-        setIsPrivilegePage(isRestricted);
+    const checkTab = async () => {
+      try {
+        const [tab] = await chrome.tabs.query({
+          active: true,
+          currentWindow: true,
+        });
+        if (tab?.id) {
+          const isRestricted = await checkPrivilegePage(tab.id);
+          setIsPrivilegePage(isRestricted);
+        }
+      } catch (error) {
+        console.error("Failed to check privilege page:", error);
       }
-    });
+    };
+    checkTab();
   }, []);
 
   const displaySavedLanguages = () => {
@@ -84,31 +100,25 @@ export function MainScreen({ onDeleteApiKey }: MainScreenProps) {
     setTimeout(() => setSavedAppLang(false), 1000);
   };
 
-  const handleSourceLanguageChange = (langCode: string) => {
+  const handleSourceLanguageChange = async (langCode: string) => {
     if (langCode === sourceLangCode) return;
     setSourceLangCode(langCode);
-    chrome.storage.sync.set({ sourceLangCode: langCode }, () => {
-      if (chrome.runtime.lastError) {
-        console.error(
-          "Failed to save source language to storage:",
-          chrome.runtime.lastError,
-        );
-      }
-    });
+    try {
+      await chrome.storage.sync.set({ sourceLangCode: langCode });
+    } catch (error) {
+      console.error("Failed to save source language to storage:", error);
+    }
     displaySavedLanguages();
   };
 
-  const handleTranslatedLanguageChange = (langCode: string) => {
+  const handleTranslatedLanguageChange = async (langCode: string) => {
     if (langCode === translatedLangCode) return;
     setTranslatedLangCode(langCode);
-    chrome.storage.sync.set({ translatedLangCode: langCode }, () => {
-      if (chrome.runtime.lastError) {
-        console.error(
-          "Failed to save translated language to storage:",
-          chrome.runtime.lastError,
-        );
-      }
-    });
+    try {
+      await chrome.storage.sync.set({ translatedLangCode: langCode });
+    } catch (error) {
+      console.error("Failed to save translated language to storage:", error);
+    }
     displaySavedLanguages();
   };
 
@@ -118,30 +128,25 @@ export function MainScreen({ onDeleteApiKey }: MainScreenProps) {
     displaySavedAppLang();
   };
 
-  const handleExtensionToggle = (enabled: boolean) => {
+  const handleExtensionToggle = async (enabled: boolean) => {
     setExtensionEnabled(enabled);
-    chrome.storage.sync.set({ extensionEnabled: enabled }, () => {
-      if (chrome.runtime.lastError) {
-        console.warn(
-          "Failed to save extension enabled state:",
-          chrome.runtime.lastError,
-        );
-        return;
-      }
-      chrome.tabs.query({}, (tabs) => {
-        tabs.forEach((tab) => {
-          if (tab.id) {
-            chrome.tabs
-              .sendMessage(tab.id, { type: "EXTENSION_TOGGLE", enabled })
-              .catch(() => {});
-          }
-        });
+    try {
+      await chrome.storage.sync.set({ extensionEnabled: enabled });
+      const tabs = await chrome.tabs.query({});
+      tabs.forEach((tab) => {
+        if (tab.id) {
+          chrome.tabs
+            .sendMessage(tab.id, { type: "EXTENSION_TOGGLE", enabled })
+            .catch(() => {});
+        }
       });
-    });
+    } catch (error) {
+      console.warn("Failed to save extension enabled state:", error);
+    }
   };
 
   return (
-    <div className="animate-slide-in-right relative h-full w-full overflow-x-hidden overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50 select-none transition-colors duration-300 dark:from-gray-900 dark:to-slate-900 dark:text-slate-300">
+    <div className="animate-slide-in-right relative h-full w-full overflow-x-hidden overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50 transition-colors duration-300 select-none dark:from-gray-900 dark:to-slate-900 dark:text-slate-300">
       <MainScreenBackground />
 
       <MainScreenHeader
@@ -151,7 +156,7 @@ export function MainScreen({ onDeleteApiKey }: MainScreenProps) {
 
       {/* Main content */}
       <div
-        className={`relative z-10 px-6 pb-6 transition-opacity duration-300 ${
+        className={`relative z-10 px-6 py-6 transition-opacity duration-300 ${
           !extensionEnabled ? "pointer-events-none opacity-50" : ""
         }`}
       >

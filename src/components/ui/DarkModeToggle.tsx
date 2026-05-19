@@ -9,7 +9,10 @@ export function DarkModeToggle({ className = "" }: DarkModeToggleProps) {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const { t } = useTranslation();
   return (
-    <div className={className} title={isDarkMode ? t("lightMode") : t("darkMode")}>
+    <div
+      className={className}
+      title={isDarkMode ? t("lightMode") : t("darkMode")}
+    >
       <div className="relative block h-6 w-12">
         {/* There're many small parts in the original "picture" in the switch,
             so I choose to draw them in original size (h-15 w-30), and scale

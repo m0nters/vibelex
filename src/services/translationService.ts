@@ -12,21 +12,13 @@ import { AppException } from "@/types";
  * Gets the API key from Chrome storage
  */
 const getApiKey = async (): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    chrome.storage.sync.get(["geminiApiKey"], (data) => {
-      if (chrome.runtime.lastError) {
-        reject(new Error("Failed to get API key from storage."));
-        return;
-      }
+  const data = await chrome.storage.sync.get(["geminiApiKey"]);
 
-      if (!data.geminiApiKey) {
-        reject(new AppException({ code: "API_KEY_MISSING" }));
-        return;
-      }
+  if (!data.geminiApiKey) {
+    throw new AppException({ code: "API_KEY_MISSING" });
+  }
 
-      resolve(data.geminiApiKey);
-    });
-  });
+  return data.geminiApiKey;
 };
 
 /**

@@ -12,8 +12,8 @@ export function MainScreenHeader({
 }: MainScreenHeaderProps) {
   const { t } = useTranslation();
   return (
-    <div className="relative z-10 p-6 pb-0">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="relative z-10 p-6">
+      <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <img src="/logo/logo.png" alt="App Logo" className="h-16 w-16" />
           <div>

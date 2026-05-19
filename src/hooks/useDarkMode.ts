@@ -14,27 +14,27 @@ export function useDarkMode() {
 
   useEffect(() => {
     const root = window.document.documentElement;
-    if (isDarkMode) {
-      root.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-      if (
-        typeof chrome !== "undefined" &&
-        chrome.storage &&
-        chrome.storage.local
-      ) {
-        chrome.storage.local.set({ theme: "dark" });
+    const themeValue = isDarkMode ? "dark" : "light";
+
+    root.classList.toggle("dark", isDarkMode);
+    localStorage.setItem("theme", themeValue);
+
+    const syncTheme = async () => {
+      try {
+        await chrome.storage.local.set({ theme: themeValue });
+        const tabs = await chrome.tabs.query({});
+        tabs.forEach((tab) => {
+          if (tab.id) {
+            chrome.tabs
+              .sendMessage(tab.id, { type: "THEME_CHANGED" })
+              .catch(() => {});
+          }
+        });
+      } catch (error) {
+        // Silently handle storage/tabs failure
       }
-    } else {
-      root.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-      if (
-        typeof chrome !== "undefined" &&
-        chrome.storage &&
-        chrome.storage.local
-      ) {
-        chrome.storage.local.set({ theme: "light" });
-      }
-    }
+    };
+    syncTheme();
   }, [isDarkMode]);
 
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);

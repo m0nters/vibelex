@@ -30,17 +30,25 @@ export const useTranslation = () => {
 
   // Load saved language settings from Chrome storage
   useEffect(() => {
-    chrome.storage.sync.get(
-      ["translatedLangCode", "sourceLangCode"],
-      (data) => {
+    const loadSettings = async () => {
+      try {
+        const data = await chrome.storage.sync.get([
+          "translatedLangCode",
+          "sourceLangCode",
+        ]);
+
         if (data.translatedLangCode) {
           setTranslatedLangCode(data.translatedLangCode);
         }
+
         if (data.sourceLangCode) {
           setSourceLangCode(data.sourceLangCode);
         }
-      },
-    );
+      } catch (error) {
+        console.error("Failed to load settings from storage:", error);
+      }
+    };
+    loadSettings();
   }, []);
 
   /**
@@ -55,21 +63,21 @@ export const useTranslation = () => {
     }));
 
     try {
-      // Get the most current language codes from storage to avoid stale state issues
-      const {
-        translatedLangCode: currentTranslatedLangCode,
-        sourceLangCode: currentSourceLangCode,
-      } = await chrome.storage.sync.get([
-        "translatedLangCode",
-        "sourceLangCode",
-      ]);
-      const translatedLang = currentTranslatedLangCode || DEFAULT_LANGUAGE_CODE;
-      const sourceLang = currentSourceLangCode || DEFAULT_SOURCE_LANGUAGE_CODE;
+      // Get the most current language codes from storage to avoid stale state issues.
+      // Falls back to current state values if storage read fails.
+      const data = (await chrome.storage.sync
+        .get(["translatedLangCode", "sourceLangCode"])
+        .catch(() => ({}))) as any;
+
+      const newTranslatedLangCode =
+        data.translatedLangCode ?? translatedLangCode ?? DEFAULT_LANGUAGE_CODE;
+      const newSourceLangCode =
+        data.sourceLangCode ?? sourceLangCode ?? DEFAULT_SOURCE_LANGUAGE_CODE;
 
       const rawResponse = await translateWithGemini(
         text,
-        translatedLang,
-        sourceLang,
+        newTranslatedLangCode,
+        newSourceLangCode,
       );
 
       // Parse the translation first - this will throw error if parsing fails
@@ -97,38 +105,24 @@ export const useTranslation = () => {
         loading: false,
       }));
 
-      // Save translation to history
-      try {
-        await saveTranslation(parsedTranslation);
-      } catch (historyError) {
-        console.error("Failed to save translation to history:", historyError);
-        // Don't fail the translation if history saving fails
-      }
+      // Non-fatal: don't fail the translation if history saving fails
+      await saveTranslation(parsedTranslation).catch((err) =>
+        console.error("Failed to save translation to history:", err),
+      );
 
       // Update popup height after translation is set
       updatePopupHeight();
     } catch (error) {
-      // convert all of the errors to `AppException`
-      // then keep transfering them to the component layer for i18n handling
-      if (error instanceof AppException) {
-        setResult((prev) => ({
-          ...prev,
-          loading: false,
-          error: error,
-        }));
-      } else if (error instanceof Error) {
-        // Handle other generic errors
-        setResult((prev) => ({
-          ...prev,
-          loading: false,
-          error: new AppException({
-            code: "GENERAL_ERROR",
-            data: { message: error.message },
-          }),
-        }));
-      }
+      // Normalize all errors to AppException for i18n handling in the component layer
+      const appError =
+        error instanceof AppException
+          ? error
+          : new AppException({
+              code: "GENERAL_ERROR",
+              data: { message: (error as Error).message },
+            });
 
-      // Update popup height after error is set
+      setResult((prev) => ({ ...prev, loading: false, error: appError }));
       updatePopupHeight();
     }
   };

@@ -69,35 +69,30 @@ export const changeLanguage = async (languageCode: string) => {
   try {
     await i18n.changeLanguage(languageCode);
 
-    // Save to Chrome storage if available
-    if (typeof chrome !== "undefined" && chrome.storage) {
-      chrome.storage.sync.set({ appLangCode: languageCode }, () => {
-        if (chrome.runtime.lastError) {
-          console.error(
-            "Failed to save app language to storage:",
-            chrome.runtime.lastError,
-          );
-          return;
+    // Save to Chrome storage
+    try {
+      await chrome.storage.sync.set({ appLangCode: languageCode });
+    } catch (error) {
+      console.error("Failed to save app language to storage:", error);
+    }
+
+    // Broadcast language change to all content scripts (dictionary popups)
+    try {
+      const tabs = await chrome.tabs.query({});
+      tabs.forEach((tab) => {
+        if (tab.id) {
+          chrome.tabs
+            .sendMessage(tab.id, {
+              type: "LANGUAGE_CHANGED",
+              language: languageCode,
+            })
+            .catch(() => {
+              // Silently handle content script not being available
+            });
         }
       });
-
-      // Broadcast language change to all content scripts (dictionary popups)
-      if (chrome.tabs) {
-        chrome.tabs.query({}, (tabs) => {
-          tabs.forEach((tab) => {
-            if (tab.id) {
-              chrome.tabs
-                .sendMessage(tab.id, {
-                  type: "LANGUAGE_CHANGED",
-                  language: languageCode,
-                })
-                .catch(() => {
-                  // Silently handle content script not being available
-                });
-            }
-          });
-        });
-      }
+    } catch (error) {
+      // Silently handle tabs query failure
     }
   } catch (error) {
     console.error("Failed to change app language:", error);

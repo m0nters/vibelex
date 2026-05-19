@@ -16,48 +16,56 @@ function App() {
 
   // Load saved settings once at mount
   useEffect(() => {
-    chrome.storage.sync.get(["appLangCode", "geminiApiKey"], (data) => {
-      if (data.appLangCode && data.appLangCode !== i18n.language) {
-        changeLanguage(data.appLangCode);
-      }
+    const loadSettings = async () => {
+      try {
+        const data = await chrome.storage.sync.get([
+          "appLangCode",
+          "geminiApiKey",
+        ]);
 
-      if (data.geminiApiKey) {
-        setApiKey(data.geminiApiKey);
+        if (data.appLangCode && data.appLangCode !== i18n.language) {
+          changeLanguage(data.appLangCode);
+        }
+
+        if (data.geminiApiKey) {
+          setApiKey(data.geminiApiKey);
+        }
+      } catch (error) {
+        console.error("Failed to load settings from storage:", error);
       }
-    });
+    };
+    loadSettings();
   }, []);
 
   const handleApiKeySubmit = (newApiKey: string) => {
     setApiKey(newApiKey);
   };
 
-  const handleDeleteApiKey = () => {
+  const handleDeleteApiKey = async () => {
     setApiKey(null);
-    // Remove from chrome storage
-    chrome.storage.sync.remove("geminiApiKey", () => {
-      if (chrome.runtime.lastError) {
-        console.error(
-          "Failed to delete API key from storage:",
-          chrome.runtime.lastError,
-        );
-      }
-    });
-    // Set extensionEnabled to false
-    chrome.storage.sync.set({ extensionEnabled: false }, () => {
-      // Broadcast extension enabled to all tabs
-      chrome.tabs.query({}, (tabs) => {
-        tabs.forEach((tab) => {
-          if (tab.id) {
-            chrome.tabs
-              .sendMessage(tab.id, {
-                type: "EXTENSION_TOGGLE",
-                enabled: false,
-              })
-              .catch(() => {});
-          }
-        });
+
+    try {
+      // Remove API key from chrome storage
+      await chrome.storage.sync.remove("geminiApiKey");
+
+      // Set extensionEnabled to false
+      await chrome.storage.sync.set({ extensionEnabled: false });
+
+      // Broadcast extension disabled to all tabs
+      const tabs = await chrome.tabs.query({});
+      tabs.forEach((tab) => {
+        if (tab.id) {
+          chrome.tabs
+            .sendMessage(tab.id, {
+              type: "EXTENSION_TOGGLE",
+              enabled: false,
+            })
+            .catch(() => {});
+        }
       });
-    });
+    } catch (error) {
+      console.error("Failed to delete API key:", error);
+    }
   };
 
   return (

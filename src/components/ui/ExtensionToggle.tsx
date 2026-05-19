@@ -31,7 +31,7 @@ export function ExtensionToggle({
   return (
     <button
       onClick={handleToggle}
-      className={`relative inline-flex h-6 w-12 cursor-pointer items-center rounded-full transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
+      className={`relative inline-flex h-6 w-12 cursor-pointer items-center rounded-full transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none dark:focus-visible:ring-offset-slate-900 ${
         enabled
           ? "bg-linear-to-r from-indigo-500 to-purple-600 focus-visible:ring-indigo-500 dark:focus-visible:ring-indigo-400"
           : "bg-gray-300 focus-visible:ring-gray-300 dark:bg-slate-700 dark:focus-visible:ring-slate-600"

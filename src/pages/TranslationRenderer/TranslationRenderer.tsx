@@ -31,11 +31,17 @@ export function TranslationRenderer({
 
   // Load source language code from Chrome storage
   useEffect(() => {
-    chrome.storage.sync.get("sourceLangCode", (data) => {
-      if (data.sourceLangCode) {
-        setSourceLangCodeSetting(data.sourceLangCode);
+    const loadSourceLang = async () => {
+      try {
+        const data = await chrome.storage.sync.get("sourceLangCode");
+        if (data.sourceLangCode) {
+          setSourceLangCodeSetting(data.sourceLangCode);
+        }
+      } catch (error) {
+        console.error("Failed to load settings from storage:", error);
       }
-    });
+    };
+    loadSourceLang();
   }, []);
 
   // Preload TTS voices for all language codes used on this page

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "VibeLex",
   "description": "Look up words, translate sentences quickly with AI with accurate semantic predictions.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",

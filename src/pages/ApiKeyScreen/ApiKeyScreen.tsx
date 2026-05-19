@@ -33,7 +33,7 @@ export function ApiKeyScreen({ onApiKeySubmit }: ApiKeyScreenProps) {
     displaySave();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const newApiKey = apiKey.trim();
@@ -45,31 +45,27 @@ export function ApiKeyScreen({ onApiKeySubmit }: ApiKeyScreenProps) {
     }
 
     // Save to chrome storage
-    chrome.storage.sync.set(
-      { geminiApiKey: newApiKey, extensionEnabled: true },
-      () => {
-        if (chrome.runtime.lastError) {
-          console.error(
-            "Failed to save API key to storage:",
-            chrome.runtime.lastError,
-          );
-        } else {
-          // Broadcast extension enabled to all tabs
-          chrome.tabs.query({}, (tabs) => {
-            tabs.forEach((tab) => {
-              if (tab.id) {
-                chrome.tabs
-                  .sendMessage(tab.id, {
-                    type: "EXTENSION_TOGGLE",
-                    enabled: true,
-                  })
-                  .catch(() => {});
-              }
-            });
-          });
+    try {
+      await chrome.storage.sync.set({
+        geminiApiKey: newApiKey,
+        extensionEnabled: true,
+      });
+
+      // Broadcast extension enabled to all tabs
+      const tabs = await chrome.tabs.query({});
+      tabs.forEach((tab) => {
+        if (tab.id) {
+          chrome.tabs
+            .sendMessage(tab.id, {
+              type: "EXTENSION_TOGGLE",
+              enabled: true,
+            })
+            .catch(() => {});
         }
-      },
-    );
+      });
+    } catch (error) {
+      console.error("Failed to save API key to storage:", error);
+    }
 
     onApiKeySubmit(newApiKey);
   };

@@ -23,24 +23,7 @@ const DICTIONARY = {
 
 async function getCurrentAppLanguage(): Promise<string> {
   try {
-    const data = await new Promise<any>((resolve, reject) => {
-      if (
-        typeof chrome !== "undefined" &&
-        chrome.storage &&
-        chrome.storage.sync
-      ) {
-        chrome.storage.sync.get(["appLangCode"], (result) => {
-          if (chrome.runtime.lastError) {
-            reject(chrome.runtime.lastError);
-          } else {
-            resolve(result);
-          }
-        });
-      } else {
-        resolve({ appLangCode: "en" });
-      }
-    });
-
+    const data = await chrome.storage.sync.get(["appLangCode"]);
     return data.appLangCode || "en";
   } catch (error) {
     console.error("Error getting current app language:", error);
@@ -62,21 +45,7 @@ async function getDictionaryButtonText(): Promise<string> {
 
 async function getTheme(): Promise<"dark" | "light"> {
   try {
-    const data = await new Promise<any>((resolve, reject) => {
-      if (
-        typeof chrome !== "undefined" &&
-        chrome.storage &&
-        chrome.storage.local
-      ) {
-        chrome.storage.local.get(["theme"], (result) => {
-          if (chrome.runtime.lastError) reject(chrome.runtime.lastError);
-          else resolve(result);
-        });
-      } else {
-        resolve({ theme: null });
-      }
-    });
-
+    const data = await chrome.storage.local.get(["theme"]);
     if (data.theme) return data.theme;
     return window.matchMedia("(prefers-color-scheme: dark)").matches
       ? "dark"
@@ -97,27 +66,12 @@ let lastSelectedText: string | null = null; // use for trick to prevent showing 
 // Check if extension is enabled
 async function isExtensionEnabled(): Promise<boolean> {
   try {
-    const data = await new Promise<any>((resolve, reject) => {
-      if (
-        typeof chrome !== "undefined" &&
-        chrome.storage &&
-        chrome.storage.sync
-      ) {
-        chrome.storage.sync.get(["extensionEnabled"], (result) => {
-          if (chrome.runtime.lastError) {
-            reject(chrome.runtime.lastError);
-          } else {
-            resolve(result);
-          }
-        });
-      } else {
-        resolve({ extensionEnabled: true });
-      }
-    });
-
-    return data.extensionEnabled !== false; // Default to true if not set
+    const data = await chrome.storage.sync.get(["extensionEnabled"]);
+    // Default to true if not set, for first time installing the extension
+    return data.extensionEnabled !== false;
   } catch (error) {
-    return true; // Default to enabled on error
+    // Default to enabled on error
+    return true;
   }
 }
 
@@ -140,9 +94,9 @@ chrome.runtime.onMessage.addListener(async (message, _sender, sendResponse) => {
     sendResponse({ success: true });
   }
 
-  // Listen for language change messages and forward to dictionary popup
-  if (message.type === "LANGUAGE_CHANGED") {
-    // if there's a dictionary button, show a new dictionary button with a new label
+  // Listen for language or theme change messages and forward to dictionary popup
+  if (message.type === "LANGUAGE_CHANGED" || message.type === "THEME_CHANGED") {
+    // if there's a dictionary button, show a new dictionary button with a new label/theme
     if (dictionaryButton) {
       const selection = window.getSelection();
       const hasSelection =
@@ -157,16 +111,10 @@ chrome.runtime.onMessage.addListener(async (message, _sender, sendResponse) => {
       }
     }
 
-    // if there's a dictionary popup, send the language change message to it
-    // so that it can update its UI language
+    // if there's a dictionary popup, send the message to it
+    // so that it can update its UI language or theme
     if (dictionaryPopup && dictionaryPopup.contentWindow) {
-      dictionaryPopup.contentWindow.postMessage(
-        {
-          type: "LANGUAGE_CHANGED",
-          language: message.language,
-        },
-        "*",
-      );
+      dictionaryPopup.contentWindow.postMessage(message, "*");
     }
 
     sendResponse({ success: true });

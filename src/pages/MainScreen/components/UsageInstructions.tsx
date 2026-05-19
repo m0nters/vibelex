@@ -16,7 +16,7 @@ export function UsageInstructions({
 
   return (
     <div
-      className={`mt-4 rounded-xl border border-indigo-200/50 bg-linear-to-r from-indigo-500/10 to-purple-500/10 p-4 transition-opacity duration-300 dark:border-indigo-400/20 dark:from-indigo-400/10 dark:to-purple-400/10 ${
+      className={`mt-4 rounded-xl border border-indigo-200/50 bg-linear-to-r from-indigo-500/10 to-purple-500/10 p-4 transition-all duration-300 dark:border-indigo-400/20 dark:from-indigo-400/10 dark:to-purple-400/10 ${
         !extensionEnabled
           ? "border-gray-300/30 bg-gray-500/10 opacity-50 dark:border-slate-700/30 dark:bg-slate-800/50"
           : ""
