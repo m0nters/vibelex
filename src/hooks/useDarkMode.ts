@@ -39,5 +39,20 @@ export function useDarkMode() {
 
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
+  // Listen for changes in chrome.storage to sync state between different environments
+  // (e.g., Popup extension and Iframe Dictionary Popup)
+  useEffect(() => {
+    const handleStorageChange = (
+      changes: { [key: string]: chrome.storage.StorageChange },
+      namespace: string,
+    ) => {
+      if (namespace === "local" && changes.theme) {
+        setIsDarkMode(changes.theme.newValue === "dark");
+      }
+    };
+    chrome.storage.onChanged.addListener(handleStorageChange);
+    return () => chrome.storage.onChanged.removeListener(handleStorageChange);
+  }, []);
+
   return { isDarkMode, toggleDarkMode };
 }

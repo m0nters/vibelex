@@ -96,19 +96,8 @@ chrome.runtime.onMessage.addListener(async (message, _sender, sendResponse) => {
 
   // Listen for language or theme change messages and forward to dictionary popup
   if (message.type === "LANGUAGE_CHANGED" || message.type === "THEME_CHANGED") {
-    // if there's a dictionary button, show a new dictionary button with a new label/theme
     if (dictionaryButton) {
-      const selection = window.getSelection();
-      const hasSelection =
-        selection?.type === "Range" && selection.toString().trim().length > 0;
-      const selectedText = hasSelection
-        ? selection.toString().replace(/ +/g, " ").trim()
-        : null;
-
-      if (hasSelection && selectedText) {
-        const { xPos, yPos } = getButtonPosition();
-        await showDictionaryButton(selectedText, xPos, yPos);
-      }
+      await updateDictionaryButton();
     }
 
     // if there's a dictionary popup, send the message to it
@@ -122,17 +111,19 @@ chrome.runtime.onMessage.addListener(async (message, _sender, sendResponse) => {
 });
 
 function getButtonPosition() {
-  const rects = window.getSelection()!.getRangeAt(0).getClientRects();
-  const lastRect = rects[rects.length - 1];
+  // getBoundingClientRect() gives the tight bounding box of the selected text
+  // itself, regardless of how large the container element is. This is more
+  // reliable than getClientRects()[last].right which can pick up the container
+  // by accident.
+  const rect = window.getSelection()!.getRangeAt(0).getBoundingClientRect();
 
-  let xPos = lastRect.right - 20;
-  let yPos = lastRect.bottom + window.scrollY + 5; // Default position below
+  let xPos = rect.right - 20;
+  let yPos = rect.bottom + window.scrollY + 5; // Default position below
 
-  // Ensure button doesn't go off-screen vertically
   const buttonHeight = 26;
   const buttonWidth = 80;
   if (yPos + buttonHeight > window.innerHeight + window.scrollY) {
-    yPos = lastRect.top + window.scrollY - buttonHeight - 5; // Position above
+    yPos = rect.top + window.scrollY - buttonHeight - 5; // Position above
   }
 
   // Ensure button doesn't go off-screen horizontally
@@ -227,6 +218,30 @@ async function showDictionaryButton(
   }
 }
 
+// Update the existing dictionary button in-place (text + theme colors) without
+// removing and recreating it. This avoids the visible flicker that occurs, e.g
+// when App.tsx broadcasts `LANGUAGE_CHANGED` on mount.
+async function updateDictionaryButton() {
+  if (!dictionaryButton) return;
+
+  try {
+    const buttonText = await getDictionaryButtonText();
+    const theme = await getTheme();
+    const isDark = theme === "dark";
+
+    const bgNormal = isDark ? "#1e293b" : "white";
+    const textNormal = isDark ? "#818cf8" : "#4f46e5";
+    const borderNormal = isDark ? "#6366f1" : "#4f46e5";
+
+    dictionaryButton.textContent = buttonText;
+    dictionaryButton.style.background = bgNormal;
+    dictionaryButton.style.color = textNormal;
+    dictionaryButton.style.border = `1px solid ${borderNormal}`;
+  } catch (error) {
+    console.error("Error updating dictionary button:", error);
+  }
+}
+
 // the event is not "selectionchange" because for example, we are typing something
 // and select all using Ctrl+A
 document.addEventListener("mouseup", async () => {
@@ -235,6 +250,22 @@ document.addEventListener("mouseup", async () => {
   if (!enabled) {
     return;
   }
+
+  // // Don't show the button when the user is interacting with an editable element
+  // // (input, textarea, select, or contenteditable). This prevents the button
+  // // from popping up during normal text editing / double-click-to-select actions.
+  // const target = e.target as HTMLElement | null;
+  // if (target) {
+  //   const tagName = target.tagName;
+  //   if (
+  //     tagName === "INPUT" ||
+  //     tagName === "TEXTAREA" ||
+  //     tagName === "SELECT" ||
+  //     target.isContentEditable
+  //   ) {
+  //     return;
+  //   }
+  // }
 
   const selection = window.getSelection();
   const selectedText = selection?.toString().replace(/ +/g, " ").trim(); // Normalize spaces
