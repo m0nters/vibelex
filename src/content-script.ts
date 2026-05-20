@@ -110,28 +110,92 @@ chrome.runtime.onMessage.addListener(async (message, _sender, sendResponse) => {
   }
 });
 
+/**
+ * Collects DOMRects from only the TEXT_NODE segments within `range`.
+ *
+ * `Range.getClientRects()` by spec also returns rects for element nodes that
+ * are fully "contained" inside the range (e.g. a block container whose entire
+ * content is selected). Those container rects are much larger than a text line
+ * and cause the button to appear in the wrong place.
+ *
+ * By walking only TEXT_NODEs and slicing each one to the actual selection
+ * boundaries, we get purely glyph-level rects — no container leakage,
+ * regardless of font size.
+ */
+function getSelectionTextRects(range: Range): DOMRect[] {
+  const rects: DOMRect[] = [];
+
+  // Fast path: entire selection is inside one text node.
+  // range.getClientRects() is already tight here — no element rects can leak.
+  if (
+    range.startContainer.nodeType === Node.TEXT_NODE &&
+    range.startContainer === range.endContainer
+  ) {
+    for (const r of range.getClientRects()) {
+      if (r.width > 0 && r.height > 0) rects.push(r);
+    }
+    return rects;
+  }
+
+  // General path: walk every TEXT_NODE under the common ancestor and
+  // collect only the portion that intersects the selection.
+  const walker = document.createTreeWalker(
+    range.commonAncestorContainer,
+    NodeFilter.SHOW_TEXT,
+  );
+
+  // The walker's initial currentNode is the root (an element); advance to the
+  // first real text node before entering the loop.
+  let node = walker.nextNode();
+  while (node) {
+    if (range.intersectsNode(node)) {
+      const nodeRange = document.createRange();
+      nodeRange.selectNodeContents(node);
+      // Clamp to the actual selection boundaries at the edges.
+      if (node === range.startContainer)
+        nodeRange.setStart(node, range.startOffset);
+      if (node === range.endContainer) nodeRange.setEnd(node, range.endOffset);
+
+      for (const r of nodeRange.getClientRects()) {
+        if (r.width > 0 && r.height > 0) rects.push(r);
+      }
+    }
+    node = walker.nextNode();
+  }
+
+  return rects;
+}
+
 function getButtonPosition() {
-  // getBoundingClientRect() gives the tight bounding box of the selected text
-  // itself, regardless of how large the container element is. This is more
-  // reliable than getClientRects()[last].right which can pick up the container
-  // by accident.
-  const rect = window.getSelection()!.getRangeAt(0).getBoundingClientRect();
-
-  let xPos = rect.right - 20;
-  let yPos = rect.bottom + window.scrollY + 5; // Default position below
-
+  const range = window.getSelection()!.getRangeAt(0);
   const buttonHeight = 26;
   const buttonWidth = 80;
-  if (yPos + buttonHeight > window.innerHeight + window.scrollY) {
-    yPos = rect.top + window.scrollY - buttonHeight - 5; // Position above
+
+  // Use only text-node rects — immune to container size, font size, etc.
+  const textRects = getSelectionTextRects(range);
+
+  if (textRects.length > 0) {
+    // Position near the bottom-right of the last text line (classic behavior,
+    // works correctly for both single-word and multi-line selections).
+    const lastRect = textRects[textRects.length - 1];
+
+    let xPos = lastRect.right + window.scrollX - 20;
+    let yPos = lastRect.bottom + window.scrollY + 5;
+
+    // Not enough space below → flip above
+    if (lastRect.bottom + buttonHeight + 5 > window.innerHeight) {
+      yPos = lastRect.top + window.scrollY - buttonHeight - 5;
+    }
+
+    // Clamp horizontally
+    if (xPos + buttonWidth > window.innerWidth)
+      xPos = window.innerWidth - buttonWidth - 8;
+    if (xPos < 8) xPos = 8;
+
+    return { xPos, yPos };
   }
 
-  // Ensure button doesn't go off-screen horizontally
-  if (xPos + buttonWidth > window.innerWidth) {
-    xPos = window.innerWidth - buttonWidth - 20; // Shift left to fit
-  }
-
-  return { xPos, yPos };
+  return { xPos: 0, yPos: 0 };
 }
 
 // Create and show the dictionary button
