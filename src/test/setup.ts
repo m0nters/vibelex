@@ -33,6 +33,10 @@ vi.stubGlobal("chrome", {
     sync: createStorageMock(),
     session: createStorageMock(),
     managed: createStorageMock(),
+    onChanged: {
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+    },
   },
   runtime: {
     sendMessage: vi.fn(),

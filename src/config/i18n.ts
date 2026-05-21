@@ -30,7 +30,7 @@ i18n
   .use(initReactI18next)
   .init({
     lng: DEFAULT_LANGUAGE_CODE,
-    fallbackLng: "en",
+    fallbackLng: DEFAULT_LANGUAGE_CODE,
 
     // Namespaces configuration
     ns: NAMESPACES,

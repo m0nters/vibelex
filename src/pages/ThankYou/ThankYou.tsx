@@ -1,5 +1,6 @@
-import { changeLanguage } from "@/config/i18n";
 import { DarkModeToggle } from "@/components";
+import { changeLanguage } from "@/config/i18n";
+import { DEFAULT_LANGUAGE_CODE } from "@/constants";
 import { useEffect, useState } from "react";
 import {
   ThankYouActions,
@@ -13,10 +14,26 @@ import {
 
 export function ThankYou() {
   const [isVisible, setIsVisible] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState<string>("en");
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(
+    DEFAULT_LANGUAGE_CODE,
+  );
 
   useEffect(() => {
     setIsVisible(true);
+
+    // Load saved language from chrome storage to persist language across refreshes
+    const loadSavedLanguage = async () => {
+      try {
+        const data = await chrome.storage.sync.get(["appLangCode"]);
+        if (data.appLangCode && data.appLangCode !== DEFAULT_LANGUAGE_CODE) {
+          setSelectedLanguage(data.appLangCode);
+          await changeLanguage(data.appLangCode);
+        }
+      } catch (error) {
+        // Silently fall back to default language
+      }
+    };
+    loadSavedLanguage();
   }, []);
 
   const handleLanguageChange = async (value: string) => {
