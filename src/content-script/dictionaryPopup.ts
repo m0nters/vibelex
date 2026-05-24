@@ -59,7 +59,7 @@ export async function showDictionaryPopup(
   y: number,
 ) {
   // Remove existing popup if any
-  removeDictionaryPopupGracefully();
+  closeDictionaryPopup();
 
   // Pre-fetch the current app language
   const currentAppLanguage = await getCurrentAppLanguage();
@@ -164,7 +164,7 @@ export async function showDictionaryPopup(
  * This does NOT notify the popup to stop TTS — the caller is responsible for
  * ensuring TTS has already been stopped before calling this function.
  */
-export function removeDictionaryPopupImmediately() {
+export function destroyDictionaryPopup() {
   const popup = getDictionaryPopup();
   if (!popup) return;
 
@@ -183,7 +183,7 @@ export function removeDictionaryPopupImmediately() {
  * Use this when the close is initiated from OUTSIDE the popup (e.g. clicking
  * outside, disabling the extension, or opening a new popup).
  */
-export function removeDictionaryPopupGracefully() {
+export function closeDictionaryPopup() {
   const popup = getDictionaryPopup();
   if (!popup) return;
 
@@ -191,5 +191,5 @@ export function removeDictionaryPopupGracefully() {
   popup.contentWindow?.postMessage({ type: "PARENT_CLOSING_POPUP" }, "*");
 
   // Give the popup a moment to process the cleanup message, then destroy it
-  setTimeout(removeDictionaryPopupImmediately, 50);
+  setTimeout(destroyDictionaryPopup, 50);
 }

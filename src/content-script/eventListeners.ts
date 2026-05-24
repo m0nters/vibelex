@@ -6,13 +6,13 @@
 
 import {
   getButtonPosition,
-  removeDictionaryButton,
+  closeDictionaryButton,
   showDictionaryButton,
   updateDictionaryButton,
 } from "./dictionaryButton";
 import {
-  removeDictionaryPopupGracefully,
-  removeDictionaryPopupImmediately,
+  closeDictionaryPopup,
+  destroyDictionaryPopup,
 } from "./dictionaryPopup";
 import {
   getDictionaryButton,
@@ -42,8 +42,8 @@ chrome.runtime.onMessage.addListener(
 
       // If extension is disabled, remove any existing button/popup
       if (!message.enabled) {
-        removeDictionaryButton();
-        removeDictionaryPopupGracefully();
+        closeDictionaryButton();
+        closeDictionaryPopup();
       }
 
       sendResponse({ success: true });
@@ -118,7 +118,7 @@ document.addEventListener("mouseup", async () => {
   // selecting 2 different texts
   else if (!selectedText || selectedText.length === 0) {
     setLastSelectedText(null);
-    removeDictionaryButton();
+    closeDictionaryButton();
   }
 });
 
@@ -132,7 +132,7 @@ document.addEventListener("mouseup", async () => {
 // destroy immediately without the dismiss delay.
 window.addEventListener("message", (event) => {
   if (event.data.type === "POPUP_CLOSE_BUTTON_CLICKED") {
-    removeDictionaryPopupImmediately();
+    destroyDictionaryPopup();
   }
 });
 
@@ -145,11 +145,19 @@ window.addEventListener("message", (event) => {
 document.addEventListener("mousedown", (e) => {
   const button = getDictionaryButton();
   if (button && !button.contains(e.target as Node)) {
-    removeDictionaryButton();
+    closeDictionaryButton();
   }
 
   const popup = getDictionaryPopup();
   if (popup && !popup.contains(e.target as Node)) {
-    removeDictionaryPopupGracefully();
+    closeDictionaryPopup();
   }
+});
+
+// Khi user click vào extension popup trên thanh công cụ của trình duyệt
+// (hoặc chuyển tab/cửa sổ), sự kiện mousedown sẽ không xảy ra trên trang,
+// nhưng trang sẽ mất focus (blur).
+window.addEventListener("blur", () => {
+  closeDictionaryButton();
+  closeDictionaryPopup();
 });

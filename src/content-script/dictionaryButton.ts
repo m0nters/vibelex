@@ -115,7 +115,7 @@ export async function showDictionaryButton(
 ) {
   try {
     // Remove any existing button, just in case there's a bug
-    removeDictionaryButton();
+    closeDictionaryButton();
 
     // Get translated button text
     const buttonText = await getDictionaryButtonText();
@@ -173,7 +173,7 @@ export async function showDictionaryButton(
 
     // Prevent inspecting element
     button.addEventListener("contextmenu", () => {
-      removeDictionaryButton();
+      closeDictionaryButton();
     });
 
     document.body.appendChild(button);
@@ -184,7 +184,7 @@ export async function showDictionaryButton(
       // Prevent event bubbling
       e.stopPropagation();
       e.preventDefault();
-      removeDictionaryButton();
+      closeDictionaryButton();
       await showDictionaryPopup(selectedText, x, y);
     });
   } catch (error) {
@@ -220,7 +220,7 @@ export async function updateDictionaryButton() {
 }
 
 /** Remove the dictionary button from the DOM and clear the state reference. */
-export function removeDictionaryButton() {
+export function closeDictionaryButton() {
   const button = getDictionaryButton();
   if (button) {
     button.remove();
