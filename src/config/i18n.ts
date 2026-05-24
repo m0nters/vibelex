@@ -66,6 +66,12 @@ i18n
 
 // Custom function to change language and save to Chrome storage
 export const changeLanguage = async (languageCode: string) => {
+  // Skip if already on the requested language — this also prevents an infinite
+  // loop: `DictionaryPopup` calls `changeLanguage` → broadcasts
+  // `LANGUAGE_CHANGED` → content script forwards back to popup → popup calls
+  // `changeLanguage` again.
+  if (i18n.language === languageCode) return;
+
   try {
     await i18n.changeLanguage(languageCode);
 

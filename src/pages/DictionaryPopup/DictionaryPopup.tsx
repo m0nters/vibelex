@@ -22,27 +22,34 @@ export function DictionaryPopup() {
   // Transferring messages from content script
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      // when this popup is ready (signal below to the parent -- content script),
-      // content script fixed the height of the container, then send the signal
-      // back again for this popup to translate text
+      // When this React popup component is ready (the `POPUP_READY` signal
+      // below notifies the parent, aka the content script), the content script
+      // will send back `TRANSLATE_TEXT` signal with the text to translate.
+      //
+      // Then, the popup need to tell the content script the size of itself
+      // (through the `UPDATE_POPUP_HEIGHT` signal inside `useTranslation` hook)
+      // so that content script can adjust the size of the popup container
       if (event.data.type === "TRANSLATE_TEXT") {
-        // because the page context (where this message from) is separate from
+        // Since the page context (where this message from) is separate from
         // the popup context (where this message is handled), and the popup
-        // context is the one who decide the interface language, so we need to
-        // communicate between them to display correct language on UI
+        // context is the one that decides the interface language, we need to
+        // communicate between them to display the correct language on UI
         changeLanguage(event.data.appLanguage).then(() => {
           translateText(event.data.text);
         });
       }
-      // Listen for when the popup is about to be closed from outside
-      if (event.data.type === "POPUP_CLOSING") {
+      // The content script sends this message when the popup is being closed
+      // from OUTSIDE (e.g. user clicked outside the popup, or the extension was
+      // disabled). We need to stop any playing TTS audio before the iframe gets
+      // torn down by the content script.
+      if (event.data.type === "PARENT_CLOSING_POPUP") {
         ttsService.stop();
       }
       // Listen for language changes from extension popup
       if (event.data.type === "LANGUAGE_CHANGED") {
-        // same reason as above, the page context is separate from the popup
-        // so when the popup change the language, the page context need to be
-        // informed to change accordingly
+        // Same reason as above: the page context is separate from the popup
+        // context, so when the popup changes the language, the page
+        // context needs to be informed to change accordingly
         changeLanguage(event.data.language);
       }
     };
@@ -134,8 +141,14 @@ export function DictionaryPopup() {
     };
   }, [result.loading, result.error, result.translation, showLoadingTip]);
 
+  // Handle the close button (X) click inside the popup header.
+  // We stop TTS ourselves first, then notify the content script to remove
+  // the iframe from the DOM. The content script listens for this specific
+  // event and destroys the iframe immediately (no delay needed since TTS
+  // is already stopped).
   const closePopup = () => {
-    window.parent.postMessage({ type: "CLOSE_POPUP" }, "*");
+    ttsService.stop();
+    window.parent.postMessage({ type: "POPUP_CLOSE_BUTTON_CLICKED" }, "*");
   };
 
   // Translate error codes to localized messages

@@ -88,7 +88,7 @@ chrome.runtime.onMessage.addListener(async (message, _sender, sendResponse) => {
     // If extension is disabled, remove any existing button/popup
     if (!extensionEnabled) {
       removeDictionaryButton();
-      removeDictionaryPopup();
+      removeDictionaryPopupGracefully();
     }
 
     sendResponse({ success: true });
@@ -398,7 +398,7 @@ function getPopupPosition(x: number, y: number, height: number) {
 // Show the dictionary popup (iframe version)
 async function showDictionaryPopup(selectedText: string, x: number, y: number) {
   // Remove existing popup if any
-  removeDictionaryPopup();
+  removeDictionaryPopupGracefully();
 
   // Pre-fetch the current app language
   const currentAppLanguage = await getCurrentAppLanguage();
@@ -412,7 +412,7 @@ async function showDictionaryPopup(selectedText: string, x: number, y: number) {
     dictionaryPopup.src = popupURL;
 
     // Default popup dimensions (height will be updated dynamically)
-    let popupInitialHeight = 200; // Initial height, e.g., for the loading screen, will be updated later by popup content
+    const popupInitialHeight = 200; // Initial height, e.g., for the loading screen, will be updated later by popup content
 
     const { popupX, popupY } = getPopupPosition(x, y, popupInitialHeight);
 
@@ -441,12 +441,12 @@ async function showDictionaryPopup(selectedText: string, x: number, y: number) {
     // Listen for popup ready message and then send the text
     const handlePopupMessage = (event: MessageEvent) => {
       // Only handle messages from our popup iframe
-      if (event.source !== dictionaryPopup?.contentWindow) {
+      if (dictionaryPopup && event.source !== dictionaryPopup.contentWindow) {
         return;
       }
 
-      if (event.data.type === "POPUP_READY") {
-        dictionaryPopup?.contentWindow?.postMessage(
+      if (event.data.type === "POPUP_READY" && dictionaryPopup) {
+        dictionaryPopup.contentWindow?.postMessage(
           {
             type: "TRANSLATE_TEXT",
             text: selectedText,
@@ -486,32 +486,45 @@ async function showDictionaryPopup(selectedText: string, x: number, y: number) {
   }
 }
 
-// Remove the dictionary popup
-function removeDictionaryPopup() {
-  if (dictionaryPopup) {
-    // Notify the popup to stop any TTS before removing
-    dictionaryPopup.contentWindow?.postMessage({ type: "POPUP_CLOSING" }, "*");
+// Immediately clean up event listeners and remove the popup iframe from the DOM.
+// This does NOT notify the popup to stop TTS — the caller is responsible for
+// ensuring TTS has already been stopped before calling this function.
+function removeDictionaryPopupImmediately() {
+  if (!dictionaryPopup) return;
 
-    // Give it a moment to process the message before removing
-    setTimeout(() => {
-      if (dictionaryPopup) {
-        // Clean up message event listener
-        const messageHandler = (dictionaryPopup as any).messageHandler;
-        if (messageHandler) {
-          window.removeEventListener("message", messageHandler);
-        }
-
-        dictionaryPopup.remove();
-        dictionaryPopup = null;
-      }
-    }, 50);
+  const messageHandler = (dictionaryPopup as any).messageHandler;
+  if (messageHandler) {
+    window.removeEventListener("message", messageHandler);
   }
+
+  dictionaryPopup.remove();
+  dictionaryPopup = null;
 }
 
-// Listen for messages from popup
+// Gracefully close the popup: first send a `PARENT_CLOSING_POPUP` message so
+// the popup can stop TTS playback, then remove the iframe after a short delay.
+// Use this when the close is initiated from OUTSIDE the popup (e.g. clicking
+// outside, disabling the extension, or opening a new popup).
+function removeDictionaryPopupGracefully() {
+  if (!dictionaryPopup) return;
+
+  // Tell the popup to clean up (stop TTS) before we tear it down
+  dictionaryPopup.contentWindow?.postMessage(
+    { type: "PARENT_CLOSING_POPUP" },
+    "*",
+  );
+
+  // Give the popup a moment to process the cleanup message, then destroy it
+  setTimeout(removeDictionaryPopupImmediately, 50);
+}
+
+// Listen for the popup's own close-button click. When the user clicks the X
+// button inside the popup, the popup stops TTS itself and then sends this
+// message to request iframe removal. Since TTS is already stopped, we can
+// destroy immediately without the dismiss delay.
 window.addEventListener("message", (event) => {
-  if (event.data.type === "CLOSE_POPUP") {
-    removeDictionaryPopup();
+  if (event.data.type === "POPUP_CLOSE_BUTTON_CLICKED") {
+    removeDictionaryPopupImmediately();
   }
 });
 
@@ -523,6 +536,6 @@ document.addEventListener("mousedown", (e) => {
   }
 
   if (dictionaryPopup && !dictionaryPopup.contains(e.target as Node)) {
-    removeDictionaryPopup();
+    removeDictionaryPopupGracefully();
   }
 });

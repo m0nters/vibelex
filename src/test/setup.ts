@@ -45,4 +45,8 @@ vi.stubGlobal("chrome", {
       removeListener: vi.fn(),
     },
   },
+  tabs: {
+    query: vi.fn(),
+    sendMessage: vi.fn(),
+  },
 });

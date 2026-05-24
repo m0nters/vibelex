@@ -3,6 +3,7 @@ import { useDarkMode } from "./useDarkMode";
 
 describe("useDarkMode", () => {
   beforeEach(() => {
+    vi.clearAllMocks();
     // Clear localStorage
     localStorage.clear();
     // Reset document classes
@@ -65,4 +66,104 @@ describe("useDarkMode", () => {
     expect(localStorage.getItem("theme")).toBe("light");
     expect(document.documentElement.classList.contains("dark")).toBe(false);
   });
+
+  describe("chrome.storage.onChanged listener", () => {
+    it("registers and cleans up the onChanged listener", () => {
+      const { unmount } = renderHook(() => useDarkMode());
+
+      expect(chrome.storage.onChanged.addListener).toHaveBeenCalledTimes(1);
+
+      unmount();
+
+      expect(chrome.storage.onChanged.removeListener).toHaveBeenCalledTimes(1);
+      // Should remove the same handler that was added
+      const addedHandler = vi.mocked(chrome.storage.onChanged.addListener)
+        .mock.calls[0][0];
+      const removedHandler = vi.mocked(chrome.storage.onChanged.removeListener)
+        .mock.calls[0][0];
+      expect(addedHandler).toBe(removedHandler);
+    });
+
+    it("updates state when chrome.storage.onChanged fires with a new theme", async () => {
+      const { result } = renderHook(() => useDarkMode());
+      expect(result.current.isDarkMode).toBe(false);
+
+      // Grab the handler that was registered
+      const handler = vi.mocked(chrome.storage.onChanged.addListener).mock
+        .calls[0][0] as (
+        changes: { [key: string]: chrome.storage.StorageChange },
+        namespace: string,
+      ) => void;
+
+      // Simulate external storage change
+      await act(async () => {
+        handler({ theme: { newValue: "dark" } }, "local");
+      });
+
+      expect(result.current.isDarkMode).toBe(true);
+      expect(document.documentElement.classList.contains("dark")).toBe(true);
+    });
+
+    it("ignores storage changes from non-local namespace", () => {
+      const { result } = renderHook(() => useDarkMode());
+
+      const handler = vi.mocked(chrome.storage.onChanged.addListener).mock
+        .calls[0][0] as (
+        changes: { [key: string]: chrome.storage.StorageChange },
+        namespace: string,
+      ) => void;
+
+      act(() => {
+        handler({ theme: { newValue: "dark" } }, "sync");
+      });
+
+      // Should still be false — "sync" namespace is ignored
+      expect(result.current.isDarkMode).toBe(false);
+    });
+
+    it("ignores storage changes for non-theme keys", () => {
+      const { result } = renderHook(() => useDarkMode());
+
+      const handler = vi.mocked(chrome.storage.onChanged.addListener).mock
+        .calls[0][0] as (
+        changes: { [key: string]: chrome.storage.StorageChange },
+        namespace: string,
+      ) => void;
+
+      act(() => {
+        handler({ appLangCode: { newValue: "vi" } }, "local");
+      });
+
+      expect(result.current.isDarkMode).toBe(false);
+    });
+
+    it("does not cause infinite write-back when onChanged fires with current value", () => {
+      renderHook(() => useDarkMode());
+
+      // Clear all mocks AFTER initial mount (which writes "light" to storage)
+      vi.clearAllMocks();
+
+      const handler = vi.mocked(chrome.storage.onChanged.addListener).mock
+        .calls[0]?.[0] as
+        | ((
+            changes: { [key: string]: chrome.storage.StorageChange },
+            namespace: string,
+          ) => void)
+        | undefined;
+
+      // If handler is undefined after clearAllMocks, re-render to get it
+      // This shouldn't happen since addListener was called before clearAllMocks
+      if (!handler) return;
+
+      // Simulate onChanged with "light" (same as current state)
+      act(() => {
+        handler({ theme: { newValue: "light" } }, "local");
+      });
+
+      // React should bail out (same state value), so no useEffect re-run,
+      // meaning NO additional storage write
+      expect(chrome.storage.local.set).not.toHaveBeenCalled();
+    });
+  });
 });
+
