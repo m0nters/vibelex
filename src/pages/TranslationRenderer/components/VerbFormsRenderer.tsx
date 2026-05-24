@@ -18,7 +18,7 @@ export function VerbFormsRenderer({ verbForms }: VerbFormsRendererProps) {
           {verbForms.map((verbForm, formIndex) => (
             <div
               key={formIndex}
-              className="rounded-lg border border-violet-200 bg-white px-4 py-2.5 text-center font-semibold text-violet-800 shadow-sm transition-shadow duration-300 hover:shadow-md dark:border-violet-800/50 dark:bg-slate-800/80 dark:text-violet-300"
+              className="rounded-lg border border-violet-200 bg-white px-4 py-2.5 text-center font-semibold text-violet-800 shadow-sm transition-all duration-300 hover:shadow-md dark:border-violet-800/50 dark:bg-slate-800/80 dark:text-violet-300"
             >
               <div className="text-sm font-medium">{verbForm.form}</div>
               <div className="mt-1 text-xs text-violet-500 transition-colors duration-300 dark:text-violet-400">
