@@ -23,8 +23,10 @@ function CollapsibleTextSection({
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useScrollContainer();
 
-  // Only enable sticky behavior for history detail view (which has scrollable content)
-  // Dictionary popup doesn't scroll internally, so skip sticky logic
+  // Sticky copy-button only works in HistoryDetailScreen (which provides a
+  // ScrollContainerProvider). The DictionaryPopup iframe has no provider, so
+  // useScrollContainer returns null and this effect is a no-op — CSS sticky
+  // positioning doesn't work inside iframes with overflow:auto anyway.
   useEffect(() => {
     const scrollableParent = scrollContainerRef?.current;
     if (!scrollableParent) return;

@@ -1,0 +1,195 @@
+/* Dictionary popup — the iframe overlay that shows the translation result
+ * after the user clicks the dictionary button.
+ */
+
+import {
+  getCurrentAppLanguage,
+  getDictionaryPopup,
+  getTheme,
+  POPUP_WIDTH,
+  setDictionaryPopup,
+} from "./state";
+
+// ---------------------------------------------------------------------------
+// Positioning
+// ---------------------------------------------------------------------------
+
+/** Calculate position for the popup relative to the text selection. */
+function getPopupPosition(x: number, y: number, height: number) {
+  // Calculate position near the selected text
+  let newX = x;
+  let newY = y;
+
+  const selection = window.getSelection();
+  const rects = selection!.getRangeAt(0).getClientRects(); // Get all rectangles for multi-line selection
+  const lastRect = rects[rects.length - 1];
+
+  // Ensure popup doesn't go off-screen vertically
+  const spaceAbove = lastRect.top;
+  const spaceBelow = window.innerHeight - lastRect.bottom;
+  const minimumPopupHeight = 400; // Minimum height needed for popup, this is just for estimation for height calculation
+
+  if (spaceBelow < minimumPopupHeight && spaceAbove >= minimumPopupHeight) {
+    // Not enough space below but enough above -> position above selection
+    newY = y - height + 30;
+  } else if (
+    spaceBelow < minimumPopupHeight &&
+    spaceAbove < minimumPopupHeight
+  ) {
+    // Not enough space in either direction -> center vertically
+    newX += 30;
+    newY = (window.innerHeight - height) / 2 + window.scrollY;
+  }
+
+  // Ensure popup doesn't go off-screen horizontally
+  if (newX + POPUP_WIDTH > window.innerWidth) {
+    newX = x - POPUP_WIDTH; // Show to the left instead
+  }
+  return { popupX: newX, popupY: newY };
+}
+
+// ---------------------------------------------------------------------------
+// Show
+// ---------------------------------------------------------------------------
+
+/** Create the dictionary popup iframe and set up its message handlers. */
+export async function showDictionaryPopup(
+  selectedText: string,
+  x: number,
+  y: number,
+) {
+  // Remove existing popup if any
+  removeDictionaryPopupGracefully();
+
+  // Pre-fetch the current app language
+  const currentAppLanguage = await getCurrentAppLanguage();
+
+  try {
+    const popup = document.createElement("iframe");
+    popup.id = "dictionary-popup";
+
+    const popupURL = chrome.runtime.getURL("dictionary-popup.html");
+
+    popup.src = popupURL;
+
+    // Default popup dimensions (height will be updated dynamically)
+    const popupInitialHeight = 200; // Initial height, e.g., for the loading screen, will be updated later by popup content
+
+    const { popupX, popupY } = getPopupPosition(x, y, popupInitialHeight);
+
+    const theme = await getTheme();
+    const isDark = theme === "dark";
+
+    popup.style.cssText = `
+      position: absolute;
+      left: ${popupX}px;
+      top: ${popupY}px;
+      width: ${POPUP_WIDTH}px;
+      height: ${popupInitialHeight}px;
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px ${isDark ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.3)"};
+      z-index: 99999;
+      background: ${isDark ? "#0f172a" : "white"};
+      overflow: auto;
+      opacity: 0;
+      visibility: hidden;
+      color-scheme: ${isDark ? "dark" : "light"};
+    `;
+
+    document.body.appendChild(popup);
+    setDictionaryPopup(popup);
+
+    // Listen for popup ready message and then send the text
+    const handlePopupMessage = (event: MessageEvent) => {
+      const currentPopup = getDictionaryPopup();
+
+      // Only handle messages from our popup iframe
+      if (currentPopup && event.source !== currentPopup.contentWindow) {
+        return;
+      }
+
+      if (event.data.type === "POPUP_READY" && currentPopup) {
+        currentPopup.contentWindow?.postMessage(
+          {
+            type: "TRANSLATE_TEXT",
+            text: selectedText,
+            appLanguage: currentAppLanguage,
+          },
+          "*",
+        );
+
+        // The delay is to hide the position transition when popup height is
+        // adjusted from loading screen to actual content, this is just for UI.
+        // If you delete it, there will be a weird jumpy effect.
+        if (currentPopup) {
+          setTimeout(() => {
+            // Re-read state in case popup was removed during the timeout
+            const p = getDictionaryPopup();
+            if (p) {
+              p.style.opacity = "1";
+              p.style.visibility = "visible";
+            }
+          }, 200); // this is a minimum delay quantity, lower than this may cause the jumpy effect to be visible
+        }
+      } else if (
+        event.data.type === "UPDATE_POPUP_HEIGHT" &&
+        currentPopup
+      ) {
+        const newHeight = event.data.height;
+        currentPopup.style.height = `${newHeight}px`;
+        const { popupX, popupY } = getPopupPosition(x, y, newHeight);
+        currentPopup.style.left = `${popupX}px`;
+        currentPopup.style.top = `${popupY}px`;
+      }
+    };
+    window.addEventListener("message", handlePopupMessage);
+    (popup as any).messageHandler = handlePopupMessage; // save the reference for later removal
+
+    // Add error handling for iframe loading
+    popup.onerror = (error) => {
+      console.error("Error loading dictionary popup iframe:", error);
+    };
+  } catch (error) {
+    console.error("Error creating dictionary popup:", error);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Remove
+// ---------------------------------------------------------------------------
+
+/**
+ * Immediately clean up event listeners and remove the popup iframe from the DOM.
+ * This does NOT notify the popup to stop TTS — the caller is responsible for
+ * ensuring TTS has already been stopped before calling this function.
+ */
+export function removeDictionaryPopupImmediately() {
+  const popup = getDictionaryPopup();
+  if (!popup) return;
+
+  const messageHandler = (popup as any).messageHandler;
+  if (messageHandler) {
+    window.removeEventListener("message", messageHandler);
+  }
+
+  popup.remove();
+  setDictionaryPopup(null);
+}
+
+/**
+ * Gracefully close the popup: first send a `PARENT_CLOSING_POPUP` message so
+ * the popup can stop TTS playback, then remove the iframe after a short delay.
+ * Use this when the close is initiated from OUTSIDE the popup (e.g. clicking
+ * outside, disabling the extension, or opening a new popup).
+ */
+export function removeDictionaryPopupGracefully() {
+  const popup = getDictionaryPopup();
+  if (!popup) return;
+
+  // Tell the popup to clean up (stop TTS) before we tear it down
+  popup.contentWindow?.postMessage({ type: "PARENT_CLOSING_POPUP" }, "*");
+
+  // Give the popup a moment to process the cleanup message, then destroy it
+  setTimeout(removeDictionaryPopupImmediately, 50);
+}

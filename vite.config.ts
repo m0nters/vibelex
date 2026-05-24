@@ -19,7 +19,7 @@ export default defineConfig({
         popup: "./index.html",
         "dictionary-popup": "./public/dictionary-popup.html",
         "thank-you": "./public/thank-you.html",
-        "content-script": "./src/content-script.ts",
+        "content-script": "./src/content-script/index.ts",
         background: "./src/background.ts",
       },
       output: {
