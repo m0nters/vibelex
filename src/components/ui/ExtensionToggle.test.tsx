@@ -24,17 +24,17 @@ describe("ExtensionToggle", () => {
     expect(button).toHaveAttribute("aria-pressed", "false");
   });
 
-  it("uses the label prop as aria-label on the button", () => {
-    render(<ExtensionToggle label="Dark mode" />);
+  it("uses the i18n disableExtension-key as aria-label when enabled", () => {
+    render(<ExtensionToggle initialValue={true} />);
     expect(
-      screen.getByRole("button", { name: "Dark mode" }),
+      screen.getByRole("button", { name: "common:disableExtension" }),
     ).toBeInTheDocument();
   });
 
-  it("uses the default aria-label 'Enable Extension' when no label provided", () => {
-    render(<ExtensionToggle />);
+  it("uses the i18n enableExtension-key as aria-label when disabled", () => {
+    render(<ExtensionToggle initialValue={false} />);
     expect(
-      screen.getByRole("button", { name: "Enable Extension" }),
+      screen.getByRole("button", { name: "common:enableExtension" }),
     ).toBeInTheDocument();
   });
 
