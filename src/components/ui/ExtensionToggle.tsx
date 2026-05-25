@@ -5,13 +5,11 @@ import { useTranslation } from "react-i18next";
 interface ExtensionToggleProps {
   initialValue?: boolean;
   onChange?: (enabled: boolean) => void;
-  label?: string;
 }
 
 export function ExtensionToggle({
   initialValue = true,
   onChange,
-  label = "Enable Extension",
 }: ExtensionToggleProps) {
   const [enabled, setEnabled] = useState(initialValue);
 
@@ -40,7 +38,9 @@ export function ExtensionToggle({
       title={
         enabled ? t("common:disableExtension") : t("common:enableExtension")
       }
-      aria-label={label}
+      aria-label={
+        enabled ? t("common:disableExtension") : t("common:enableExtension")
+      }
     >
       <span
         className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform duration-300 dark:bg-slate-100 ${

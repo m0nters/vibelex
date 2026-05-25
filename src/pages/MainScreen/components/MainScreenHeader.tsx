@@ -32,7 +32,6 @@ export function MainScreenHeader({
           <ExtensionToggle
             initialValue={extensionEnabled}
             onChange={onExtensionToggle}
-            label="Toggle Extension"
           />
 
           <DarkModeToggle />
