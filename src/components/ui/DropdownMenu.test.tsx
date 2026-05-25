@@ -28,7 +28,7 @@ const getTrigger = () => screen.getAllByRole("button")[0];
  * It has class "opacity-0" when closed, "opacity-100" when open.
  */
 const isPanelOpen = (container: HTMLElement) => {
-  const panel = container.querySelector<HTMLElement>(".absolute.top-full");
+  const panel = container.querySelector<HTMLElement>(".absolute.z-50");
   return panel ? !panel.className.includes("opacity-0") : false;
 };
 
@@ -242,5 +242,22 @@ describe("DropdownMenu", () => {
       .getAllByRole("button")
       .filter((b) => b !== getTrigger());
     expect(optionButtons.map((b) => b.textContent)).toEqual(["日本語"]);
+  });
+  // ─── Alignment ──────────────────────────────────────────────────────────────
+
+  it("aligns the options panel to the left by default", () => {
+    const { container } = render(<DropdownMenu {...defaultProps} />);
+    const panel = container.querySelector<HTMLElement>(".absolute.z-50")!;
+    expect(panel.className).toContain("left-0");
+    expect(panel.className).not.toContain("right-0");
+  });
+
+  it("aligns the options panel to the right when align='right'", () => {
+    const { container } = render(
+      <DropdownMenu {...defaultProps} align="right" />,
+    );
+    const panel = container.querySelector<HTMLElement>(".absolute.z-50")!;
+    expect(panel.className).toContain("right-0");
+    expect(panel.className).not.toContain("left-0");
   });
 });

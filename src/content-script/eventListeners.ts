@@ -35,40 +35,35 @@ import {
 // Chrome runtime messages (from App.tsx / extension popup)
 // ---------------------------------------------------------------------------
 
-chrome.runtime.onMessage.addListener(
-  async (message, _sender, sendResponse) => {
-    if (message.type === "EXTENSION_TOGGLE") {
-      setExtensionEnabled(message.enabled);
+chrome.runtime.onMessage.addListener(async (message, _sender, sendResponse) => {
+  if (message.type === "EXTENSION_TOGGLE") {
+    setExtensionEnabled(message.enabled);
 
-      // If extension is disabled, remove any existing button/popup
-      if (!message.enabled) {
-        closeDictionaryButton();
-        closeDictionaryPopup();
-      }
-
-      sendResponse({ success: true });
+    // If extension is disabled, remove any existing button/popup
+    if (!message.enabled) {
+      closeDictionaryButton();
+      closeDictionaryPopup();
     }
 
-    // Listen for language or theme change messages and forward to dictionary popup
-    if (
-      message.type === "LANGUAGE_CHANGED" ||
-      message.type === "THEME_CHANGED"
-    ) {
-      if (getDictionaryButton()) {
-        await updateDictionaryButton();
-      }
+    sendResponse({ success: true });
+  }
 
-      // If there's a dictionary popup, send the message to it
-      // so that it can update its UI language or theme
-      const popup = getDictionaryPopup();
-      if (popup && popup.contentWindow) {
-        popup.contentWindow.postMessage(message, "*");
-      }
-
-      sendResponse({ success: true });
+  // Listen for language or theme change messages and forward to dictionary popup
+  if (message.type === "LANGUAGE_CHANGED" || message.type === "THEME_CHANGED") {
+    if (getDictionaryButton()) {
+      await updateDictionaryButton();
     }
-  },
-);
+
+    // If there's a dictionary popup, send the message to it
+    // so that it can update its UI language or theme
+    const popup = getDictionaryPopup();
+    if (popup && popup.contentWindow) {
+      popup.contentWindow.postMessage(message, "*");
+    }
+
+    sendResponse({ success: true });
+  }
+});
 
 // ---------------------------------------------------------------------------
 // Text selection → show dictionary button
@@ -130,9 +125,12 @@ document.addEventListener("mouseup", async () => {
 // button inside the popup, the popup stops TTS itself and then sends this
 // message to request iframe removal. Since TTS is already stopped, we can
 // destroy immediately without the dismiss delay.
+// Listen for messages from the popup
 window.addEventListener("message", (event) => {
   if (event.data.type === "POPUP_CLOSE_BUTTON_CLICKED") {
     destroyDictionaryPopup();
+  } else if (event.data.type === "POPUP_BLURRED") {
+    closeDictionaryPopup();
   }
 });
 
@@ -154,10 +152,19 @@ document.addEventListener("mousedown", (e) => {
   }
 });
 
-// Khi user click vào extension popup trên thanh công cụ của trình duyệt
-// (hoặc chuyển tab/cửa sổ), sự kiện mousedown sẽ không xảy ra trên trang,
-// nhưng trang sẽ mất focus (blur).
+// When user click on the extension popup in the browser toolbar
+// (or switch tabs/windows), mousedown event will NOT occur on the page,
+// but the page will lose focus (blur).
 window.addEventListener("blur", () => {
   closeDictionaryButton();
-  closeDictionaryPopup();
+
+  // If focus shifted to the popup iframe itself (user clicked inside it),
+  // document.hasFocus() will still be true. If the user clicked the extension
+  // popup or switched tabs, document.hasFocus() will be false.
+  // We use setTimeout because focus states might be transitioning during the blur event.
+  setTimeout(() => {
+    if (!document.hasFocus()) {
+      closeDictionaryPopup();
+    }
+  }, 10);
 });

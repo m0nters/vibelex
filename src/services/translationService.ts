@@ -497,6 +497,7 @@ export const translateWithGemini = async (
   text: string,
   translatedLangCode: string,
   sourceLangCode: string,
+  signal?: AbortSignal,
 ): Promise<string> => {
   // Validate text length before translation
   const validation = validateTextLength(text);
@@ -543,6 +544,7 @@ export const translateWithGemini = async (
         "Content-Type": "application/json",
         "X-goog-api-key": API_KEY,
       },
+      signal,
       body: JSON.stringify({
         contents: [
           {
@@ -589,6 +591,8 @@ export const translateWithGemini = async (
 //   translatedLangCode: String,
 //   // @ts-ignore
 //   sourceLangCode: String,
+//   // @ts-ignore
+//   signal?: AbortSignal,
 // ): Promise<string> => {
 //   const translation = `
 //   \`\`\`json
@@ -918,6 +922,8 @@ export const translateWithGemini = async (
 //   translatedLangCode: String,
 //   // @ts-ignore
 //   sourceLangCode: String,
+//   // @ts-ignore
+//   signal?: AbortSignal,
 // ): Promise<string> => {
 //   const translation = `
 //   \`\`\`json

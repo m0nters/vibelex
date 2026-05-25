@@ -132,10 +132,7 @@ export async function showDictionaryPopup(
             }
           }, 200); // this is a minimum delay quantity, lower than this may cause the jumpy effect to be visible
         }
-      } else if (
-        event.data.type === "UPDATE_POPUP_HEIGHT" &&
-        currentPopup
-      ) {
+      } else if (event.data.type === "UPDATE_POPUP_HEIGHT" && currentPopup) {
         const newHeight = event.data.height;
         currentPopup.style.height = `${newHeight}px`;
         const { popupX, popupY } = getPopupPosition(x, y, newHeight);

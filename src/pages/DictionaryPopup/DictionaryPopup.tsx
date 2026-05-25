@@ -9,11 +9,23 @@ import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { useTranslation as useReactI18next } from "react-i18next";
 import { TranslationRenderer } from "../TranslationRenderer";
-import { PopupErrorState, PopupLoadingState, PopupTopBar } from "./components";
+import {
+  PopupErrorState,
+  PopupLanguageSelector,
+  PopupLoadingState,
+  PopupTopBar,
+} from "./components";
 
 export function DictionaryPopup() {
-  useDarkMode(); // Apply dark mode class to iframe document
-  const { result, translateText } = useTranslation();
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
+  const {
+    result,
+    sourceLangCode,
+    translatedLangCode,
+    translateText,
+    changeSourceLang,
+    changeTargetLang,
+  } = useTranslation();
   const { t } = useReactI18next();
   const [showLoadingTip, setShowLoadingTip] = useState(false);
   const [loadingTime, setLoadingTime] = useState(0);
@@ -82,7 +94,7 @@ export function DictionaryPopup() {
     return () => {
       if (timer) clearTimeout(timer);
     };
-  }, [result.loading]);
+  }, [result.loading, translatedLangCode, sourceLangCode]);
 
   // Timer to track loading time
   useEffect(() => {
@@ -107,7 +119,7 @@ export function DictionaryPopup() {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [result.loading]);
+  }, [result.loading, translatedLangCode, sourceLangCode]);
 
   // Monitor content height changes and notify parent
   useEffect(() => {
@@ -125,11 +137,22 @@ export function DictionaryPopup() {
     if (contentWrapper) {
       observer.observe(contentWrapper, {
         childList: true,
-        // subtree: true, // this causes a weird bug of playing a speaker when scrolling will update the scroll position of the popup
-        attributes: true,
+        subtree: true,
         characterData: true,
       });
     }
+
+    // Ensure body has the correct background classes to avoid white flashes
+    // when scrolling past bounds.
+    document.body.classList.add(
+      "bg-white",
+      "transition-colors",
+      "duration-300",
+      "dark:bg-slate-900",
+    );
+
+    // Initial height update
+    updatePopupHeight();
 
     // Also update on window resize
     const handleResize = () => updatePopupHeight();
@@ -150,6 +173,24 @@ export function DictionaryPopup() {
     ttsService.stop();
     window.parent.postMessage({ type: "POPUP_CLOSE_BUTTON_CLICKED" }, "*");
   };
+
+  // Detect when the iframe loses focus entirely (e.g. user clicked extension popup
+  // or switched tabs while focus was inside the iframe)
+  // This makes debugging harder on client side
+  useEffect(() => {
+    const handleBlur = () => {
+      setTimeout(() => {
+        if (!document.hasFocus()) {
+          window.parent.postMessage({ type: "POPUP_BLURRED" }, "*");
+        }
+      }, 10);
+    };
+
+    window.addEventListener("blur", handleBlur);
+    return () => {
+      window.removeEventListener("blur", handleBlur);
+    };
+  }, []);
 
   // Translate error codes to localized messages
   const getErrorMessage = (error: AppException): string => {
@@ -172,11 +213,27 @@ export function DictionaryPopup() {
   };
 
   return (
-    <div className="z-99999 flex h-full w-full flex-col bg-white transition-colors duration-300 dark:bg-slate-900">
+    <div className="z-99999 flex min-h-screen w-full flex-col bg-white transition-colors duration-300 dark:bg-slate-900">
       <PopupTopBar
         finalLoadingTime={finalLoadingTime}
         isLoading={result.loading}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={toggleDarkMode}
         onClose={closePopup}
+      />
+
+      {/* Language selector bar */}
+      <PopupLanguageSelector
+        sourceLangCode={sourceLangCode}
+        translatedLangCode={translatedLangCode}
+        onChangeSource={(code) => {
+          setFinalLoadingTime(null);
+          changeSourceLang(code);
+        }}
+        onChangeTarget={(code) => {
+          setFinalLoadingTime(null);
+          changeTargetLang(code);
+        }}
       />
 
       {/* Scrollable content area */}

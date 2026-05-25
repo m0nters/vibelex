@@ -294,6 +294,7 @@ export function TranslationLanguageSettings({
             focusColor="indigo"
             canSearch={true}
             className="w-31.25"
+            align="right"
           />
         </div>
       </div>

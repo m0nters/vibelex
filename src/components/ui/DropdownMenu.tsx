@@ -18,7 +18,10 @@ interface DropdownMenuProps {
   focusColor?: string;
   canSearch?: boolean;
   isSorted?: boolean;
+  size?: "default" | "compact";
+  align?: "left" | "right"; // Which edge of the trigger the options panel anchors to
 }
+
 
 // Move color classes outside component to avoid recreation
 const FOCUS_COLOR_CLASSES = {
@@ -45,12 +48,16 @@ export function DropdownMenu({
   focusColor = "indigo",
   canSearch = false,
   isSorted = true,
+  size = "default",
+  align = "left",
 }: DropdownMenuProps) {
+  const isCompact = size === "compact";
   const { t } = useTranslation("common");
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [focusedIndex, setFocusedIndex] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const optionRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -226,9 +233,10 @@ export function DropdownMenu({
     <div className={`relative ${className}`} ref={dropdownRef}>
       {/* Dropdown Button */}
       <button
+        ref={buttonRef}
         type="button"
         onClick={toggleDropdown}
-        className={`w-full cursor-pointer appearance-none rounded-xl border-2 border-gray-200 bg-white p-3 text-left shadow-sm transition-colors duration-300 hover:border-gray-300 focus-visible:ring-4 focus-visible:outline-none dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600 ${dropdownColorClass}`}
+        className={`w-full cursor-pointer appearance-none rounded-xl border-2 border-gray-200 bg-white text-left shadow-sm transition-colors duration-300 hover:border-gray-300 focus-visible:ring-4 focus-visible:outline-none dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600 ${isCompact ? "p-2 text-sm" : "p-3"} ${dropdownColorClass}`}
       >
         <div className="flex items-center justify-between">
           <span
@@ -238,7 +246,7 @@ export function DropdownMenu({
             {selectedOption?.label}
           </span>
           <ChevronDown
-            className={`h-5 w-5 text-gray-400 transition-transform duration-300 ease-out ${
+            className={`text-gray-400 transition-transform duration-300 ease-out ${isCompact ? "h-4 w-4" : "h-5 w-5"} ${
               isOpen ? "rotate-180" : "rotate-0"
             }`}
           />
@@ -247,7 +255,7 @@ export function DropdownMenu({
 
       {/* Dropdown Options */}
       <div
-        className={`absolute top-full right-0 left-0 z-50 mt-1 min-w-42.5 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl transition-all duration-300 ease-out dark:border-slate-700 dark:bg-slate-800 ${
+        className={`absolute z-50 w-full min-w-42.5 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl transition-all duration-300 ease-out top-full mt-1 dark:border-slate-700 dark:bg-slate-800 ${align === "right" ? "right-0" : "left-0"} ${
           isOpen
             ? "translate-y-0 scale-100 opacity-100"
             : "pointer-events-none -translate-y-2 scale-95 opacity-0"
@@ -277,8 +285,8 @@ export function DropdownMenu({
         )}
 
         <div
-          className={`max-h-60 overflow-y-auto transition-all duration-300 ease-out ${
-            isOpen ? "animate-slide-down" : "animate-slide-up"
+          className={`overflow-y-auto transition-all duration-300 ease-out ${isCompact ? "max-h-48" : "max-h-60"} ${
+            isOpen ? "animate-slide-down" : ""
           }`}
         >
           {filteredOptions.length === 0 ? (
@@ -295,7 +303,7 @@ export function DropdownMenu({
                 type="button"
                 tabIndex={isOpen ? 0 : -1}
                 onClick={() => handleOptionClick(option.value)}
-                className={`w-full truncate px-3 py-2.5 text-left text-sm transition-colors duration-300 focus:outline-none ${
+                className={`w-full truncate text-left text-sm transition-colors duration-300 focus:outline-none ${isCompact ? "px-2.5 py-1.5" : "px-3 py-2.5"} ${
                   option.value === value
                     ? `${optionColorClass} font-medium` // priority to selected option CSS than focused option CSS
                     : index === focusedIndex
