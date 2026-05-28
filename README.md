@@ -5,6 +5,7 @@ A Chrome extension that provides instant translation using Google's Gemini AI wh
 ## Screenshots
 
 <div align="center">
+   <img src="examples\word-loading.png"  width="780" alt="Usage" />
    <img src="examples\word.png"  width="780" alt="Usage" />
    <p><i>word translation shows dictionary-like results</i></p>
 </div>
