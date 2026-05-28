@@ -179,8 +179,10 @@ export function DictionaryPopup() {
   // This makes debugging harder on client side
   useEffect(() => {
     const handleBlur = () => {
+      // Wait 10ms for the browser to stabilize the focus shift.
       setTimeout(() => {
         if (!document.hasFocus()) {
+          ttsService.stop();
           window.parent.postMessage({ type: "POPUP_BLURRED" }, "*");
         }
       }, 10);

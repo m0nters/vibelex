@@ -127,10 +127,11 @@ document.addEventListener("mouseup", async () => {
 // destroy immediately without the dismiss delay.
 // Listen for messages from the popup
 window.addEventListener("message", (event) => {
-  if (event.data.type === "POPUP_CLOSE_BUTTON_CLICKED") {
+  if (
+    event.data.type === "POPUP_CLOSE_BUTTON_CLICKED" ||
+    event.data.type === "POPUP_BLURRED"
+  ) {
     destroyDictionaryPopup();
-  } else if (event.data.type === "POPUP_BLURRED") {
-    closeDictionaryPopup();
   }
 });
 
