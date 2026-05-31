@@ -6,20 +6,31 @@ import { defineConfig } from "vitest/config";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss(), {
-    name: 'vite-plugin-build-timestamp',
-    apply: 'build',
-    closeBundle() {
-      const now = new Date();
+  plugins: [
+    react({
+      babel: {
+        plugins: ["babel-plugin-react-compiler"],
+      },
+    }),
+    // react(),
+    tailwindcss(),
+    {
+      name: "vite-plugin-build-timestamp",
+      apply: "build",
+      closeBundle() {
+        const now = new Date();
 
-      const pad = (n: number) => n.toString().padStart(2, '0');
+        const pad = (n: number) => n.toString().padStart(2, "0");
 
-      const time = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-      const date = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
+        const time = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+        const date = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
 
-      console.log(`\n\x1b[32m✨ Build finished successfully at: ${time} ${date}\x1b[0m\n`);
-    }
-  }],
+        console.log(
+          `\n\x1b[32m✨ Build finished successfully at: ${time} ${date}\x1b[0m\n`,
+        );
+      },
+    },
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),

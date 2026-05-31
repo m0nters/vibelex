@@ -12,6 +12,7 @@ interface PopupLanguageSelectorProps {
   translatedLangCode: string;
   onChangeSource: (langCode: string) => void;
   onChangeTarget: (langCode: string) => void;
+  onDropdownOpenChange?: (isOpen: boolean) => void;
 }
 
 export function PopupLanguageSelector({
@@ -19,6 +20,7 @@ export function PopupLanguageSelector({
   translatedLangCode,
   onChangeSource,
   onChangeTarget,
+  onDropdownOpenChange,
 }: PopupLanguageSelectorProps) {
   const { t } = useTranslation();
 
@@ -45,6 +47,7 @@ export function PopupLanguageSelector({
           ]}
           pin={{ value: "auto", label: t("mainScreen:autoDetect") }}
           onChange={onChangeSource}
+          onOpenChange={onDropdownOpenChange}
           focusColor="indigo"
           canSearch={true}
           size="compact"
@@ -68,6 +71,7 @@ export function PopupLanguageSelector({
             ],
           }))}
           onChange={onChangeTarget}
+          onOpenChange={onDropdownOpenChange}
           focusColor="indigo"
           canSearch={true}
           size="compact"

@@ -11,6 +11,7 @@ import { AppException } from "@/types";
 /**
  * Gets the API key from Chrome storage
  */
+// @ts-ignore
 const getApiKey = async (): Promise<string> => {
   const data = await chrome.storage.sync.get(["geminiApiKey"]);
 
@@ -594,6 +595,8 @@ export const translateWithGemini = async (
 //   // @ts-ignore
 //   signal?: AbortSignal,
 // ): Promise<string> => {
+//   const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+//   await delay(12000);
 //   const translation = `
 //   \`\`\`json
 // {
@@ -925,6 +928,8 @@ export const translateWithGemini = async (
 //   // @ts-ignore
 //   signal?: AbortSignal,
 // ): Promise<string> => {
+//   const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+//   await delay(12000);
 //   const translation = `
 //   \`\`\`json
 //   {

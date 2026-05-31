@@ -21,12 +21,25 @@ function getPopupPosition(x: number, y: number, height: number) {
   let newY = y;
 
   const selection = window.getSelection();
-  const rects = selection!.getRangeAt(0).getClientRects(); // Get all rectangles for multi-line selection
-  const lastRect = rects[rects.length - 1];
+  const rects = selection?.rangeCount
+    ? selection.getRangeAt(0).getClientRects()
+    : [];
+  const lastRect = rects.length > 0 ? rects[rects.length - 1] : null;
 
   // Ensure popup doesn't go off-screen vertically
-  const spaceAbove = lastRect.top;
-  const spaceBelow = window.innerHeight - lastRect.bottom;
+  let spaceAbove = 0;
+  let spaceBelow = window.innerHeight;
+
+  if (lastRect) {
+    spaceAbove = lastRect.top;
+    spaceBelow = window.innerHeight - lastRect.bottom;
+  } else {
+    // Fallback for native input form case: estimate space based on the passed
+    // Y coordinate (viewport Y)
+    spaceAbove = y - window.scrollY;
+    spaceBelow = window.innerHeight - spaceAbove;
+  }
+
   const minimumPopupHeight = 400; // Minimum height needed for popup, this is just for estimation for height calculation
 
   if (spaceBelow < minimumPopupHeight && spaceAbove >= minimumPopupHeight) {
@@ -42,9 +55,15 @@ function getPopupPosition(x: number, y: number, height: number) {
   }
 
   // Ensure popup doesn't go off-screen horizontally
-  if (newX + POPUP_WIDTH > window.innerWidth) {
+  if (newX + POPUP_WIDTH > window.innerWidth + window.scrollX) {
     newX = x - POPUP_WIDTH; // Show to the left instead
   }
+
+  // Clamp left edge just in case
+  if (newX < window.scrollX) {
+    newX = window.scrollX + 8;
+  }
+
   return { popupX: newX, popupY: newY };
 }
 
@@ -91,7 +110,7 @@ export async function showDictionaryPopup(
       box-shadow: 0 10px 30px ${isDark ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.3)"};
       z-index: 99999;
       background: ${isDark ? "#0f172a" : "white"};
-      overflow: auto;
+      overflow: hidden;
       opacity: 0;
       visibility: hidden;
       color-scheme: ${isDark ? "dark" : "light"};

@@ -70,8 +70,15 @@ function getSelectionTextRects(range: Range): DOMRect[] {
   return rects;
 }
 
-/** Calculate the position for the dictionary button relative to the current text selection. */
-export function getButtonPosition() {
+/**
+ * Calculate the position for the dictionary button relative to the current
+ * text selection.
+ *
+ * @param mouseX - viewport X from the mouseup event (fallback for native
+ *                 form controls whose text is not in the DOM tree).
+ * @param mouseY - viewport Y from the mouseup event.
+ */
+export function getButtonPosition(mouseX: number, mouseY: number) {
   const range = window.getSelection()!.getRangeAt(0);
   const buttonHeight = 26;
   const buttonWidth = 80;
@@ -100,7 +107,18 @@ export function getButtonPosition() {
     return { xPos, yPos };
   }
 
-  return { xPos: 0, yPos: 0 };
+  // Fallback for native form controls (input / textarea) whose text is not
+  // part of the DOM tree: use the mouse position which is already near the
+  // selected word.
+  let xPos = mouseX + window.scrollX;
+  let yPos = mouseY + window.scrollY + 10;
+
+  // Clamp horizontally
+  if (xPos + buttonWidth > window.innerWidth)
+    xPos = window.innerWidth - buttonWidth - 8;
+  if (xPos < 8) xPos = 8;
+
+  return { xPos, yPos };
 }
 
 // ---------------------------------------------------------------------------

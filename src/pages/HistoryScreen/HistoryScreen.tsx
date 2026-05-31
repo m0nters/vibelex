@@ -6,7 +6,7 @@ import {
 } from "@/services";
 import { HistoryEntry } from "@/types";
 import type React from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { SortOrder } from "./components";
 import {
@@ -40,35 +40,27 @@ export function HistoryScreen() {
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const isFromStatistics = (location.state as any)?.fromStatistics === true;
 
-  /**
-   * the memo helps skip re-sorting when you toggle checkboxes or type in the
-   * search box, which causes re-rendering
-   */
-  const sortedEntries = useMemo(() => {
+  const getSortedEntries = (entries: HistoryEntry[], sortBy: SortOrder) => {
     const sorted = [...entries];
     if (sortBy.startsWith("alphabet")) {
-      sorted.sort((a, b) => {
+      return sorted.sort((a, b) => {
         const compare = getDisplayText(a).primaryText.localeCompare(
           getDisplayText(b).primaryText,
           undefined,
-          {
-            sensitivity: "variant",
-            numeric: true,
-            ignorePunctuation: true,
-          },
+          { sensitivity: "variant", numeric: true, ignorePunctuation: true },
         );
         return sortBy === "alphabet_asc" ? compare : -compare;
       });
-    } else {
-      // date
-      sorted.sort((a, b) => {
-        return sortBy === "date_desc"
-          ? b.timestamp - a.timestamp
-          : a.timestamp - b.timestamp;
-      });
     }
-    return sorted;
-  }, [entries, sortBy]);
+
+    return sorted.sort((a, b) =>
+      sortBy === "date_desc"
+        ? b.timestamp - a.timestamp
+        : a.timestamp - b.timestamp,
+    );
+  };
+
+  const sortedEntries = getSortedEntries(entries, sortBy);
 
   useEffect(() => {
     const state = location.state as {

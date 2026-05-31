@@ -71,7 +71,7 @@ chrome.runtime.onMessage.addListener(async (message, _sender, sendResponse) => {
 
 // The event is not "selectionchange" because for example, we are typing
 // something and select all using Ctrl+A
-document.addEventListener("mouseup", async () => {
+document.addEventListener("mouseup", async (e) => {
   // Check if extension is enabled
   const enabled = await isExtensionEnabled();
   if (!enabled) {
@@ -103,7 +103,7 @@ document.addEventListener("mouseup", async () => {
     selectedText !== getLastSelectedText() // prevent showing button after clicking it
   ) {
     setLastSelectedText(selectedText);
-    const { xPos, yPos } = getButtonPosition();
+    const { xPos, yPos } = getButtonPosition(e.clientX, e.clientY);
 
     // Show dictionary button and popup at the bottom right of the selection
     // by default

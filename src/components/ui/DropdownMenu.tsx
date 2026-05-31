@@ -1,6 +1,6 @@
 import Fuse from "fuse.js";
 import { ChevronDown, Search } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 interface DropdownOption {
@@ -14,14 +14,14 @@ interface DropdownMenuProps {
   options: DropdownOption[];
   pin?: DropdownOption; // Option to pin at the top
   onChange: (value: string) => void;
+  onOpenChange?: (isOpen: boolean) => void; // for dynamic height adaption
   className?: string;
   focusColor?: string;
   canSearch?: boolean;
   isSorted?: boolean;
-  size?: "default" | "compact";
+  size?: "default" | "compact"; // compact = smaller font size, use for dictionary popup language selector
   align?: "left" | "right"; // Which edge of the trigger the options panel anchors to
 }
-
 
 // Move color classes outside component to avoid recreation
 const FOCUS_COLOR_CLASSES = {
@@ -44,6 +44,7 @@ export function DropdownMenu({
   options,
   pin,
   onChange,
+  onOpenChange,
   className = "",
   focusColor = "indigo",
   canSearch = false,
@@ -56,66 +57,48 @@ export function DropdownMenu({
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [focusedIndex, setFocusedIndex] = useState(0);
+
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const optionRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  // Memoize sorted and pinned options - only recalculate when options or pin changes
-  const sortedOptions = useMemo(() => {
-    let result = isSorted
-      ? [...options].sort((a, b) => a.label.localeCompare(b.label))
-      : options;
+  // 1. Sort and Pin Options
+  let sortedOptions = isSorted
+    ? [...options].sort((a, b) => a.label.localeCompare(b.label))
+    : options;
 
-    // If pin option is provided, place it at the top
-    if (pin) {
-      // Remove pin from options if it exists to avoid duplication
-      const withoutPin = result.filter((option) => option.value !== pin.value);
-      result = [pin, ...withoutPin];
-    }
+  if (pin) {
+    const withoutPin = sortedOptions.filter(
+      (option) => option.value !== pin.value,
+    );
+    sortedOptions = [pin, ...withoutPin];
+  }
 
-    return result;
-  }, [options, pin, isSorted]);
+  // 2. Fuse.js Search
+  const fuse = new Fuse(sortedOptions, {
+    keys: ["label", "searchTerms"],
+    threshold: 0.4,
+    ignoreLocation: true,
+  });
 
-  // Memoize Fuse.js instance for fuzzy search
-  const fuse = useMemo(
-    () =>
-      new Fuse(sortedOptions, {
-        keys: ["label", "searchTerms"],
-        threshold: 0.4,
-        ignoreLocation: true,
-      }),
-    [sortedOptions],
-  );
+  const filteredOptions = searchTerm.trim()
+    ? fuse.search(searchTerm).map((result) => result.item)
+    : sortedOptions;
 
-  // Memoize filtered options using Fuse.js for fuzzy + transliteration search
-  const filteredOptions = useMemo(() => {
-    if (!searchTerm.trim()) return sortedOptions;
-    return fuse.search(searchTerm).map((result) => result.item);
-  }, [sortedOptions, searchTerm, fuse]);
+  // 3. Selected Option
+  const selectedOption = sortedOptions.find((option) => option.value === value);
 
-  // Memoize selected option - find from original sortedOptions, not filtered
-  const selectedOption = useMemo(
-    () => sortedOptions.find((option) => option.value === value),
-    [sortedOptions, value],
-  );
+  // 4. Get CSS Classes
+  const dropdownColorClass =
+    FOCUS_COLOR_CLASSES.dropdown[
+      focusColor as keyof typeof FOCUS_COLOR_CLASSES.dropdown
+    ] || FOCUS_COLOR_CLASSES.dropdown.indigo;
 
-  // Memoize color classes
-  const dropdownColorClass = useMemo(
-    () =>
-      FOCUS_COLOR_CLASSES.dropdown[
-        focusColor as keyof typeof FOCUS_COLOR_CLASSES.dropdown
-      ] || FOCUS_COLOR_CLASSES.dropdown.indigo,
-    [focusColor],
-  );
-
-  const optionColorClass = useMemo(
-    () =>
-      FOCUS_COLOR_CLASSES.option[
-        focusColor as keyof typeof FOCUS_COLOR_CLASSES.option
-      ] || FOCUS_COLOR_CLASSES.option.indigo,
-    [focusColor],
-  );
+  const optionColorClass =
+    FOCUS_COLOR_CLASSES.option[
+      focusColor as keyof typeof FOCUS_COLOR_CLASSES.option
+    ] || FOCUS_COLOR_CLASSES.option.indigo;
 
   // Click outside handler
   useEffect(() => {
@@ -125,6 +108,7 @@ export function DropdownMenu({
         !dropdownRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
+        onOpenChange?.(false);
       }
     };
 
@@ -132,7 +116,7 @@ export function DropdownMenu({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [onOpenChange]);
 
   // Keyboard navigation - only attach when dropdown is open
   useEffect(() => {
@@ -161,6 +145,7 @@ export function DropdownMenu({
         case "Escape":
           e.preventDefault();
           setIsOpen(false);
+          onOpenChange?.(false);
           setSearchTerm("");
           setFocusedIndex(0);
           break;
@@ -169,20 +154,16 @@ export function DropdownMenu({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, filteredOptions, focusedIndex]); // Include all dependencies
+  }, [isOpen, filteredOptions, focusedIndex, onOpenChange]);
 
-  // Memoize handlers to avoid recreating functions
-  const handleOptionClick = useCallback(
-    (optionValue: string) => {
-      onChange(optionValue);
-      setIsOpen(false);
-      setSearchTerm("");
-      setFocusedIndex(0);
-    },
-    [onChange],
-  );
+  const handleOptionClick = (optionValue: string) => {
+    onChange(optionValue);
+    setIsOpen(false);
+    setSearchTerm("");
+    setFocusedIndex(0);
+  };
 
-  const toggleDropdown = useCallback(() => {
+  const toggleDropdown = () => {
     setIsOpen((prev) => {
       const newIsOpen = !prev;
 
@@ -207,17 +188,15 @@ export function DropdownMenu({
         }, 300);
       }
 
+      onOpenChange?.(newIsOpen);
       return newIsOpen;
     });
-  }, [canSearch, filteredOptions, value]);
+  };
 
-  const handleSearchChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchTerm(e.target.value);
-      setFocusedIndex(0); // Reset focus to first option when search changes
-    },
-    [],
-  );
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setFocusedIndex(0);
+  };
 
   // Scroll focused option into view
   useEffect(() => {
@@ -255,7 +234,7 @@ export function DropdownMenu({
 
       {/* Dropdown Options */}
       <div
-        className={`absolute z-50 w-full min-w-42.5 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl transition-all duration-300 ease-out top-full mt-1 dark:border-slate-700 dark:bg-slate-800 ${align === "right" ? "right-0" : "left-0"} ${
+        className={`absolute top-full z-50 mt-1 w-full min-w-42.5 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl transition-all duration-300 ease-out dark:border-slate-700 dark:bg-slate-800 ${align === "right" ? "right-0" : "left-0"} ${
           isOpen
             ? "translate-y-0 scale-100 opacity-100"
             : "pointer-events-none -translate-y-2 scale-95 opacity-0"
@@ -275,7 +254,6 @@ export function DropdownMenu({
                 tabIndex={isOpen ? 0 : -1}
                 value={searchTerm}
                 onChange={handleSearchChange}
-                // onKeyDown={handleKeyDown}
                 placeholder={t("dropdown.search")}
                 className="w-full rounded-lg border border-gray-200 py-2 pr-3 pl-9 text-sm focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-100 focus-visible:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:placeholder:text-slate-500 dark:focus-visible:border-indigo-400 dark:focus-visible:ring-indigo-500/30"
                 onClick={(e) => e.stopPropagation()}

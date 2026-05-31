@@ -2,5 +2,5 @@
 export * from "./checkPrivilegePage";
 export * from "./colorGenerator";
 export * from "./dateTime";
-export * from "./popupHeight";
+export * from "./updatePopupHeight";
 export * from "./textParser";

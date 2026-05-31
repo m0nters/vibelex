@@ -5,7 +5,7 @@ import "@/index.css";
 import { ttsService } from "@/services";
 import { AppException } from "@/types";
 import { updatePopupHeight } from "@/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { useTranslation as useReactI18next } from "react-i18next";
 import { TranslationRenderer } from "../TranslationRenderer";
@@ -30,6 +30,7 @@ export function DictionaryPopup() {
   const [showLoadingTip, setShowLoadingTip] = useState(false);
   const [loadingTime, setLoadingTime] = useState(0);
   const [finalLoadingTime, setFinalLoadingTime] = useState<number | null>(null); // final time after loading
+  const startTimeRef = useRef<number>(0);
 
   // Transferring messages from content script
   useEffect(() => {
@@ -99,19 +100,20 @@ export function DictionaryPopup() {
   // Timer to track loading time
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    let startTime: number;
 
     if (result.loading) {
-      startTime = Date.now();
+      startTimeRef.current = Date.now();
       setLoadingTime(0);
 
       interval = setInterval(() => {
-        const elapsed = (Date.now() - startTime) / 1000;
+        const elapsed = (Date.now() - startTimeRef.current) / 1000;
         setLoadingTime(elapsed);
       }, 100); // Update every 100ms for smooth display
     } else {
-      if (loadingTime > 0) {
-        setFinalLoadingTime(loadingTime);
+      if (startTimeRef.current > 0) {
+        const totalElapsed = (Date.now() - startTimeRef.current) / 1000;
+        setFinalLoadingTime(totalElapsed);
+        startTimeRef.current = 0; // Reset
       }
       setLoadingTime(0);
     }
@@ -123,25 +125,6 @@ export function DictionaryPopup() {
 
   // Monitor content height changes and notify parent
   useEffect(() => {
-    // Initial height update
-    updatePopupHeight();
-
-    // Update height whenever content changes
-    const observer = new MutationObserver(() => {
-      updatePopupHeight();
-    });
-
-    const contentWrapper = document.getElementById(
-      "dictionary-content-wrapper",
-    );
-    if (contentWrapper) {
-      observer.observe(contentWrapper, {
-        childList: true,
-        subtree: true,
-        characterData: true,
-      });
-    }
-
     // Ensure body has the correct background classes to avoid white flashes
     // when scrolling past bounds.
     document.body.classList.add(
@@ -151,7 +134,8 @@ export function DictionaryPopup() {
       "dark:bg-slate-900",
     );
 
-    // Initial height update
+    // Update height when content state changes (loading → result/error,
+    // or when the loading tip appears).
     updatePopupHeight();
 
     // Also update on window resize
@@ -159,7 +143,6 @@ export function DictionaryPopup() {
     window.addEventListener("resize", handleResize);
 
     return () => {
-      observer.disconnect();
       window.removeEventListener("resize", handleResize);
     };
   }, [result.loading, result.error, result.translation, showLoadingTip]);
@@ -215,7 +198,7 @@ export function DictionaryPopup() {
   };
 
   return (
-    <div className="z-99999 flex min-h-screen w-full flex-col bg-white transition-colors duration-300 dark:bg-slate-900">
+    <div className="z-99999 flex max-h-screen min-h-screen w-full flex-col bg-white transition-colors duration-300 dark:bg-slate-900">
       <PopupTopBar
         finalLoadingTime={finalLoadingTime}
         isLoading={result.loading}
@@ -236,13 +219,18 @@ export function DictionaryPopup() {
           setFinalLoadingTime(null);
           changeTargetLang(code);
         }}
+        onDropdownOpenChange={() => {
+          // Delay slightly to let the dropdown's CSS transition render,
+          // then re-measure height (including the absolute dropdown).
+          setTimeout(() => updatePopupHeight(), 50);
+        }}
       />
 
-      {/* Scrollable content area */}
-      <div
-        className="flex-1 overflow-y-auto px-4 pb-4"
-        id="dictionary-content-wrapper"
-      >
+      {/* Scrollable content area — overflow-y-auto is managed by
+           updatePopupHeight: only enabled when content exceeds MAX_HEIGHT.
+           min-h-0 overrides the default min-height:auto so flex-1 can
+           constrain the wrapper height and allow overflow scrolling. */}
+      <div className="min-h-0 flex-1 px-4 pb-4" id="dictionary-content-wrapper">
         <div className="w-full">
           {result.loading && (
             <PopupLoadingState
