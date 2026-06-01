@@ -1,5 +1,5 @@
-const MIN_HEIGHT = 150;
-const MAX_HEIGHT = 500;
+const MIN_POPUP_HEIGHT_ALLOWED = 150;
+const MAX_POPUP_HEIGHT_ALLOWED = 500;
 /**
  * Calculates and updates the popup height based on content.
  *
@@ -56,13 +56,13 @@ export const updatePopupHeight = (): void => {
     contentWrapper.classList.add("flex-1");
 
     const totalHeight = Math.max(
-      MIN_HEIGHT,
-      Math.min(contentHeight, MAX_HEIGHT),
+      MIN_POPUP_HEIGHT_ALLOWED,
+      Math.min(contentHeight, MAX_POPUP_HEIGHT_ALLOWED),
     );
 
     // Only enable scrolling when content is taller than maxHeight.
     // Short states (loading, error, tips) stay scroll-free.
-    if (contentHeight > MAX_HEIGHT) {
+    if (contentHeight > MAX_POPUP_HEIGHT_ALLOWED) {
       contentWrapper.classList.add("overflow-y-auto");
     } else {
       contentWrapper.classList.remove("overflow-y-auto");

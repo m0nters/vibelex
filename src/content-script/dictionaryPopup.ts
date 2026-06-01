@@ -16,7 +16,7 @@ import {
 
 /** Calculate position for the popup relative to the text selection. */
 function getPopupPosition(x: number, y: number, height: number) {
-  // Calculate position near the selected text
+  // `x` and `y` are the initial positions where the dictionary button was placed.
   let newX = x;
   let newY = y;
 
@@ -26,7 +26,7 @@ function getPopupPosition(x: number, y: number, height: number) {
     : [];
   const lastRect = rects.length > 0 ? rects[rects.length - 1] : null;
 
-  // Ensure popup doesn't go off-screen vertically
+  // Calculate available space relative to the viewport
   let spaceAbove = 0;
   let spaceBelow = window.innerHeight;
 
@@ -40,28 +40,44 @@ function getPopupPosition(x: number, y: number, height: number) {
     spaceBelow = window.innerHeight - spaceAbove;
   }
 
-  const minimumPopupHeight = 400; // Minimum height needed for popup, this is just for estimation for height calculation
+  const MARGIN = 8; // gap between selection and popup
 
-  if (spaceBelow < minimumPopupHeight && spaceAbove >= minimumPopupHeight) {
-    // Not enough space below but enough above -> position above selection
-    newY = y - height + 30;
-  } else if (
-    spaceBelow < minimumPopupHeight &&
-    spaceAbove < minimumPopupHeight
-  ) {
-    // Not enough space in either direction -> center vertically
-    newX += 30;
+  if (spaceBelow < height && spaceAbove >= height) {
+    // Not enough space below but enough above -> position ABOVE selection
+    if (lastRect) {
+      newY = lastRect.top + window.scrollY - height - MARGIN;
+    } else {
+      newY = y - height - MARGIN;
+    }
+  } else if (spaceBelow < height && spaceAbove < height) {
+    // Not enough space in either direction -> CENTER vertically
     newY = (window.innerHeight - height) / 2 + window.scrollY;
+
+    // Push the popup slightly away from the cursor horizontally so it doesn't
+    // completely cover the text being read. If there's room on the right, push
+    // right; otherwise push left.
+    if (x + POPUP_WIDTH + MARGIN <= window.innerWidth + window.scrollX) {
+      newX = x + MARGIN;
+    } else {
+      newX = x - POPUP_WIDTH - MARGIN;
+    }
+  } else {
+    // Enough space below (default) -> position BELOW selection
+    if (lastRect) {
+      newY = lastRect.bottom + window.scrollY + MARGIN;
+    } else {
+      newY = y + MARGIN;
+    }
   }
 
-  // Ensure popup doesn't go off-screen horizontally
+  // Ensure popup doesn't go off-screen horizontally (right edge)
   if (newX + POPUP_WIDTH > window.innerWidth + window.scrollX) {
-    newX = x - POPUP_WIDTH; // Show to the left instead
+    newX = window.innerWidth + window.scrollX - POPUP_WIDTH - MARGIN;
   }
 
   // Clamp left edge just in case
   if (newX < window.scrollX) {
-    newX = window.scrollX + 8;
+    newX = window.scrollX + MARGIN;
   }
 
   return { popupX: newX, popupY: newY };
