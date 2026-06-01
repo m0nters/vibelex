@@ -7,6 +7,8 @@ import {
   MAX_WORDS_LIMIT_PER_TRANSLATION,
 } from "@/constants";
 import { AppException } from "@/types";
+import { parseTranslationJSON, isSentenceTranslation } from "@/utils";
+import { saveTranslation } from "./history";
 
 /**
  * Gets the API key from Chrome storage
@@ -945,3 +947,51 @@ export const translateWithGemini = async (
 
 //   return translation;
 // };
+
+/**
+ * Higher-level service function that orchestrates the entire translation pipeline:
+ * 1. Calls the Gemini API
+ * 2. Parses the JSON response
+ * 3. Injects the original text for sentence translations (to save tokens)
+ * 4. Asynchronously saves the successful result to history
+ *
+ * @returns The fully parsed and processed translation object
+ */
+export const processTranslation = async (
+  text: string,
+  translatedLangCode: string,
+  sourceLangCode: string,
+  signal?: AbortSignal,
+) => {
+  const rawResponse = await translateWithGemini(
+    text,
+    translatedLangCode,
+    sourceLangCode,
+    signal,
+  );
+
+  // Parse the translation first - this will throw error if parsing fails
+  // and stop the rest below
+  const parsedTranslation = parseTranslationJSON(rawResponse);
+
+  /*
+    A sentence has a lot of words (at least on average), if we include this
+    field `text` in the prompt at the beginning, the AI will just rewrite
+    the whole input in the response, which wastes a lot of tokens, so we
+    only need AI to provide the `translation` field, and we manually add
+    this field `text` to the translation post-parse for UI display
+
+    Experiments show that we can reduce the output tokens by 33% on average
+    by doing this! Which saves us a lot of money.
+  */
+  if (isSentenceTranslation(parsedTranslation)) {
+    parsedTranslation.text = text;
+  }
+
+  // Non-fatal: don't fail the translation if history saving fails
+  saveTranslation(parsedTranslation).catch((err) =>
+    console.error("Failed to save translation to history:", err),
+  );
+
+  return parsedTranslation;
+};

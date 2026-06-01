@@ -1,13 +1,13 @@
 import { changeLanguage } from "@/config";
 import { MAX_WORDS_LIMIT_PER_TRANSLATION } from "@/constants";
-import { useDarkMode, useTranslation } from "@/hooks";
+import { useDarkMode, useGeminiTranslation } from "@/hooks";
 import "@/index.css";
 import { ttsService } from "@/services";
 import { AppException } from "@/types";
 import { updatePopupHeight } from "@/utils";
 import { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { useTranslation as useReactI18next } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { TranslationRenderer } from "../TranslationRenderer";
 import {
   PopupErrorState,
@@ -25,8 +25,8 @@ export function DictionaryPopup() {
     translateText,
     changeSourceLang,
     changeTargetLang,
-  } = useTranslation();
-  const { t } = useReactI18next();
+  } = useGeminiTranslation();
+  const { t } = useTranslation();
   const [showLoadingTip, setShowLoadingTip] = useState(false);
   const [loadingTime, setLoadingTime] = useState(0);
   const [finalLoadingTime, setFinalLoadingTime] = useState<number | null>(null); // final time after loading

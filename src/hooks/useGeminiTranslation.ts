@@ -2,19 +2,14 @@ import {
   DEFAULT_LANGUAGE_CODE,
   DEFAULT_SOURCE_LANGUAGE_CODE,
 } from "@/constants";
-import { saveTranslation, translateWithGemini } from "@/services";
+import { processTranslation } from "@/services";
 import { AppException, TranslationResult } from "@/types";
-import {
-  isSentenceTranslation,
-  parseTranslationJSON,
-  updatePopupHeight,
-} from "@/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 /**
  * Custom hook for managing translation state and functionality
  */
-export const useTranslation = () => {
+export const useGeminiTranslation = () => {
   const [result, setResult] = useState<TranslationResult>({
     text: "",
     translation: undefined,
@@ -84,30 +79,12 @@ export const useTranslation = () => {
       const newSourceLangCode =
         data.sourceLangCode ?? sourceLangCode ?? DEFAULT_SOURCE_LANGUAGE_CODE;
 
-      const rawResponse = await translateWithGemini(
+      const parsedTranslation = await processTranslation(
         text,
         newTranslatedLangCode,
         newSourceLangCode,
         abortController.signal,
       );
-
-      // Parse the translation first - this will throw error if parsing fails
-      // and stop the rest below
-      const parsedTranslation = parseTranslationJSON(rawResponse);
-
-      /*
-        A sentence has a lot of words (at least on average), if we include this
-        field `text` in the prompt at the beginning, the AI will just rewrite
-        the whole input in the response, which wastes a lot of tokens, so we
-        only need AI to provide the `translation` field, and we manually add
-        this field `text` to the translation post-parse for UI display
-
-        Experiments show that we can reduce the output tokens by 33% on average
-        by doing this! Which saves us a lot of money.
-      */
-      if (isSentenceTranslation(parsedTranslation)) {
-        parsedTranslation.text = text;
-      }
 
       // Set successful result
       setResult((prev) => ({
@@ -115,14 +92,6 @@ export const useTranslation = () => {
         translation: parsedTranslation,
         loading: false,
       }));
-
-      // Non-fatal: don't fail the translation if history saving fails
-      await saveTranslation(parsedTranslation).catch((err) =>
-        console.error("Failed to save translation to history:", err),
-      );
-
-      // Update popup height after translation is set
-      updatePopupHeight();
     } catch (error) {
       // If the request was aborted, just return and do nothing (don't set error state)
       if (error instanceof Error && error.name === "AbortError") {
@@ -139,7 +108,6 @@ export const useTranslation = () => {
             });
 
       setResult((prev) => ({ ...prev, loading: false, error: appError }));
-      updatePopupHeight();
     }
   };
 
