@@ -99,6 +99,10 @@ export async function showDictionaryPopup(
   // Pre-fetch the current app language
   const currentAppLanguage = await getCurrentAppLanguage();
 
+  // Track whether the user has manually dragged the popup.
+  // When true, UPDATE_POPUP_HEIGHT will skip auto-repositioning.
+  let userDragged = false;
+
   try {
     const popup = document.createElement("iframe");
     popup.id = "dictionary-popup";
@@ -170,9 +174,45 @@ export async function showDictionaryPopup(
       } else if (event.data.type === "UPDATE_POPUP_HEIGHT" && currentPopup) {
         const newHeight = event.data.height;
         currentPopup.style.height = `${newHeight}px`;
-        const { popupX, popupY } = getPopupPosition(x, y, newHeight);
-        currentPopup.style.left = `${popupX}px`;
-        currentPopup.style.top = `${popupY}px`;
+
+        // Only auto-reposition if the user hasn't manually dragged the popup
+        if (!userDragged) {
+          const { popupX, popupY } = getPopupPosition(x, y, newHeight);
+          currentPopup.style.left = `${popupX}px`;
+          currentPopup.style.top = `${popupY}px`;
+        }
+      } else if (event.data.type === "POPUP_DRAG_START" && currentPopup) {
+        userDragged = true;
+
+        // The clientX/clientY from the iframe are relative to the iframe's
+        // viewport. Convert to page coordinates by adding the iframe's offset.
+        const iframeRect = currentPopup.getBoundingClientRect();
+        const startMouseX =
+          event.data.clientX + iframeRect.left + window.scrollX;
+        const startMouseY =
+          event.data.clientY + iframeRect.top + window.scrollY;
+        const startLeft = currentPopup.offsetLeft;
+        const startTop = currentPopup.offsetTop;
+
+        // Disable pointer-events on iframe so parent receives all mouse events
+        currentPopup.style.pointerEvents = "none";
+
+        const onMouseMove = (e: MouseEvent) => {
+          const dx = e.pageX - startMouseX;
+          const dy = e.pageY - startMouseY;
+          currentPopup.style.left = `${startLeft + dx}px`;
+          currentPopup.style.top = `${startTop + dy}px`;
+        };
+
+        const onMouseUp = () => {
+          document.removeEventListener("mousemove", onMouseMove);
+          document.removeEventListener("mouseup", onMouseUp);
+          // Restore pointer-events so the iframe is interactive again
+          currentPopup.style.pointerEvents = "";
+        };
+
+        document.addEventListener("mousemove", onMouseMove);
+        document.addEventListener("mouseup", onMouseUp);
       }
     };
     window.addEventListener("message", handlePopupMessage);
