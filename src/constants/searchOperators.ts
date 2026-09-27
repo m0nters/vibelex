@@ -1,4 +1,4 @@
-export type SearchOperatorType = "source" | "target";
+export type SearchOperatorType = "source" | "target" | "src" | "tgt";
 
 export interface SearchOperator {
   type: SearchOperatorType;

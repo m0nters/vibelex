@@ -9,8 +9,7 @@ interface HistoryBulkActionsProps {
   selectedEntries: Set<string>;
   totalCount: number;
   onSelectAll: () => void;
-  onDeleted: () => void;
-  onBeforeAction: () => void;
+  onDeleted: (deletedIds?: string[]) => void;
 }
 
 export function HistoryBulkActions({
@@ -18,7 +17,6 @@ export function HistoryBulkActions({
   totalCount,
   onSelectAll,
   onDeleted,
-  onBeforeAction,
 }: HistoryBulkActionsProps) {
   const { t } = useTranslation();
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
@@ -29,7 +27,7 @@ export function HistoryBulkActions({
     if (selectedCount === totalCount) {
       try {
         await clearHistory();
-        onDeleted();
+        onDeleted(); // Full clear — no ids
         setShowBulkDeleteConfirm(false);
       } catch (error) {
         console.error("Failed to clear history:", error);
@@ -37,10 +35,10 @@ export function HistoryBulkActions({
       return;
     }
 
-    onBeforeAction();
+    const ids = Array.from(selectedEntries);
     try {
-      await removeHistoryEntries(Array.from(selectedEntries));
-      onDeleted();
+      await removeHistoryEntries(ids);
+      onDeleted(ids);
       setShowBulkDeleteConfirm(false);
     } catch (error) {
       console.error("Failed to delete selected entries:", error);

@@ -173,6 +173,7 @@ export function HistoryEntryCard({
           {/* Pin button */}
           <button
             onClick={(e) => onPinEntry(entry.id, e)}
+            onMouseDown={(e) => e.preventDefault()}
             className={`cursor-pointer rounded-lg border p-3 transition-all duration-300 hover:shadow-sm ${
               entry.pinnedAt
                 ? "border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100 dark:border-amber-900/50 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50"

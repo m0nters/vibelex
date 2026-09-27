@@ -1,11 +1,8 @@
 import App from "@/App.tsx";
 import "@/config/"; // Initialize i18n
 import "@/index.css";
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+// keepalive-for-react documents that cached views are incompatible with
+// StrictMode's development-only remount checks.
+createRoot(document.getElementById("root")!).render(<App />);

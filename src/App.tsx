@@ -6,9 +6,67 @@ import {
   MainScreen,
   StatisticsScreen,
 } from "@/pages";
+import { CachedScrollRestoration } from "@/components/CachedScrollRestoration";
+import { KeepAlive } from "keepalive-for-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import {
+  MemoryRouter,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
+
+const MAX_CACHED_VISITS = 20;
+
+interface CachedScreensProps {
+  apiKey: string | null;
+  onApiKeySubmit: (apiKey: string) => void;
+  onDeleteApiKey: () => Promise<void>;
+}
+
+function CachedScreens({
+  apiKey,
+  onApiKeySubmit,
+  onDeleteApiKey,
+}: CachedScreensProps) {
+  const location = useLocation();
+  const activeCacheKey = `${location.key}:${apiKey ? "configured" : "setup"}`;
+
+  return (
+    <div className="relative h-143.5 w-100 overflow-hidden bg-linear-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-slate-900">
+      <KeepAlive
+        activeCacheKey={activeCacheKey}
+        max={MAX_CACHED_VISITS}
+        enableActivity
+      >
+        <CachedScrollRestoration>
+          <Routes location={location}>
+            <Route
+              path="/"
+              element={
+                apiKey ? (
+                  <MainScreen onDeleteApiKey={onDeleteApiKey} />
+                ) : (
+                  <ApiKeyScreen onApiKeySubmit={onApiKeySubmit} />
+                )
+              }
+            />
+            <Route
+              path="/history"
+              element={<HistoryScreen location={location} />}
+            />
+            <Route
+              path="/history/:id"
+              element={<HistoryDetailScreen location={location} />}
+            />
+            <Route path="/statistics" element={<StatisticsScreen />} />
+          </Routes>
+        </CachedScrollRestoration>
+      </KeepAlive>
+    </div>
+  );
+}
 
 function App() {
   const { i18n } = useTranslation();
@@ -70,23 +128,11 @@ function App() {
 
   return (
     <MemoryRouter>
-      <div className="relative h-143.5 w-100 overflow-hidden bg-linear-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-slate-900">
-        <Routes>
-          <Route
-            path="/"
-            element={
-              apiKey ? (
-                <MainScreen onDeleteApiKey={handleDeleteApiKey} />
-              ) : (
-                <ApiKeyScreen onApiKeySubmit={handleApiKeySubmit} />
-              )
-            }
-          />
-          <Route path="/history" element={<HistoryScreen />} />
-          <Route path="/history/:id" element={<HistoryDetailScreen />} />
-          <Route path="/statistics" element={<StatisticsScreen />} />
-        </Routes>
-      </div>
+      <CachedScreens
+        apiKey={apiKey}
+        onApiKeySubmit={handleApiKeySubmit}
+        onDeleteApiKey={handleDeleteApiKey}
+      />
     </MemoryRouter>
   );
 }

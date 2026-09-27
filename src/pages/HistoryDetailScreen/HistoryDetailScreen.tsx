@@ -1,17 +1,28 @@
 import { ScrollContainerContext } from "@/contexts/ScrollContainerContext";
 import { HistoryEntry } from "@/types";
 import { toPng } from "html-to-image";
-import { useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, type Location } from "react-router-dom";
 import { HistoryDetailContent, HistoryDetailHeader } from "./components";
 
-export function HistoryDetailScreen() {
-  const location = useLocation();
+interface HistoryDetailScreenProps {
+  location: Location;
+}
+
+export function HistoryDetailScreen({
+  location,
+}: HistoryDetailScreenProps) {
   const navigate = useNavigate();
   const entry = location.state?.entry as HistoryEntry;
   const contentRef = useRef<HTMLDivElement>(null); // for html-to-image
   const scrollContainerRef = useRef<HTMLDivElement>(null); // for scroll event
   const [isDownloading, setIsDownloading] = useState(false);
+
+  useEffect(() => {
+    if (!entry) {
+      navigate("/history", { replace: true });
+    }
+  }, [entry, navigate]);
 
   const handleDownload = async () => {
     if (!contentRef.current || isDownloading) return;
@@ -35,9 +46,7 @@ export function HistoryDetailScreen() {
     }
   };
 
-  // If no entry is found, navigate back to history
   if (!entry) {
-    navigate("/history");
     return null;
   }
 

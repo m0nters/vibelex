@@ -13,14 +13,8 @@ import {
 export function StatisticsScreen() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-  const previousActiveTab = sessionStorage.getItem(
-    "activeTab",
-  ) as TabType | null;
-  const [activeTab, setActiveTab] = useState<TabType>(
-    previousActiveTab || "source",
-  );
+  const hasLoadedStatistics = useRef(false);
+  const [activeTab, setActiveTab] = useState<TabType>("source");
   const [sourceLanguageData, setSourceLanguageData] = useState<LanguageData[]>(
     [],
   );
@@ -31,24 +25,10 @@ export function StatisticsScreen() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadStatisticsData();
-  }, []);
+    if (hasLoadedStatistics.current) return;
 
-  // Restore scroll position and active tab from session, then clear them
-  useEffect(() => {
-    const savedScrollPosition = sessionStorage.getItem(
-      "statisticsScreenScrollPosition",
-    );
-    if (savedScrollPosition && scrollContainerRef.current) {
-      const scrollTop = parseInt(savedScrollPosition, 10);
-      setTimeout(() => {
-        if (scrollContainerRef.current) {
-          scrollContainerRef.current.scrollTop = scrollTop;
-        }
-      }, 100);
-      sessionStorage.removeItem("statisticsScreenScrollPosition");
-    }
-    sessionStorage.removeItem("activeTab");
+    hasLoadedStatistics.current = true;
+    loadStatisticsData();
   }, []);
 
   const loadStatisticsData = async () => {
@@ -88,13 +68,6 @@ export function StatisticsScreen() {
     activeTab === "source" ? sourceLanguageData : targetLanguageData;
 
   const handleLanguageClick = (languageCode: string) => {
-    sessionStorage.setItem("activeTab", activeTab);
-    if (scrollContainerRef.current) {
-      sessionStorage.setItem(
-        "statisticsScreenScrollPosition",
-        scrollContainerRef.current.scrollTop.toString(),
-      );
-    }
     navigate("/history", {
       state: {
         searchQueryForStatistics: `${activeTab}:${languageCode}`,
@@ -105,7 +78,6 @@ export function StatisticsScreen() {
 
   return (
     <div
-      ref={scrollContainerRef}
       className="animate-slide-in-right h-full w-full overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50 transition-colors duration-300 select-none dark:from-gray-900 dark:to-slate-900 dark:text-slate-300"
     >
       <StatisticsHeader activeTab={activeTab} onTabChange={setActiveTab} />

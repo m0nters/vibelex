@@ -12,7 +12,7 @@ interface HistoryListProps {
   setSelectedEntries: React.Dispatch<React.SetStateAction<Set<string>>>;
   searchQuery: string;
   isLoading: boolean;
-  onBeforeAction: () => void;
+  onEntryRemoved: (removedIds: string[]) => void;
   onEntryModified: () => void;
   onLanguageBadgeClick: (
     event: React.MouseEvent,
@@ -28,7 +28,7 @@ export function HistoryList({
   setSelectedEntries,
   searchQuery,
   isLoading,
-  onBeforeAction,
+  onEntryRemoved,
   onEntryModified,
   onLanguageBadgeClick,
   customNavigate,
@@ -49,10 +49,9 @@ export function HistoryList({
     event: React.MouseEvent,
   ) => {
     event.stopPropagation();
-    onBeforeAction();
     try {
       await removeHistoryEntry(entryId);
-      onEntryModified();
+      onEntryRemoved([entryId]);
     } catch (error) {
       console.error("Failed to remove history entry:", error);
     }
@@ -60,7 +59,6 @@ export function HistoryList({
 
   const handlePinEntry = async (entryId: string, event: React.MouseEvent) => {
     event.stopPropagation();
-    onBeforeAction();
     try {
       await togglePinEntry(entryId);
       onEntryModified();

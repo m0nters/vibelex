@@ -153,7 +153,7 @@ const extractSearchableFields = (entry: HistoryEntry): string[] => {
 /**
  * Search history entries based on query with support for search operators
  * Supports operators: source:langcode, target:langcode
- * Examples: "source:en hello", "target:vi", "source:en target:zh translation"
+ * Examples: "source:en hello", "target:vi", "src:en tgt:zh translation"
  */
 export const searchHistory = async (query: string): Promise<HistoryEntry[]> => {
   const entries = await getHistory();
@@ -166,16 +166,16 @@ export const searchHistory = async (query: string): Promise<HistoryEntry[]> => {
   const searchTerm = remainingText.toLowerCase();
 
   // First, filter by operators
-  let filteredEntries = entries.filter((entry) => {
+  const filteredEntries = entries.filter((entry) => {
     const { translation } = entry;
 
     // Check search operators
     for (const operator of operators) {
-      if (operator.type === "source") {
+      if (operator.type === "source" || operator.type === "src") {
         if (translation.source_language_code.toLowerCase() !== operator.value) {
           return false;
         }
-      } else if (operator.type === "target") {
+      } else if (operator.type === "target" || operator.type === "tgt") {
         if (
           translation.translated_language_code.toLowerCase() !== operator.value
         ) {

@@ -7,7 +7,11 @@ import {
 import { HistoryEntry } from "@/types";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import {
+  useNavigate,
+  type Location,
+  type NavigateOptions,
+} from "react-router-dom";
 import type { SortOrder } from "./components";
 import {
   HistoryBulkActions,
@@ -17,10 +21,14 @@ import {
   HistoryStorageInfo,
 } from "./components";
 
-export function HistoryScreen() {
+interface HistoryScreenProps {
+  location: Location;
+}
+
+export function HistoryScreen({ location }: HistoryScreenProps) {
   const navigate = useNavigate();
-  const location = useLocation();
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const lastLoadedSearchQuery = useRef<string | null>(null);
+  const appliedStatisticsSearchKey = useRef<string | null>(null);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [entries, setEntries] = useState<HistoryEntry[]>([]);
@@ -35,29 +43,35 @@ export function HistoryScreen() {
     historySize: string;
     historySizeUnit: string;
   } | null>(null);
-  const [shouldRestoreScroll, setShouldRestoreScroll] = useState(false);
-
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const isFromStatistics = (location.state as any)?.fromStatistics === true;
 
   const getSortedEntries = (entries: HistoryEntry[], sortBy: SortOrder) => {
-    const sorted = [...entries];
-    if (sortBy.startsWith("alphabet")) {
-      return sorted.sort((a, b) => {
+    const pinned = entries.filter((e) => e.pinnedAt);
+    const unpinned = entries.filter((e) => !e.pinnedAt);
+
+    const sortFn = (a: HistoryEntry, b: HistoryEntry) => {
+      if (sortBy.startsWith("alphabet")) {
         const compare = getDisplayText(a).primaryText.localeCompare(
           getDisplayText(b).primaryText,
           undefined,
           { sensitivity: "variant", numeric: true, ignorePunctuation: true },
         );
         return sortBy === "alphabet_asc" ? compare : -compare;
-      });
-    }
-
-    return sorted.sort((a, b) =>
-      sortBy === "date_desc"
+      }
+      return sortBy === "date_desc"
         ? b.timestamp - a.timestamp
-        : a.timestamp - b.timestamp,
+        : a.timestamp - b.timestamp;
+    };
+
+    // Pinned entries: sort by pinnedAt descending (latest pin first),
+    // then by the selected sort order as a tiebreaker.
+    pinned.sort(
+      (a, b) => (b.pinnedAt ?? 0) - (a.pinnedAt ?? 0) || sortFn(a, b),
     );
+    unpinned.sort(sortFn);
+
+    return [...pinned, ...unpinned];
   };
 
   const sortedEntries = getSortedEntries(entries, sortBy);
@@ -66,41 +80,22 @@ export function HistoryScreen() {
     const state = location.state as {
       searchQueryForStatistics?: string;
     } | null;
-    if (state?.searchQueryForStatistics) {
+    if (
+      state?.searchQueryForStatistics &&
+      appliedStatisticsSearchKey.current !== location.key
+    ) {
+      appliedStatisticsSearchKey.current = location.key;
       setSearchQuery(state.searchQueryForStatistics);
-      window.history.replaceState({}, document.title);
     }
-  }, [location.state]);
+  }, [location.key, location.state]);
 
   useEffect(() => {
-    const savedSearchQuery = sessionStorage.getItem("historyScreenSearchQuery");
+    if (lastLoadedSearchQuery.current === debouncedSearchQuery) return;
 
-    if (savedSearchQuery) {
-      setSearchQuery(savedSearchQuery);
-      sessionStorage.removeItem("historyScreenSearchQuery");
-    }
-  }, []);
-
-  useEffect(() => {
+    lastLoadedSearchQuery.current = debouncedSearchQuery;
     setSelectedEntries(new Set());
     displayResultedEntry();
   }, [debouncedSearchQuery]);
-
-  useEffect(() => {
-    if (!shouldRestoreScroll) return;
-
-    const savedScrollPosition = sessionStorage.getItem(
-      "historyScreenScrollPosition",
-    );
-    setTimeout(() => {
-      if (savedScrollPosition && scrollContainerRef.current) {
-        const scrollTop = parseInt(savedScrollPosition, 10);
-        scrollContainerRef.current.scrollTop = scrollTop;
-        sessionStorage.removeItem("historyScreenScrollPosition");
-      }
-    }, 300);
-    setShouldRestoreScroll(false);
-  }, [shouldRestoreScroll]);
 
   // Handle Ctrl + A to select all entries
   useEffect(() => {
@@ -129,7 +124,6 @@ export function HistoryScreen() {
     try {
       const historyEntries = await searchHistory(debouncedSearchQuery);
       setEntries(historyEntries);
-      setShouldRestoreScroll(true);
 
       const stats = getHistoryEntryStatistics(historyEntries);
       setHistoryEntryStats(stats);
@@ -141,24 +135,33 @@ export function HistoryScreen() {
     }
   };
 
-  const saveScrollPosition = () => {
-    if (scrollContainerRef.current) {
-      sessionStorage.setItem(
-        "historyScreenScrollPosition",
-        scrollContainerRef.current.scrollTop.toString(),
-      );
+  // Re-fetch entries silently (no loading spinner) to keep the list
+  // mounted and preserve the current scroll position.
+  const silentRefreshEntries = async () => {
+    try {
+      const historyEntries = await searchHistory(debouncedSearchQuery);
+      setEntries(historyEntries);
+
+      const stats = getHistoryEntryStatistics(historyEntries);
+      setHistoryEntryStats(stats);
+    } catch (error) {
+      console.error("Failed to refresh history:", error);
     }
   };
 
-  const savePreviousStates = () => {
-    saveScrollPosition();
-    if (searchQuery) {
-      sessionStorage.setItem("historyScreenSearchQuery", searchQuery);
-    }
+  // Optimistically remove an entry from local state so the list
+  // updates instantly without unmounting/remounting.
+  const handleEntriesRemoved = (removedIds: string[]) => {
+    const removedSet = new Set(removedIds);
+    setEntries((prev) => {
+      const next = prev.filter((e) => !removedSet.has(e.id));
+      const stats = getHistoryEntryStatistics(next);
+      setHistoryEntryStats(stats);
+      return next;
+    });
   };
 
-  const customNavigate = (path: string, options?: any) => {
-    savePreviousStates();
+  const customNavigate = (path: string, options?: NavigateOptions) => {
     navigate(path, options);
   };
 
@@ -189,7 +192,6 @@ export function HistoryScreen() {
 
   return (
     <div
-      ref={scrollContainerRef}
       className="animate-slide-in-right h-full w-full overflow-y-auto bg-linear-to-br from-indigo-50 to-purple-50 transition-colors duration-300 select-none dark:from-gray-900 dark:to-slate-900 dark:text-slate-300"
     >
       <HistoryHeader
@@ -222,11 +224,16 @@ export function HistoryScreen() {
         selectedEntries={selectedEntries}
         totalCount={entries.length}
         onSelectAll={handleSelectAll}
-        onDeleted={() => {
+        onDeleted={(deletedIds) => {
           setSelectedEntries(new Set());
-          displayResultedEntry();
+          if (deletedIds) {
+            handleEntriesRemoved(deletedIds);
+          } else {
+            // Full clear — no ids provided
+            setEntries([]);
+            setHistoryEntryStats(null);
+          }
         }}
-        onBeforeAction={saveScrollPosition}
       />
 
       {!isLoading && (
@@ -236,8 +243,8 @@ export function HistoryScreen() {
           setSelectedEntries={setSelectedEntries}
           searchQuery={searchQuery}
           isLoading={isLoading}
-          onBeforeAction={saveScrollPosition}
-          onEntryModified={displayResultedEntry}
+          onEntryRemoved={handleEntriesRemoved}
+          onEntryModified={silentRefreshEntries}
           onLanguageBadgeClick={handleLanguageBadgeClick}
           customNavigate={customNavigate}
         />
@@ -250,7 +257,7 @@ export function HistoryScreen() {
           setSelectedEntries={setSelectedEntries}
           searchQuery={""}
           isLoading={true}
-          onBeforeAction={() => {}}
+          onEntryRemoved={() => {}}
           onEntryModified={() => {}}
           onLanguageBadgeClick={() => {}}
           customNavigate={() => {}}
