@@ -1,4 +1,14 @@
+<p align="center">
+   <img src="examples\hero-banner.png" alt="VibeLex is the app for quick translations for selected text on web pages" />
+</p>
+
+<p align="center">
+   <a href="https://deepwiki.com/m0nters/vibelex"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki"></a>
+</p>
+
 # VibeLex - A Dictionary Extension
+
+---
 
 A Chrome extension that provides instant translation using Google's Gemini AI when you select text on any webpage.
 
