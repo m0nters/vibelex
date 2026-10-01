@@ -71,19 +71,12 @@ A Chrome extension that provides instant translation using Google's Gemini AI wh
 
 ## Installation
 
-### 1. Download the Extension
+### Install from the Chrome Web Store
 
-- Navigate to the **Releases** page and download the latest `.zip` file.
-- Extract the contents of the `.zip` file to a folder on your computer.
+1. Open the [VibeLex Chrome Web Store listing](https://chromewebstore.google.com/detail/vibelex/cggoopngfemgjnokohjbomendhifbmlj).
+2. Click **Add to Chrome** and confirm the installation.
 
-### 2. Install in Chrome
-
-1. Open Chrome and go to `chrome://extensions/`
-2. Enable "Developer mode" (toggle in top right)
-3. Click "Load unpacked"
-4. Select the `dist` folder from this project
-
-### 3. Configure API Key
+### Configure your API key
 
 Before you can use the extension, you need to provide a Google Gemini API key:
 
