@@ -8,8 +8,6 @@
 
 # VibeLex - A Dictionary Extension
 
----
-
 A Chrome extension that provides instant translation using Google's Gemini AI when you select text on any webpage.
 
 ## Screenshots
@@ -71,12 +69,12 @@ A Chrome extension that provides instant translation using Google's Gemini AI wh
 
 ## Installation
 
-### Install from the Chrome Web Store
+### 1. Install from the Chrome Web Store
 
 1. Open the [VibeLex Chrome Web Store listing](https://chromewebstore.google.com/detail/vibelex/cggoopngfemgjnokohjbomendhifbmlj).
 2. Click **Add to Chrome** and confirm the installation.
 
-### Configure your API key
+### 2. Configure your API key
 
 Before you can use the extension, you need to provide a Google Gemini API key:
 
