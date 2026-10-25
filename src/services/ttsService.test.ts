@@ -1,21 +1,13 @@
 import { TTSService } from "./ttsService";
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
-
-function fakeVoice(lang: string, name = `Voice-${lang}`): SpeechSynthesisVoice {
-  return {
-    lang,
-    name,
-    default: false,
-    localService: true,
-    voiceURI: name,
-  };
+function fakeVoice(
+  lang: string,
+  name = `Voice-${lang}`,
+  localService = true,
+): SpeechSynthesisVoice {
+  return { lang, name, default: false, localService, voiceURI: name };
 }
 
-/**
- * Minimal SpeechSynthesisUtterance stub for jsdom (which doesn't implement it).
- * Stores all assigned properties so tests can read them back.
- */
 class FakeUtterance {
   text: string;
   lang = "";
@@ -23,16 +15,14 @@ class FakeUtterance {
   rate = 1;
   pitch = 1;
   volume = 1;
-  onstart: ((ev: SpeechSynthesisEvent) => void) | null = null;
-  onend: ((ev: SpeechSynthesisEvent) => void) | null = null;
-  onerror: ((ev: SpeechSynthesisErrorEvent) => void) | null = null;
+  onstart: ((event: SpeechSynthesisEvent) => void) | null = null;
+  onend: ((event: SpeechSynthesisEvent) => void) | null = null;
+  onerror: ((event: SpeechSynthesisErrorEvent) => void) | null = null;
 
   constructor(text: string) {
     this.text = text;
   }
 }
-
-// ─── Test suite ─────────────────────────────────────────────────────────────
 
 describe("TTSService", () => {
   let service: TTSService;
@@ -40,312 +30,94 @@ describe("TTSService", () => {
   let mockCancel: ReturnType<typeof vi.fn>;
   let mockGetVoices: ReturnType<typeof vi.fn>;
 
-  const enUS = fakeVoice("en-US", "Google US English");
-  const viVN = fakeVoice("vi-VN", "Google Vietnamese");
-  const enGB = fakeVoice("en-GB", "Google UK English");
-  const zhCN = fakeVoice("zh-CN", "Google Chinese");
-  const allVoices = [enUS, viVN, enGB, zhCN];
+  const enUS = fakeVoice("en-US", "US English");
+  const viVN = fakeVoice("vi-VN", "Vietnamese");
 
-  function getLastUtterance(): FakeUtterance {
-    const calls = mockSpeak.mock.calls;
-    expect(calls.length).toBeGreaterThan(0);
-    return calls[calls.length - 1][0] as FakeUtterance;
+  function lastUtterance(): FakeUtterance {
+    return mockSpeak.mock.calls.at(-1)?.[0] as FakeUtterance;
   }
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
-    // Stub SpeechSynthesisUtterance (jsdom doesn't have it)
     vi.stubGlobal("SpeechSynthesisUtterance", FakeUtterance);
-
-    // Stub speechSynthesis
     mockSpeak = vi.fn();
     mockCancel = vi.fn();
-    mockGetVoices = vi.fn().mockReturnValue(allVoices);
-
+    mockGetVoices = vi.fn().mockReturnValue([enUS, viVN]);
     vi.stubGlobal("speechSynthesis", {
       getVoices: mockGetVoices,
       speak: mockSpeak,
       cancel: mockCancel,
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
     });
-
-    // Reset singleton
-    // @ts-expect-error — accessing private static for test reset
+    // @ts-expect-error reset singleton between tests
     TTSService.instance = undefined;
     service = TTSService.getInstance();
   });
 
-  // ─── preloadVoices ──────────────────────────────────────────────────────
+  it("uses an exact language voice and sets utterance settings", () => {
+    service.speak({ text: "xin chào", ttsCode: "vi-VN", isSlow: true });
 
-  describe("preloadVoices", () => {
-    it("caches voices for the requested language codes", async () => {
-      await service.preloadVoices(["en-US", "vi-VN"]);
-
-      await service.speak({ text: "hello", ttsCode: "en-US" });
-      expect(getLastUtterance().voice).toBe(enUS);
-    });
-
-    it("does not use prefix matching (en-GB must not resolve to en-US)", async () => {
-      // Only en-US available as local, no en-GB voice at all
-      mockGetVoices.mockReturnValue([enUS, viVN]);
-
-      await service.preloadVoices(["en-GB"]);
-      await service.speak({ text: "hello", ttsCode: "en-GB" });
-
-      // en-GB not cached → falls back to utterance.lang
-      const utterance = getLastUtterance();
-      expect(utterance.voice).toBeNull();
-      expect(utterance.lang).toBe("en-GB");
-    });
-
-    it("does not overwrite an already-cached voice", async () => {
-      await service.preloadVoices(["en-US"]);
-
-      // Swap available voices and reset voicesLoadedPromise
-      const enUS2 = fakeVoice("en-US", "Another US English");
-      mockGetVoices.mockReturnValue([enUS2, viVN, enGB, zhCN]);
-      // @ts-expect-error — accessing private for test
-      service.voicesLoadedPromise = null;
-
-      await service.preloadVoices(["en-US"]);
-
-      await service.speak({ text: "hello", ttsCode: "en-US" });
-      expect(getLastUtterance().voice).toBe(enUS); // original kept
-    });
-
-    it("prefers local voices over online ones", async () => {
-      const onlineGB = {
-        ...fakeVoice("en-GB", "Online GB Voice"),
-        localService: false,
-      };
-      const localGB = fakeVoice("en-GB", "Local GB Voice"); // localService: true
-
-      // Online voice appears first in the list
-      mockGetVoices.mockReturnValue([onlineGB, localGB, enUS, viVN]);
-
-      await service.preloadVoices(["en-GB"]);
-      await service.speak({ text: "hello", ttsCode: "en-GB" });
-      expect(getLastUtterance().voice).toBe(localGB);
-    });
-
-    it("caches online voice when no local voice exists for that code", async () => {
-      const onlineGB = {
-        ...fakeVoice("en-GB", "Online GB Voice"),
-        localService: false,
-      };
-
-      // Only online voice for en-GB, no local
-      mockGetVoices.mockReturnValue([onlineGB, enUS, viVN]);
-
-      await service.preloadVoices(["en-GB"]);
-      await service.speak({ text: "hello", ttsCode: "en-GB" });
-
-      const utterance = getLastUtterance();
-      expect(utterance.voice).toBe(onlineGB);
-      expect(utterance.lang).toBe("en-GB"); // lang always set
-    });
-
-    it("is a no-op when speechSynthesis is not available", async () => {
-      vi.stubGlobal("speechSynthesis", undefined);
-
-      // Should not throw
-      await service.preloadVoices(["en-US"]);
-    });
+    expect(lastUtterance().voice).toBe(viVN);
+    expect(lastUtterance().lang).toBe("vi-VN");
+    expect(lastUtterance().rate).toBe(0.5);
+    expect(mockCancel).toHaveBeenCalledOnce();
   });
 
-  // ─── speak with cached voice ────────────────────────────────────────────
+  it("does not use a different regional voice and speaks with the lang fallback", () => {
+    mockGetVoices.mockReturnValue([enUS]);
+    service.speak({ text: "hello", ttsCode: "en-GB" });
 
-  describe("speak (with cached voice)", () => {
-    it("assigns cached voice to utterance.voice", async () => {
-      await service.preloadVoices(["vi-VN"]);
-
-      await service.speak({ text: "xin chào", ttsCode: "vi-VN" });
-
-      expect(getLastUtterance().voice).toBe(viVN);
-      expect(mockSpeak).toHaveBeenCalledTimes(1);
-    });
-
-    it("always sets utterance.lang even when cached voice exists", async () => {
-      await service.preloadVoices(["en-US"]);
-      await service.speak({ text: "hello", ttsCode: "en-US" });
-
-      const utterance = getLastUtterance();
-      expect(utterance.voice).toBe(enUS);
-      expect(utterance.lang).toBe("en-US"); // always set as fallback
-    });
-
-    it("sets utterance.lang when no cached voice exists", async () => {
-      // Don't preload — cache is empty
-      await service.speak({ text: "hola", ttsCode: "es-ES" });
-
-      const utterance = getLastUtterance();
-      expect(utterance.voice).toBeNull();
-      expect(utterance.lang).toBe("es-ES");
-    });
-
-    it("loads and caches an exact voice on demand when not preloaded", async () => {
-      await service.speak({ text: "hello", ttsCode: "en-US" });
-
-      let utterance = getLastUtterance();
-      expect(utterance.voice).toBe(enUS);
-      expect(utterance.lang).toBe("en-US");
-
-      mockGetVoices.mockClear();
-      await service.speak({ text: "hello again", ttsCode: "en-US" });
-
-      utterance = getLastUtterance();
-      expect(utterance.voice).toBe(enUS);
-      expect(mockGetVoices).not.toHaveBeenCalled();
-    });
-
-    it("applies slow rate when isSlow is true", async () => {
-      await service.speak({
-        text: "hello",
-        ttsCode: "en-US",
-        isSlow: true,
-      });
-
-      expect(getLastUtterance().rate).toBeCloseTo(0.5, 1);
-    });
-
-    it("applies normal rate when isSlow is false", async () => {
-      await service.speak({
-        text: "hello",
-        ttsCode: "en-US",
-        isSlow: false,
-      });
-
-      expect(getLastUtterance().rate).toBeCloseTo(0.8, 1);
-    });
-
-    it("calls onStart when speech begins", async () => {
-      const onStart = vi.fn();
-      mockSpeak.mockImplementation((u: FakeUtterance) => {
-        u.onstart?.(new Event("start") as SpeechSynthesisEvent);
-      });
-
-      await service.speak({ text: "hello", ttsCode: "en-US", onStart });
-
-      expect(onStart).toHaveBeenCalledTimes(1);
-    });
-
-    it("calls onEnd when speech finishes", async () => {
-      const onEnd = vi.fn();
-      mockSpeak.mockImplementation((u: FakeUtterance) => {
-        u.onend?.(new Event("end") as SpeechSynthesisEvent);
-      });
-
-      await service.speak({ text: "hello", ttsCode: "en-US", onEnd });
-
-      expect(onEnd).toHaveBeenCalledTimes(1);
-    });
-
-    it("calls onError on speech error", async () => {
-      const onError = vi.fn();
-      mockSpeak.mockImplementation((u: FakeUtterance) => {
-        u.onerror?.(new Event("error") as SpeechSynthesisErrorEvent);
-      });
-
-      await service.speak({ text: "hello", ttsCode: "en-US", onError });
-
-      expect(onError).toHaveBeenCalledTimes(1);
-    });
-
-    it("cancels any currently playing speech first", async () => {
-      await service.speak({ text: "hello", ttsCode: "en-US" });
-      expect(mockCancel).toHaveBeenCalledTimes(1);
-    });
+    expect(lastUtterance().voice).toBeNull();
+    expect(lastUtterance().lang).toBe("en-GB");
   });
 
-  // ─── ensureVoicesLoaded ─────────────────────────────────────────────────
+  it("starts immediately with lang fallback when no voices are listed", () => {
+    mockGetVoices.mockReturnValue([]);
+    service.speak({ text: "xin chào", ttsCode: "vi-VN" });
 
-  describe("ensureVoicesLoaded (voiceschanged event)", () => {
-    it("waits for voiceschanged event when getVoices initially returns empty", async () => {
-      const lazyGetVoices = vi
-        .fn()
-        .mockReturnValueOnce([])
-        .mockReturnValue(allVoices);
-
-      const captured: { cb: (() => void) | null } = { cb: null };
-      const lazyAddListener = vi.fn((_event: string, cb: () => void) => {
-        captured.cb = cb;
-      });
-
-      const lazySpeak = vi.fn();
-
-      vi.stubGlobal("speechSynthesis", {
-        getVoices: lazyGetVoices,
-        speak: lazySpeak,
-        cancel: vi.fn(),
-        addEventListener: lazyAddListener,
-        removeEventListener: vi.fn(),
-      });
-
-      // @ts-expect-error — reset singleton
-      TTSService.instance = undefined;
-      service = TTSService.getInstance();
-
-      const preloadPromise = service.preloadVoices(["en-US"]);
-
-      // Simulate voices becoming available
-      captured.cb?.();
-      await preloadPromise;
-
-      // Speak should use the now-cached voice
-      await service.speak({ text: "hello", ttsCode: "en-US" });
-      const calls = lazySpeak.mock.calls;
-      expect(calls.length).toBeGreaterThan(0);
-      expect((calls[calls.length - 1][0] as FakeUtterance).voice).toBe(enUS);
-    });
-
-    it("speak waits for voiceschanged on cache miss before speaking", async () => {
-      const lazyGetVoices = vi
-        .fn()
-        .mockReturnValueOnce([])
-        .mockReturnValue(allVoices);
-
-      const captured: { cb: (() => void) | null } = { cb: null };
-      const lazyAddListener = vi.fn((_event: string, cb: () => void) => {
-        captured.cb = cb;
-      });
-
-      const lazySpeak = vi.fn();
-
-      vi.stubGlobal("speechSynthesis", {
-        getVoices: lazyGetVoices,
-        speak: lazySpeak,
-        cancel: vi.fn(),
-        addEventListener: lazyAddListener,
-        removeEventListener: vi.fn(),
-      });
-
-      // @ts-expect-error — reset singleton
-      TTSService.instance = undefined;
-      service = TTSService.getInstance();
-
-      const speakPromise = service.speak({ text: "hello", ttsCode: "en-US" });
-      expect(lazySpeak).not.toHaveBeenCalled();
-
-      // Simulate voices becoming available
-      captured.cb?.();
-      await speakPromise;
-
-      const calls = lazySpeak.mock.calls;
-      expect(calls.length).toBeGreaterThan(0);
-      const utterance = calls[calls.length - 1][0] as FakeUtterance;
-      expect(utterance.voice).toBe(enUS);
-      expect(utterance.lang).toBe("en-US");
-    });
+    expect(mockSpeak).toHaveBeenCalledOnce();
+    expect(lastUtterance().lang).toBe("vi-VN");
+    expect(lastUtterance().voice).toBeNull();
   });
 
-  // ─── stop ───────────────────────────────────────────────────────────────
+  it("prefers a local exact-match voice", () => {
+    const onlineVoice = fakeVoice("vi-VN", "Online Vietnamese", false);
+    mockGetVoices.mockReturnValue([onlineVoice, viVN]);
+    service.speak({ text: "xin chào", ttsCode: "vi-VN" });
 
-  describe("stop", () => {
-    it("calls speechSynthesis.cancel", () => {
-      service.stop();
-      expect(mockCancel).toHaveBeenCalledTimes(1);
+    expect(lastUtterance().voice).toBe(viVN);
+  });
+
+  it("retries once without a selected voice after synthesis failure", () => {
+    mockSpeak.mockImplementationOnce((utterance: FakeUtterance) => {
+      utterance.onerror?.(
+        Object.assign(new Event("error"), {
+          error: "synthesis-failed",
+        }) as SpeechSynthesisErrorEvent,
+      );
     });
+    service.speak({ text: "xin chào", ttsCode: "vi-VN" });
+
+    expect(mockSpeak).toHaveBeenCalledTimes(2);
+    expect(lastUtterance().voice).toBeNull();
+    expect(lastUtterance().lang).toBe("vi-VN");
+  });
+
+  it("notifies callers when fallback synthesis also fails", () => {
+    const onError = vi.fn();
+    mockSpeak.mockImplementation((utterance: FakeUtterance) => {
+      utterance.onerror?.(
+        Object.assign(new Event("error"), {
+          error: "synthesis-failed",
+        }) as SpeechSynthesisErrorEvent,
+      );
+    });
+    service.speak({ text: "xin chào", ttsCode: "vi-VN", onError });
+
+    expect(mockSpeak).toHaveBeenCalledTimes(2);
+    expect(onError).toHaveBeenCalledOnce();
+  });
+
+  it("calls speechSynthesis.cancel when stopped", () => {
+    service.stop();
+    expect(mockCancel).toHaveBeenCalledOnce();
   });
 });

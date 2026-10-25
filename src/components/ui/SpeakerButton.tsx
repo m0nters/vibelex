@@ -28,30 +28,25 @@ export function SpeakerButton({
     return () => ttsService.stop();
   }, []);
 
-  const handleSpeak = async () => {
+  const handleSpeak = () => {
     if (isPlaying) {
       // If currently playing, stop the speech
       ttsService.stop();
       setIsPlaying(false);
     } else {
       // If not playing, start speech
-      try {
-        await ttsService.speak({
-          text: word,
-          ttsCode,
-          isSlow: isSpeakingSlow.current,
-          onStart: () => setIsPlaying(true),
-          onEnd: () => setIsPlaying(false),
-          onError: (error) => {
-            console.error("TTS error:", error);
-            setIsPlaying(false);
-          },
-        });
-        isSpeakingSlow.current = !isSpeakingSlow.current;
-      } catch (error) {
-        console.error("TTS error:", error);
-        setIsPlaying(false);
-      }
+      ttsService.speak({
+        text: word,
+        ttsCode,
+        isSlow: isSpeakingSlow.current,
+        onStart: () => setIsPlaying(true),
+        onEnd: () => setIsPlaying(false),
+        onError: (error) => {
+          console.error("TTS error:", error);
+          setIsPlaying(false);
+        },
+      });
+      isSpeakingSlow.current = !isSpeakingSlow.current;
     }
   };
 
