@@ -1,0 +1,230 @@
+name: Chrome Web Store
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+    paths:
+      - public/manifest.json
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: Build extension package
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+      should_publish: ${{ steps.release.outputs.should_publish }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and check
+        run: |
+          npm run build
+          npm run lint
+
+      - name: Detect manifest version change
+        if: github.event_name == 'push'
+        id: release
+        env:
+          PREVIOUS_SHA: ${{ github.event.before }}
+          CURRENT_SHA: ${{ github.sha }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { appendFileSync, readFileSync } from "node:fs";
+          import { execFileSync } from "node:child_process";
+
+          const { PREVIOUS_SHA: previousSha, CURRENT_SHA: currentSha } = process.env;
+          if (!previousSha || /^0+$/.test(previousSha)) {
+            throw new Error("Cannot determine the previous main commit to compare manifest versions.");
+          }
+
+          const readManifestAt = (revision) => JSON.parse(
+            execFileSync("git", ["show", `${revision}:public/manifest.json`], { encoding: "utf8" }),
+          );
+          const previousVersion = readManifestAt(previousSha).version;
+          const sourceVersion = readManifestAt(currentSha).version;
+          const builtVersion = JSON.parse(readFileSync("dist/manifest.json", "utf8")).version;
+
+          const parseVersion = (version) => {
+            if (typeof version !== "string" || !/^\d+(?:\.\d+){0,3}$/.test(version)) {
+              throw new Error(`Invalid Chrome extension manifest version: ${version}`);
+            }
+            return version.split(".").map(Number);
+          };
+          const compareVersions = (left, right) => {
+            const maxLength = Math.max(left.length, right.length);
+            for (let index = 0; index < maxLength; index += 1) {
+              const difference = (left[index] ?? 0) - (right[index] ?? 0);
+              if (difference !== 0) return Math.sign(difference);
+            }
+            return 0;
+          };
+
+          if (sourceVersion !== builtVersion) {
+            throw new Error(`Built manifest version ${builtVersion} does not match source version ${sourceVersion}`);
+          }
+
+          const previous = parseVersion(previousVersion);
+          const current = parseVersion(builtVersion);
+          const shouldPublish = compareVersions(current, previous) > 0;
+          if (builtVersion !== previousVersion && !shouldPublish) {
+            throw new Error(`Manifest version ${builtVersion} must be greater than previous version ${previousVersion}`);
+          }
+
+          console.log(`Previous version: ${previousVersion}; current version: ${builtVersion}`);
+          console.log(shouldPublish ? "Version increased; this commit will be published." : "Version unchanged; skipping store upload.");
+          appendFileSync(process.env.GITHUB_OUTPUT, `version=${builtVersion}\nshould_publish=${shouldPublish}\n`);
+          NODE
+
+      - name: Create Chrome Web Store ZIP
+        if: github.event_name == 'push' && steps.release.outputs.should_publish == 'true'
+        env:
+          RELEASE_VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          cd dist
+          zip -qr "../vibelex-${RELEASE_VERSION}.zip" .
+          cd ..
+          sha256sum "vibelex-${RELEASE_VERSION}.zip" > "vibelex-${RELEASE_VERSION}.zip.sha256"
+
+      - name: Save release package
+        if: github.event_name == 'push' && steps.release.outputs.should_publish == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: vibelex-${{ steps.release.outputs.version }}
+          path: |
+            vibelex-${{ steps.release.outputs.version }}.zip
+            vibelex-${{ steps.release.outputs.version }}.zip.sha256
+          if-no-files-found: error
+          retention-days: 30
+
+  publish:
+    name: Submit package to Chrome Web Store
+    if: github.event_name == 'push' && needs.package.outputs.should_publish == 'true'
+    needs: package
+    runs-on: ubuntu-latest
+    environment:
+      name: chrome-web-store
+    concurrency:
+      group: chrome-web-store-publish
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Download release package
+        uses: actions/download-artifact@v8
+        with:
+          name: vibelex-${{ needs.package.outputs.version }}
+          path: release
+
+      - name: Authenticate to Google Cloud with GitHub OIDC
+        id: auth
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/chromewebstore
+
+      - name: Upload package
+        env:
+          ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+          CWS_PUBLISHER_ID: ${{ vars.CWS_PUBLISHER_ID }}
+          CWS_EXTENSION_ID: ${{ vars.CWS_EXTENSION_ID }}
+          ZIP_PATH: release/vibelex-${{ needs.package.outputs.version }}.zip
+        run: |
+          set -euo pipefail
+          : "${CWS_PUBLISHER_ID:?Set CWS_PUBLISHER_ID in the chrome-web-store environment}"
+          : "${CWS_EXTENSION_ID:?Set CWS_EXTENSION_ID in the chrome-web-store environment}"
+          : "${ACCESS_TOKEN:?Google authentication did not return an access token}"
+          : "${ZIP_PATH:?Release ZIP path was not set}"
+          test -f "$ZIP_PATH"
+
+          upload_response="$(curl --fail-with-body --silent --show-error \
+            --request POST \
+            --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+            --header "Content-Type: application/zip" \
+            --data-binary "@${ZIP_PATH}" \
+            "https://chromewebstore.googleapis.com/upload/v2/publishers/${CWS_PUBLISHER_ID}/items/${CWS_EXTENSION_ID}:upload")"
+          printf '%s\n' "$upload_response"
+
+          upload_state="$(node -e 'process.stdout.write(JSON.parse(require("node:fs").readFileSync(0, "utf8")).uploadState ?? "")' <<<"$upload_response")"
+          case "$upload_state" in
+            SUCCEEDED)
+              ;;
+            IN_PROGRESS|UPLOAD_IN_PROGRESS)
+              for attempt in $(seq 1 60); do
+                sleep 5
+                status_response="$(curl --fail-with-body --silent --show-error \
+                  --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+                  "https://chromewebstore.googleapis.com/v2/publishers/${CWS_PUBLISHER_ID}/items/${CWS_EXTENSION_ID}:fetchStatus")"
+                upload_state="$(node -e 'process.stdout.write(JSON.parse(require("node:fs").readFileSync(0, "utf8")).lastAsyncUploadState ?? "")' <<<"$status_response")"
+                echo "Chrome Web Store package upload status: ${upload_state:-still processing} (${attempt}/60)"
+
+                case "$upload_state" in
+                  SUCCEEDED) break ;;
+                  IN_PROGRESS|UPLOAD_IN_PROGRESS|"") ;;
+                  FAILED)
+                    echo "Chrome Web Store reported that the package upload failed."
+                    exit 1
+                    ;;
+                  *)
+                    echo "Unexpected Chrome Web Store upload state: $upload_state"
+                    exit 1
+                    ;;
+                esac
+              done
+
+              if [[ "$upload_state" != "SUCCEEDED" ]]; then
+                echo "Chrome Web Store package upload did not finish within five minutes."
+                exit 1
+              fi
+              ;;
+            FAILED)
+              echo "Chrome Web Store reported that the package upload failed."
+              exit 1
+              ;;
+            *)
+              echo "Unexpected Chrome Web Store upload state: ${upload_state:-missing}"
+              exit 1
+              ;;
+          esac
+
+      - name: Submit for Chrome Web Store review
+        env:
+          ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+          CWS_PUBLISHER_ID: ${{ vars.CWS_PUBLISHER_ID }}
+          CWS_EXTENSION_ID: ${{ vars.CWS_EXTENSION_ID }}
+        run: |
+          set -euo pipefail
+          : "${ACCESS_TOKEN:?Google authentication did not return an access token}"
+          : "${CWS_PUBLISHER_ID:?Set CWS_PUBLISHER_ID in the chrome-web-store environment}"
+          : "${CWS_EXTENSION_ID:?Set CWS_EXTENSION_ID in the chrome-web-store environment}"
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --header "Authorization: Bearer ${ACCESS_TOKEN}" \
+            "https://chromewebstore.googleapis.com/v2/publishers/${CWS_PUBLISHER_ID}/items/${CWS_EXTENSION_ID}:publish"
