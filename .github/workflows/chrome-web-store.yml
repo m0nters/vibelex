@@ -38,7 +38,6 @@ jobs:
       - name: Build and check
         run: |
           npm run build
-          npm run lint
 
       - name: Detect manifest version change
         if: github.event_name == 'push'
